@@ -43,7 +43,9 @@ class MyNames:
 
         If the name ID is not a valid index into the names list, return None.
         """
-        if 0 <= name_id <= len(self.names) - 1:
+        if name_id < 0: # I think from the test file it wants us to raise a value error when a negative value was passed - PP
+            raise ValueError
+        if name_id <= len(self.names) - 1:
             return self.names[name_id]
         else:
             return None
