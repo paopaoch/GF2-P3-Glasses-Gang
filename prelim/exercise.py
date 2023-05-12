@@ -168,8 +168,8 @@ def main():
         name, char = get_next_name(fo)
 
         name_table = MyNames()
-        bad_name_ids = [name.lookup("Terrible"), name.lookup("Horrid"),
-                        name.lookup("Ghastly"), name.lookup("Awful")]
+        bad_name_ids = [name_table.lookup("Terrible"), name_table.lookup("Horrid"),
+                        name_table.lookup("Ghastly"), name_table.lookup("Awful")]
         
         while name is not None:
             name_id = name_table.lookup(name)
