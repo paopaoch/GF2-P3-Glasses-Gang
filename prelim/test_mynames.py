@@ -24,7 +24,6 @@ def used_names(name_string_list):
         my_name.lookup(name)
     return my_name
 
-
 def test_get_string_raises_exceptions(used_names):
     """Test if get_string raises expected exceptions."""
     with pytest.raises(TypeError):
@@ -47,3 +46,18 @@ def test_get_string(used_names, new_names, name_id, expected_string):
     assert used_names.get_string(name_id) == expected_string
     # Name is absent
     assert new_names.get_string(name_id) is None
+
+
+@pytest.mark.parametrize("name_id, expected_string", [
+    (0, "Alice"),
+    (1, "Bob"),
+    (2, "Eve"),
+    (3, None)
+])
+def test_lookup(used_names, new_names, name_id, expected_string):
+    # look up present names
+    assert used_names.lookup(expected_string) == name_id
+    # look up absent names
+    assert new_names.lookup(expected_string) == len(new_names.names)-1
+    
+        

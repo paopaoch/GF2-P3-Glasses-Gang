@@ -100,13 +100,13 @@ def main():
 
     # Check command line arguments
     arguments = sys.argv[1:]
-    path = sys.argv[1]
 
     if len(arguments) != 1:
         print("Error! One command line argument is required.")
         sys.exit()
 
     else: 
+        path = sys.argv[1]
         print("\nNow opening file...")
         # Print the path provided and try to open the file for reading
         print(path)
