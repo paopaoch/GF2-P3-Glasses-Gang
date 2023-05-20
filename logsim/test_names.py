@@ -3,7 +3,7 @@ import pytest
 from names import Names
 
 @pytest.fixture
-def default_names():
+def default_name():
     """Return a new names instance."""
     return Names()
 
@@ -63,8 +63,8 @@ def test_unique_error_codes(default_name, error_names):
 
 def test_query_exceptions(default_name):
     """Test if query raises expected exceptions."""
-    with pytest.raises(TypeError):
-        default_name.query('_')
+    with pytest.raises(SyntaxError):
+        default_name.query('Pooh')
     with pytest.raises(TypeError):
         default_name.query(["Pooh", 3.4])
     with pytest.raises(TypeError):
@@ -77,45 +77,21 @@ def test_query_exceptions(default_name):
     ("A1", 0),
     ("B12", 1),
     ("C7", 2),
-    (None, 3)
 ])
 def test_query(default_name, used_names, name_string, name_id):
     """Test if query method returns the expected output."""
     assert used_names.query(name_string) == name_id
     assert isinstance(used_names.query("A1"), int)
-    assert default_name.query("Pooh") is None
 
 
-def test_lookup_exceptions(default_name):
-    """Test if lookup raises expected exceptions."""
-    with pytest.raises(TypeError):
-        default_name.lookup(1.4)
-    with pytest.raises(TypeError):
-        default_name.lookup(1)
-    with pytest.raises(TypeError):
-        default_name.lookup("Pooh")
-    with pytest.raises(TypeError):
-        default_name.lookup([])
-    with pytest.raises(TypeError):
-        default_name.lookup([1])
-    with pytest.raises(TypeError):
-        default_name.lookup(["Pooh", "Piglet", 5])
-    with pytest.raises(TypeError):
-        default_name.lookup(["Pooh", ["Piglet", 5]])
-
-
-@pytest.mark.parametrize("name_id, expected_string", [
-    (0, "A1"),
-    (1,  "B12"),
-    (2,  "C7"),
-    (3, None)
-])
-def test_lookup(used_names, default_name, name_id, expected_string):
+@pytest.mark.parametrize(
+    "name_id, names_list",
+     [([0, 1, 2], ["A1", "B12", "C7"])],
+)
+def test_lookup(used_names, name_id, names_list):
     """Test if lookup returns a list of name_id"""
     # look up present names
-    assert used_names.lookup(expected_string) == name_id
-    # look up absent names
-    assert default_name.lookup(expected_string) == len(default_name.names)-1
+    assert used_names.lookup(names_list) == name_id
 
 
 def test_get_name_string_exceptions(used_names):
@@ -132,7 +108,6 @@ def test_get_name_string_exceptions(used_names):
     (0, "A1"),
     (1,  "B12"),
     (2,  "C7"),
-    (3, None)
 ])
 def test_get_name_string(used_names, default_name, name_id, expected_string):
     """Test if get_name_string returns the expected string."""

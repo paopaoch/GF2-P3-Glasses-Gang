@@ -86,6 +86,13 @@ class Names:
         for name_string in name_string_list:
             if not isinstance(name_string, str):
                 raise TypeError("Each member of input list must be a string")
+            
+            if not name_string.isalnum():
+                raise SyntaxError("Each member of input list must be alphanumeric")
+            elif name_string.isdigit():
+                raise SyntaxError("Name string must contain an alphabet")
+            elif name_string.isalpha():
+                raise SyntaxError("Name string must contain a digit")
             if not name_string.isspace():
                 if name_string not in self.names:
                     self.names.append(name_string)
