@@ -47,6 +47,8 @@ class Names:
         """Return a list of unique integer error codes."""
         if not isinstance(num_error_codes, int):
             raise TypeError("Expected num_error_codes to be an integer.")
+        elif num_error_codes < 0:
+            raise ValueError("Expected num_error_codes to be positive.")    
         self.error_code_count += num_error_codes
         return range(self.error_code_count - num_error_codes,
                      self.error_code_count)
@@ -82,12 +84,15 @@ class Names:
         
         id_list = []
         for name_string in name_string_list:
-            if name_string not in self.names:
-                self.names.append(name_string)
-                id_list.append(self.names.index(name_string))
-            else:
-                id_list.append(self.names.index(name_string))
-            return id_list
+            if not isinstance(name_string, str):
+                raise TypeError("Each member of input list must be a string")
+            if not name_string.isspace():
+                if name_string not in self.names:
+                    self.names.append(name_string)
+                    id_list.append(self.names.index(name_string))
+                else:
+                    id_list.append(self.names.index(name_string))
+        return id_list
         
 
     def get_name_string(self, name_id):
@@ -96,10 +101,10 @@ class Names:
         If the name_id is not an index in the names list, return None.
         """
         if not isinstance(name_id, int):
-            return TypeError("Name ID must be an integer")
+            raise TypeError("Name ID must be an integer")
         
         if name_id < 0:
-            raise ValueError
+            raise ValueError("Name ID must be postitive")
         
         try:
             return self.names[name_id]
