@@ -84,13 +84,14 @@ class Parser:
         # For now just return True, so that userint and gui can run in the
         # skeleton code. When complete, should return False when there are
         # errors in the circuit definition file.
+        return True
 
         oututs = {}
         inputs = {}
         connections = {}
 
 
-        self.update_symbol(self)
+        self.update_symbol()
 
         if self.phase == None:
             if self.current_symbol.type == self.scanner.INIT:
@@ -98,20 +99,20 @@ class Parser:
             else:
                 raise SyntaxError("SYNTAX[Incomplete File]: Missing start mark") # Will have to change this
         
-        self.update_symbol(self)
+        self.update_symbol()
         if self.current_symbol.type != self.scanner.SEMICOLON:
             raise SyntaxError("SYNTAX[No Termination]: Missing termination mark")
         
         while self.phase == 1:
-            self.update_symbol(self)
+            self.update_symbol()
 
             # Deal with syntax error
             if self.previous_symbol.type == self.scanner.SEMICOLON:
                 current_sentence = " ".join(self.scanner.get_sentence())
                 syntax_error, sentence_type = self.check_sentence(current_sentence)
-                if  not syntax_error:
+                if  syntax_error:
                     error = self.classify_syntax_error(current_sentence)
-                    self.go_to_next_sentence(self)
+                    self.go_to_next_sentence()
                     continue
                     raise SyntaxError(error)
 
