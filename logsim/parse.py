@@ -13,7 +13,7 @@ from names import Names
 from network import Network
 from devices import Devices
 from monitors import Monitors
-from scanner import Symbol, Scanner
+from scanner import symbol, Scanner
 
 class Parser:
 
@@ -47,37 +47,12 @@ class Parser:
         self.network = network
         self.monitors = monitors
         self.scanner = scanner
+        self.phase = 0
+        self.symbol = None
 
-        self.phase = None  # Tells you which phase of parsing its in
-        self.current_symbol = None
-        self.previous_symbol = None
-
-
-    @staticmethod
-    def check_sentence(sentence: str):
-        """Primary check if there is a syntax error using regex
-        Returns False and the sentence type if the sentence does 
-        not have any syntax errors. True otherwise with None 
-        as sentence type."""
-        sentence_type = "init device"
-        return False, sentence_type
-
-
-    def classify_syntax_error(self, sentence: str):
-        """Check for the first syntax error in the sentence"""
-        pass
-        # 
-        # return self.error_type
-
-
-    def update_symbol(self):
-        self.previous_symbol = self.current_symbol
-        self.current_symbol = self.scanner.get_symbol()
-
-    def go_to_next_sentence(self):
-        while self.current_symbol != self.scanner.SEMICOLON:
-            self.update_symbol(self)
-
+    def go_to_next_sentece(self):
+        while self.symbol.type != self.scanner.SEMICOLON:
+            self.symbol = self.scanner.get_symbol(self)
 
     def parse_network(self):
         """Parse the circuit definition file."""
@@ -85,48 +60,73 @@ class Parser:
         # skeleton code. When complete, should return False when there are
         # errors in the circuit definition file.
         return True
+        expect_type = self.scanner.INIT  # tells you whehter the current char should be a ;
+        new_line = True  # Tells you if the current symbol is a start of a new line
+        self.symbol = self.scanner.get_symbol(self)
+        sentence_type = None
 
-        oututs = {}
-        inputs = {}
-        connections = {}
+        if self.symbol.type != expect_type:  # Check for INIT
+            print("SYNTAX[Incomplete File]: Missing start mark")
+        self.phase = 1
+        expect_type = self.scanner.SEMICOLON
+        new_line = False
+            
 
-
-        self.update_symbol()
-
-        if self.phase == None:
-            if self.current_symbol.type == self.scanner.INIT:
-                self.phase = 1
+        while self.symbol.type != self.scanner.EOF:
+            self.symbol = self.scanner.get_symbol(self)
+            
+            if expect_type == self.scanner.SEMICOLON and self.symbol.type != self.SEMICOLON:
+                print("SYNTAX[No Termination]: Missing termination mark")
             else:
-                raise SyntaxError("SYNTAX[Incomplete File]: Missing start mark") # Will have to change this
-        
-        self.update_symbol()
-        if self.current_symbol.type != self.scanner.SEMICOLON:
-            raise SyntaxError("SYNTAX[No Termination]: Missing termination mark")
-        
-        while self.phase == 1:
-            self.update_symbol()
+                expect_type = None
+                new_line = True
+                pass
 
-            # Deal with syntax error
-            if self.previous_symbol.type == self.scanner.SEMICOLON:
-                current_sentence = " ".join(self.scanner.get_sentence())
-                syntax_error, sentence_type = self.check_sentence(current_sentence)
-                if  syntax_error:
-                    error = self.classify_syntax_error(current_sentence)
-                    self.go_to_next_sentence()
-                    continue
-                    raise SyntaxError(error)
-
-            # Everything into hashes. Hashes are great.
-            if sentence_type == "init device":
-                if self.current_symbol.type == self.scanner.DEVICE_NAME:
-                    if self.current_symbol not in oututs:
-                        oututs.add(self.current_symbol)
-
-                if self.current_symbol.type == self.scanner.DEVICE_TYPE:
-                    device = self.current_symbol
-
-                if self.current_symbol.type == self.scanner.NUMBER:
-                    if self.current_symbol > 3:
+            if self.phase == 1:
+                if new_line and self.symbol.type == self.CONNECT:  # Check for CONNECT
+                    self.phase = 2
+                    expect_type = self.scanner.SEMICOLON
+                    pass
+                elif new_line:
+                    if self.symbol.type != self.DEVICE_NAME:
+                        print("SYNTAX[Invalid Monitor]: Missing keywords")
+                        new_line = True
+                        expect_type = self.DEVICE_NAME
+                        self.go_to_next_sentece()
                         pass
+                    else:
+                        expect_type = self.scanner.INIT_IS
+                        new_line = False
+                    
+                elif not new_line:
+                    if expect_type != self.symbol.type:
+                        print("SYNTAX[Invalid Monitor]: Missing keywords")
+                        self.go_to_next_sentece()
+                        expect_type = self.DEVICE_NAME
+                        new_line = True
+                    elif self.symbol.type == self.scanner.INIT_IS:
+                        expect_type = self.DEVICE_TYPE
+                        pass
+                    elif self.symbol.type == self.DEVICE_TYPE:
+                        if self.names.get_name_string(self.symbol.id):
+                            sentence_type = self.DEVICE_TYPE
 
-        return True
+                else:
+                    pass
+
+
+            # # Check for MONITOR
+            # elif self.phase == 2 and self.symbol.type != self.CONNECT:
+            #     print("SYNTAX[Incomplete File]: Missing start mark")
+            #     self.phase = 3
+            #     expect_semi_colon = True
+
+            # elif expect_semi_colon and self.symbol.type != self.SEMICOLON:
+            #     print("SYNTAX[No Termination]: Missing termination mark")
+            else:
+                expect_type = None
+                new_line = True
+
+
+
+
