@@ -114,29 +114,30 @@ class Scanner:
             self.current_char = self.read_file()
     
     def skip_comment(self):
-
         if not self.current_char == '*':
             raise TypeError("The current character should be '*'.")
         self.current_char = self.read_file()
         if self.current_char == '':
             print("Invalid comment")
-            return ''
+            return
+        
         end_left = self.current_char
         self.current_char = self.read_file()
         end_right = self.current_char
-        if current_char == '':
+        if self.current_char == '':
             print("Invalid comment")
-            return ''
-        while not ((end_left == '*' and end_right == '/') 
+            return
+        
+        while (not (end_left == '*' and end_right == '/')
                 and (not self.current_char == '')):
             self.current_char = self.read_file()
             end_left = end_right
             end_right = self.current_char
         if not (end_left == '*' and end_right == '/'):
             print("Invalid comment")
-            return ''
         else:
             self.current_char = self.read_file()
+        self.skip_spaces_and_linebreaks()
     
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
@@ -145,7 +146,7 @@ class Scanner:
         symbol_get = Symbol()
         symbol_string = ""
         name_rule= re.compile("\A[A-Z]+\d+$")
-        input_rule= re.compile("\A[A-Z]+\d+.((I\d+)|(DATA)|(CLK)|(CLEAR)|(SET))$")
+        in_rule= re.compile("\A[A-Z]+\d+.((I\d+)|(DATA)|(CLK)|(CLEAR)|(SET))$")
 
         if self.current_char == '':
             symbol_get.type = self.EOF
@@ -154,7 +155,7 @@ class Scanner:
             symbol_get.type = self.SEMICOLON
             return symbol_get
 
-        while not self.current_char.isspace() and not self.current_char == '\n':
+        while not (self.current_char.isspace() or self.current_char == '\n'):
             if self.current_char.isalpha():
                 alphabets = self.get_name()
                 symbol_string += alphabets
@@ -167,6 +168,17 @@ class Scanner:
             elif self.current_char == '':
                 self.file.seek(self.file.tell() - 1)
                 break
+            elif self.current_char == '/':
+                self.current_char = self.read_file()
+                if self.current_char == '*':
+                    self.skip_comment()
+                    if self.current_char == '':
+                        symbol_get.type = self.EOF
+                        return symbol_get
+                else:
+                    symbol_string += "/"
+                    symbol_string += str(self.current_char)
+                    self.current_char = self.read_file()
             else:
                 symbol_string += str(self.current_char)
                 self.current_char = self.read_file()
@@ -208,7 +220,7 @@ class Scanner:
         elif symbol_string.isdigit():
             symbol_get.type = self.NUMBER
             
-        elif input_rule.match(symbol_string):
+        elif in_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_IN
             #[symbol_get.id] = self.names.lookup([symbol_string])
             

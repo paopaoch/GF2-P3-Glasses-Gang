@@ -1,0 +1,4 @@
+INIT;
+G1 is NAND with 2 inputs; /*dhjshdkjshdkjh*/
+abc
+CONNECT; ! /*ghjghgjghgjhgjh
