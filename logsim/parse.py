@@ -13,7 +13,7 @@ from names import Names
 from network import Network
 from devices import Devices
 from monitors import Monitors
-from scanner import symbol, Scanner
+from scanner import Symbol, Scanner
 
 class Parser:
 
