@@ -211,7 +211,7 @@ class Scanner:
             symbol_get.type = self.CONNECTION
         
         elif symbol_string == "Initial_monitor_at":
-            symbol_string.type = self.INIT_MONITOR
+            symbol_get.type = self.INIT_MONITOR
         
         elif name_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_NAME
