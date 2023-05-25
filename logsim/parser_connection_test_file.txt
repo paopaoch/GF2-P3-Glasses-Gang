@@ -1,0 +1,6 @@
+CONNECT;
+CK1 is_connected_to D1.CLK;
+CK1 is_connected_to AND1.I2;
+SW1 is_connected_to D1.SET;
+SW2 is_connected_to D1.DATA;
+SW3 is_connected_to D1.CLEAR;

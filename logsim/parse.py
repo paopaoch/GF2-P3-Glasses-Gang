@@ -123,15 +123,17 @@ class Parser:
                             device_name = True
                     else:
                         print("SYNTAX[Invalid Monitor]: Missing keywords")
-                self.go_to_next_sentece()
-                if self.phase == 1:
-                    self.expect_type = self.scanner.DEVICE_NAME
-                elif self.phase == 2:
-                    self.expect_type = self.scanner.DEVICE_OUT
-                else:
-                    self.expect_type = self.scanner.DEVICE_OUT
-                continue
-            
+                if not device_name:
+                    self.go_to_next_sentece()
+                    if self.phase == 1:
+                        self.expect_type = self.scanner.DEVICE_NAME
+                    elif self.phase == 2:
+                        self.expect_type = self.scanner.DEVICE_OUT
+                    else:
+                        self.expect_type = self.scanner.DEVICE_OUT
+                    device_name = False
+                    continue
+                
             # Check INIT
             if self.phase == 1:
                 if self.new_line and self.symbol.type == self.scanner.CONNECT:  # Check for CONNECT
@@ -184,7 +186,6 @@ class Parser:
                             self.expect_type = self.scanner.INIT_GATE
                         elif self.sentence_type == "CLOCK":
                             self.expect_type = self.scanner.SEMICOLON
-                    
                     elif self.symbol.type == self.scanner.INIT_GATE:
                         self.expect_type = self.scanner.SEMICOLON
                 
@@ -195,26 +196,24 @@ class Parser:
                     self.expect_type = self.scanner.SEMICOLON
                     self.new_line = False
                     continue
+
                 elif self.new_line:
-                    if self.symbol.type != self.scanner.DEVICE_NAME or self.symbol.type != self.scanner.DEVICE_OUT:
+                    if (self.symbol.type != self.scanner.DEVICE_NAME 
+                        and self.symbol.type != self.scanner.DEVICE_OUT):
                         print("SYNTAX[Invalid Connection]: Invalid device I/O")
                         self.expect_type = self.scanner.DEVICE_NAME
                         self.go_to_next_sentece()
                         continue
-
                     else:
                         self.expect_type = self.scanner.CONNECTION
                         self.new_line = False
-                
+                        
                 else:
                     if self.symbol.type == self.scanner.CONNECTION:
                         self.expect_type = self.scanner.DEVICE_IN
                     if self.symbol.type == self.scanner.DEVICE_IN:
                         self.expect_type = self.scanner.SEMICOLON
 
-
-
-            
             # # Check for MONITOR
             # elif self.phase == 2 and self.symbol.type != self.CONNECT:
             #     print("SYNTAX[Incomplete File]: Missing start mark")
@@ -230,7 +229,7 @@ class Parser:
 
 if __name__ == "__main__":
     names = Names()
-    scanner = Scanner('logsim/parser_test_file.txt',names)
+    scanner = Scanner('logsim/parser_connection_test_file.txt', names)
     network = None
     monitors = None
     devices = None
