@@ -21,6 +21,7 @@ from parse import Parser
 
 _ = wx.GetTranslation
 
+
 class MyGLCanvas(wxcanvas.GLCanvas):
     """Handle all drawing operations.
 
@@ -259,6 +260,7 @@ class Gui(wx.Frame):
         self.monitors = monitors
         self.devices = devices
         self.network = network
+        self.not_monitored_signal = self.monitors.get_signal_names()[1]
 
         """Initialise widgets and layout."""
         super().__init__(parent=None, title=title, size=(800, 600))
@@ -281,8 +283,8 @@ class Gui(wx.Frame):
         self.canvas = MyGLCanvas(self, devices, monitors)
 
         # Configure sizers for layout
-        main_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        side_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.main_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.side_sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Configure the widgets
         self.text = wx.StaticText(self, wx.ID_ANY, _(u"Cycles"))
@@ -290,13 +292,61 @@ class Gui(wx.Frame):
         self.run_button = wx.Button(self, wx.ID_ANY, _(u"Run"))
         self.continue_button = wx.Button(self, wx.ID_ANY, _(u"Continue"))
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
-        self.text_switch = wx.TextCtrl(self, wx.ID_ANY, _(u"Switch: "),
-                                    style=wx.TE_PROCESS_ENTER)
+        self.text_switch = wx.StaticText(self, wx.ID_ANY, _(u"Switch: "),
+                                            style=wx.TE_PROCESS_ENTER)
+        self.switch_button = wx.Button(self, wx.ID_ANY, _(u"Toggle Switch"))
+        self.text_monitor = wx.StaticText(self, wx.ID_ANY, _(u"Monitor: "),
+                                            style=wx.TE_PROCESS_ENTER)
         self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
                                     style=wx.TE_PROCESS_ENTER)
-        
-        # monitors configuration
 
+        # configuration of sizer chirdren for side sizer
+        self.sizer_cycle = wx.BoxSizer(wx.VERTICAL)
+        self.sizer_run = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer_switch = wx.BoxSizer(wx.VERTICAL)
+        self.sizer_monitor = wx.BoxSizer(wx.VERTICAL)
+        self.sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
+        self.monitor_panel = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
+        self.main_sizer.Add(self.side_sizer, 1, wx.ALL, 5)
+
+        # sizer children for sizer_cycle
+        self.sizer_cycle.Add(self.text, 1, wx.ALL, 5)
+        self.sizer_cycle.Add(self.spin, 1, wx.ALL, 5)
+
+        # sizer children for sizer_run
+        self.sizer_run.Add(self.run_button, 1, wx.ALL, 5)
+        self.sizer_run.Add(self.continue_button, 1, wx.ALL, 5)
+        self.sizer_run.Add(self.quit_button, 1, wx.ALL, 5)
+
+        # sizer children for sizer_switch
+        self.sizer_switch.Add(self.text_switch, 1, wx.ALL, 5)
+        self.sizer_switch.Add(self.switch_button, 1, wx.ALL, 5)
+
+        # monitor scrollable panel -> choose option -> add/remove
+        # sizer children for sizer_monitor
+        self.sizer_text_monitor.Add(self.text_monitor, 1, wx.ALL, 5)
+
+        # self.sizer_scrolled = wx.ScrolledWindow(self, style=wx.VSCROLL)
+        # self.sizer_scrolled.SetSizer(self.sizer_monitor)
+        # self.sizer_scrolled.SetScrollRate(0, 20)  # Adjust the scrolling speed
+        # self.monitor_combo = wx.ComboBox(self.sizer_scrolled, wx.ID_ANY, choices=self.not_monitored_signal, style=wx.CB_READONLY)
+        # self.monitor_add_button = wx.Button(self.sizer_scrolled, wx.ID_ANY, _(u"Add"))
+        self.sizer_monitor.Add(self.sizer_text_monitor, 0, wx.ALL, 10)   
+        # self.sizer_monitor.Add(self.monitor_panel, 0, wx.ALL, 10)   
+        # self.monitor_panel.Add(self.monitor_combo, 0, wx.ALL, 10)
+        # self.monitor_panel.Add(self.monitor_add_button, 1, wx.ALL, 10)
+
+        # place side_sizer items
+        self.side_sizer.Add(self.sizer_cycle, 1, wx.ALL, 10)
+        self.side_sizer.Add(self.sizer_run, 1, wx.ALL, 5)
+        self.side_sizer.Add(self.sizer_switch, 1, wx.ALL, 5)
+        # self.side_sizer.Add(self.monitor_panel, 1, wx.ALL, 5)
+        # self.side_sizer.Add(self.monitor_add_button, 1, wx.ALL, 5)
+        self.side_sizer.Add(self.sizer_text_monitor, 1, wx.ALL, 5)
+        self.side_sizer.Add(self.text_box, 1, wx.ALL, 5)
+        
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
         self.spin.Bind(wx.EVT_SPINCTRL, self.on_spin)
@@ -304,23 +354,12 @@ class Gui(wx.Frame):
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
-        # text_monitor!!
+        self.switch_button.Bind(wx.EVT_BUTTON, self.switch_change)
+        # self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
 
-        main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
-        main_sizer.Add(side_sizer, 1, wx.ALL, 5)
-
-        # place side_sizer items
-        side_sizer.Add(self.text, 1, wx.TOP, 10)
-        side_sizer.Add(self.spin, 1, wx.ALL, 5)
-        side_sizer.Add(self.run_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.continue_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.quit_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.text_switch, 1, wx.ALL, 5)
-        side_sizer.Add(self.text_box, 1, wx.ALL, 5)
-
-        self.SetSizeHints(600, 600)
-        self.SetSizer(main_sizer)
+        self.SetSizeHints(1000, 600)
+        self.SetSizer(self.main_sizer)
 
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
@@ -332,14 +371,14 @@ class Gui(wx.Frame):
                           "About Logsim", wx.ICON_INFORMATION | wx.OK)
         if Id == wx.ID_HELP_COMMANDS:
             wx.MessageBox(_("User Commands\n"
-                        "\nr  N       - run the simulation for N cycles\n"
-                        "\nc  N       - continue simulation for N cycles\n"
-                        "\ns  X  N    - set switch X to N (0 or 1)\n"
-                        "\nm  X       - set a monitor on signal X\n"
-                        "\nz  X       - zap the monior on signal X\n"
-                        "\nh          - print a list of available commands\n"
-                        "\nq          - quit the simulation"),
-                        _("Help"), wx.OK | wx.ICON_INFORMATION)
+                            "\nr  N       - run the simulation for N cycles\n"
+                            "\nc  N       - continue simulation for N cycles\n"
+                            "\ns  X  N    - set switch X to N (0 or 1)\n"
+                            "\nm  X       - set a monitor on signal X\n"
+                            "\nz  X       - zap the monior on signal X\n"
+                            "\nh          - help (this command)\n"
+                            "\nq          - quit the simulation"),
+                            _("Help"), wx.OK | wx.ICON_INFORMATION)
 
     def on_spin(self, event):
         """Handle the event when the user changes the spin control value."""
@@ -372,21 +411,17 @@ class Gui(wx.Frame):
                 if self.network.execute_network():
                     self.monitors.record_signals()
                     self.cycles_completed += 1
-
             self.canvas.render(self.cycles_completed)
 
-            
     def on_quit_button(self, event):
         """Event handler for when the user clicks the quit button."""
         text = "Quit button pressed."
         self.canvas.render(text)
         self.main_sizer.GetContainingWindow().close()
 
-
     def switch_change(self, event, switch_id):
         """Event handler for when the user set switch to the other."""
         if switch_id is not None:
-            self.switch_string = self.names.get_name_string(switch_id)
             obj_switch = event.GetEventObject()
             if obj_switch.GetLabel() == _("LOW"):
                 signal = 0
@@ -398,26 +433,37 @@ class Gui(wx.Frame):
                 obj_switch.SetLabel(_("LOW"))
             elif new_signal == 1:
                 obj_switch.SetLabel(_("HIGH"))
-
             text = "switch input is flipped."
             self.canvas.render(text)
 
-    def on_add_monitor_button(self, event):
+    def on_add_monitor_button(self):
         """Event handler for when the user clicks the add monitor button"""
-        pass
+        monitor = self.monitor_combo.GetValue()
+        if monitor is not None:
+            [device_id, output_id] = self.devices.get_signal_ids(monitor)
+            monitor_error = self.monitors.make_monitor(device_id, output_id,
+                                                       self.cycles_completed)
+            # sizer changes
+            if monitor_error == self.monitors.NO_ERROR:
+                # make monitor graphic
+                text = "Successfully made monitor."
+                self.canvas.render(text)
+            else:
+                text = "Error! Could not make monitor."
+                self.canvas.render(text)
+            self.main_sizer.Layout()
 
     def on_zap_monitor_button(self, monitor, event):
         """Event handler for when user clicks the remove button"""
         obj_monitor = event.GetEventObject()
         obj_panel = obj_monitor.GetContainingSizer()
-        self.item_monitors.Hide(obj_panel)
-        self.item_monitors.Remove(obj_panel)
+        self.sizer_monitor.Hide(obj_panel)
+        self.sizer_monitor.Remove(obj_panel)
         [device_id, output_id] = self.devices.get_signal_ids(monitor)
         self.monitors.remove_monitor(device_id, output_id)
         self.not_monitored_signal = self.monitors.get_signal_names()[1]
-        self.item_monitors.Layout()
+        self.sizer_monitor.Layout()
         self.main_sizer.Layout()
-
 
     def on_text_box(self, event):
         """Handle the event when the user enters text."""
