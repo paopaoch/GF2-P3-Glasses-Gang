@@ -29,6 +29,8 @@ class Symbol:
         """Initialise symbol properties."""
         self.type = None
         self.id = None
+        self.pos = None
+        self.line_pos = None
 
 
 class Scanner:
@@ -59,7 +61,6 @@ class Scanner:
         """Open specified file and initialise reserved words and IDs."""
         try:
             self.file = open(path, "r")
-
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
@@ -87,6 +88,7 @@ class Scanner:
         self.names.lookup(self.device_output_pin_list)
 
         self.current_char = None
+        self.last_line_pos = 0
 
     def read_file(self):
         return self.file.read(1)
@@ -139,6 +141,16 @@ class Scanner:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
     
+    def get_sentence(self, symbol, path):
+        try:
+            f = open(path, "r")
+        except IOError:
+            print("Error: can\'t find file or read data")
+            sys.exit()
+        start_pos = f.seek(symbol.line_pos)
+        sentence = f.read(symbol.pos-start_pos)
+        return sentence.strip()
+
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
         self.current_char = self.read_file()
@@ -150,9 +162,14 @@ class Scanner:
 
         if self.current_char == '':
             symbol_get.type = self.EOF
+            symbol_get.pos = self.file.tell()
+            symbol_get.line_pos = self.last_line_pos
             return symbol_get
         if self.current_char == ';':
             symbol_get.type = self.SEMICOLON
+            symbol_get.pos = self.file.tell()
+            symbol_get.line_pos = self.last_line_pos
+            self.last_line_pos = self.file.tell()
             return symbol_get
 
         while not (self.current_char.isspace() or self.current_char == '\n'):
@@ -174,6 +191,8 @@ class Scanner:
                     self.skip_comment()
                     if self.current_char == '':
                         symbol_get.type = self.EOF
+                        symbol_get.pos = self.file.tell()
+                        symbol_get.line_pos = self.last_line_pos
                         return symbol_get
                 else:
                     symbol_string += "/"
@@ -220,5 +239,7 @@ class Scanner:
         else:
             symbol_get.type = self.ERROR
 
+        symbol_get.pos = self.file.tell()
+        symbol_get.line_pos = self.last_line_pos
         return symbol_get
         
