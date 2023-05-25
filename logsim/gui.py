@@ -328,23 +328,22 @@ class Gui(wx.Frame):
         # sizer children for sizer_monitor
         self.sizer_text_monitor.Add(self.text_monitor, 1, wx.ALL, 5)
 
-        # self.sizer_scrolled = wx.ScrolledWindow(self, style=wx.VSCROLL)
-        # self.sizer_scrolled.SetSizer(self.sizer_monitor)
-        # self.sizer_scrolled.SetScrollRate(0, 20)  # Adjust the scrolling speed
-        # self.monitor_combo = wx.ComboBox(self.sizer_scrolled, wx.ID_ANY, choices=self.not_monitored_signal, style=wx.CB_READONLY)
-        # self.monitor_add_button = wx.Button(self.sizer_scrolled, wx.ID_ANY, _(u"Add"))
-        self.sizer_monitor.Add(self.sizer_text_monitor, 0, wx.ALL, 10)   
-        # self.sizer_monitor.Add(self.monitor_panel, 0, wx.ALL, 10)   
-        # self.monitor_panel.Add(self.monitor_combo, 0, wx.ALL, 10)
-        # self.monitor_panel.Add(self.monitor_add_button, 1, wx.ALL, 10)
+        self.sizer_scrolled = wx.ScrolledWindow(self, style=wx.VSCROLL)
+        self.sizer_scrolled.SetSizer(self.sizer_monitor)
+        self.sizer_scrolled.SetScrollRate(0, 20)  # Adjust the scrolling speed
+        self.monitor_combo = wx.ComboBox(self.sizer_scrolled, wx.ID_ANY, choices=self.not_monitored_signal, style=wx.CB_READONLY)
+        self.monitor_add_button = wx.Button(self.sizer_scrolled, wx.ID_ANY, _(u"Add"))
+        # self.sizer_monitor.Add(self.sizer_text_monitor, 0, wx.ALL, 10)   
+        self.sizer_monitor.Add(self.monitor_panel, 0, wx.ALL, 10)   
+        self.monitor_panel.Add(self.monitor_combo, 0, wx.ALL, 10)
+        self.monitor_panel.Add(self.monitor_add_button, 1, wx.ALL, 10)
 
         # place side_sizer items
         self.side_sizer.Add(self.sizer_cycle, 1, wx.ALL, 10)
         self.side_sizer.Add(self.sizer_run, 1, wx.ALL, 5)
         self.side_sizer.Add(self.sizer_switch, 1, wx.ALL, 5)
-        # self.side_sizer.Add(self.monitor_panel, 1, wx.ALL, 5)
-        # self.side_sizer.Add(self.monitor_add_button, 1, wx.ALL, 5)
         self.side_sizer.Add(self.sizer_text_monitor, 1, wx.ALL, 5)
+        self.side_sizer.Add(self.sizer_scrolled, 1, wx.EXPAND | wx.ALL, 5)
         self.side_sizer.Add(self.text_box, 1, wx.ALL, 5)
         
         # Bind events to widgets
@@ -355,7 +354,7 @@ class Gui(wx.Frame):
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
         self.switch_button.Bind(wx.EVT_BUTTON, self.switch_change)
-        # self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
+        self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
 
         self.SetSizeHints(1000, 600)
