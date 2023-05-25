@@ -68,7 +68,7 @@ class Parser:
         # For now just return True, so that userint and gui can run in the
         # skeleton code. When complete, should return False when there are
         # errors in the circuit definition file.
-        # return True
+        return True
         self.expect_type = self.scanner.INIT
         self.symbol = self.scanner.get_symbol()
         self.sentence_type = None
@@ -207,7 +207,7 @@ class Parser:
                     else:
                         self.expect_type = self.scanner.CONNECTION
                         self.new_line = False
-                        
+
                 else:
                     if self.symbol.type == self.scanner.CONNECTION:
                         self.expect_type = self.scanner.DEVICE_IN
