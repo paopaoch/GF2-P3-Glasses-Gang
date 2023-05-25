@@ -145,8 +145,8 @@ class Scanner:
         self.skip_spaces_and_linebreaks()
         symbol_get = Symbol()
         symbol_string = ""
-        name_rule= re.compile("\A[A-Z]+\d+$")
-        in_rule= re.compile("\A[A-Z]+\d+.((I\d+)|(DATA)|(CLK)|(CLEAR)|(SET))$")
+        name_rule = re.compile("\A[A-Z]+\d+$")
+        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")
 
         if self.current_char == '':
             symbol_get.type = self.EOF
@@ -185,57 +185,40 @@ class Scanner:
 
         if symbol_string == "INIT":
             symbol_get.type = self.INIT
-        
         elif symbol_string == "CONNECT":
             symbol_get.type = self.CONNECT
-        
         elif symbol_string == "MONITOR":
             symbol_get.type = self.MONITOR
-        
         elif symbol_string == "is":
             symbol_get.type = self.INIT_IS
-        
         elif symbol_string == "with":
             symbol_get.type = self.INIT_WITH
-        
         elif symbol_string == "inputs" or symbol_string == "input":
             symbol_get.type = self.INIT_GATE
-        
         elif symbol_string == "initially_at":
             symbol_get.type = self.INIT_SWITCH
-        
         elif symbol_string == "with_simulation_cycles":
             symbol_get.type = self.INIT_CLK
-        
         elif symbol_string == "is_connected_to":
             symbol_get.type = self.CONNECTION
-        
         elif symbol_string == "Initial_monitor_at":
             symbol_get.type = self.INIT_MONITOR
-        
         elif name_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_NAME
-            [symbol_get.id] = self.names.lookup([symbol_string])
-            
+            [symbol_get.id] = self.names.lookup([symbol_string])  
         elif symbol_string.isdigit():
-            symbol_get.type = self.NUMBER
-            
+            symbol_get.type = self.NUMBER            
         elif in_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_IN
-            [symbol_get.id] = self.names.lookup([symbol_string])
-            
+            [symbol_get.id] = self.names.lookup([symbol_string])   
         elif symbol_string in self.device_type_list:
             symbol_get.type = self.DEVICE_TYPE
-            [symbol_get.id] = self.names.lookup([symbol_string])
-            
+            [symbol_get.id] = self.names.lookup([symbol_string])  
         elif symbol_string in self.device_output_pin_list:
             symbol_get.type = self.DEVICE_OUT
             [symbol_get.id] = self.names.lookup([symbol_string])
-        
         else:
             symbol_get.type = self.ERROR
 
         return symbol_get
-
-
         
