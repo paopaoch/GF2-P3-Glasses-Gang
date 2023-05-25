@@ -82,9 +82,9 @@ class Scanner:
                                       'I11', 'I12', 'I13', 'I14', 'I15', 
                                       'I16', 'DATA', 'CLK', 'SET', 'CLEAR']
         self.device_output_pin_list = ['Q', 'QBAR']
-        #self.names.lookup(self.device_type_list)
-        #self.names.lookup(self.device_input_pin_list)
-        #self.names.lookup(self.device_output_pin_list)
+        self.names.lookup(self.device_type_list)
+        self.names.lookup(self.device_input_pin_list)
+        self.names.lookup(self.device_output_pin_list)
 
         self.current_char = None
 
@@ -215,22 +215,22 @@ class Scanner:
         
         elif name_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_NAME
-            #[symbol_get.id] = self.names.lookup([symbol_string])
+            [symbol_get.id] = self.names.lookup([symbol_string])
             
         elif symbol_string.isdigit():
             symbol_get.type = self.NUMBER
             
         elif in_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_IN
-            #[symbol_get.id] = self.names.lookup([symbol_string])
+            [symbol_get.id] = self.names.lookup([symbol_string])
             
         elif symbol_string in self.device_type_list:
             symbol_get.type = self.DEVICE_TYPE
-            #[symbol_get.id] = self.names.lookup([symbol_string])
+            [symbol_get.id] = self.names.lookup([symbol_string])
             
         elif symbol_string in self.device_output_pin_list:
             symbol_get.type = self.DEVICE_OUT
-            #[symbol_get.id] = self.names.lookup([symbol_string])
+            [symbol_get.id] = self.names.lookup([symbol_string])
         
         else:
             symbol_get.type = self.ERROR
