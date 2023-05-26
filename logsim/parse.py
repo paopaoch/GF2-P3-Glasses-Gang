@@ -56,10 +56,19 @@ class Parser:
 
 
     def go_to_next_sentece(self):
-        while self.symbol.type != self.scanner.SEMICOLON:
-            self.count += 1
+        while (self.symbol.type != self.scanner.SEMICOLON
+               and self.symbol.type != self.scanner.EOF):
             self.symbol = self.scanner.get_symbol()
+            # print(self.count)
+            self.count += 1
         self.new_line = True
+        if self.phase == 1:
+            self.expect_type = self.scanner.DEVICE_NAME
+        elif self.phase == 2:
+            self.expect_type = self.scanner.DEVICE_OUT
+        else:
+            self.expect_type = self.scanner.INIT_MONITOR
+        # print("Found new sentence")
 
     
 
@@ -68,9 +77,11 @@ class Parser:
         # For now just return True, so that userint and gui can run in the
         # skeleton code. When complete, should return False when there are
         # errors in the circuit definition file.
-        return True
+        # return True
+        self.count = 0
         self.expect_type = self.scanner.INIT
         self.symbol = self.scanner.get_symbol()
+        self.count += 1
         self.sentence_type = None
         self.phase = 1
         self.device_name = False
@@ -80,14 +91,15 @@ class Parser:
 
         self.expect_type = self.scanner.SEMICOLON
         self.new_line = False
-            
-        self.count = 0
+
         while self.symbol.type != self.scanner.EOF:
-            self.count += 1
             self.symbol = self.scanner.get_symbol()
-            print(self.count)
+            # print(self.count)
+            self.count += 1
             if self.symbol.type == self.scanner.ERROR:
+                # print(self.symbol.id)
                 print("SYNTAX[Keyword Not Found]: Scanner can not process invalid keyword")
+                # print("Next sentence, wrong keyword")
                 self.go_to_next_sentece()
                 continue
 
@@ -104,47 +116,51 @@ class Parser:
                 continue
 
             if self.expect_type != self.symbol.type:
-                if self.phase == 1:
-                    if self.expect_type == self.scanner.NUMBER:
-                        print("SYNTAX[Invalid Initialisation]: Invalid setting")
-                    else:
-                        print("SYNTAX[Invalid Initialisation]: Missing keywords")
-                elif self.phase == 2:
-                    if self.expect_type == self.scanner.DEVICE_OUT:
-                        if self.symbol.type != self.scanner.DEVICE_NAME:
-                            print("SYNTAX[Invalid Connection]: Missing keywords")
-                        else:
-                            device_name = True
-                else:
-                    if self.expect_type == self.scanner.DEVICE_OUT:
-                        if self.symbol.type != self.scanner.DEVICE_NAME:
-                            print("SYNTAX[Invalid Monitor]: Invalid monitor point")
-                        else:
-                            device_name = True
-                    else:
-                        print("SYNTAX[Invalid Monitor]: Missing keywords")
-                if not device_name:
-                    self.go_to_next_sentece()
+                if self.new_line:
                     if self.phase == 1:
-                        self.expect_type = self.scanner.DEVICE_NAME
-                    elif self.phase == 2:
-                        self.expect_type = self.scanner.DEVICE_OUT
-                    else:
-                        self.expect_type = self.scanner.DEVICE_OUT
-                    device_name = False
+                        if self.symbol.type == self.scanner.CONNECT:
+                            print("DONE WITH INIT")
+                            self.phase = 2
+                            self.new_line = False
+                            self.expect_type = self.scanner.SEMICOLON
+                            continue
+                        elif self.expect_type == self.scanner.NUMBER:
+                            print("SYNTAX[Invalid Initialisation]: Invalid setting")
+                            self.go_to_next_sentece()
+                            continue
+                        else:
+                            print("SYNTAX[Invalid Initialisation]: Missing keywords")
+                            self.go_to_next_sentece()
+                            continue
+                    if self.phase == 2:
+                        if self.symbol.type == self.scanner.MONITOR:
+                            print("DONE WITH CONNECT")
+                            self.phase = 3
+                            self.new_line = False
+                            self.expect_type = self.scanner.SEMICOLON
+                            continue
+
+                        elif self.expect_type == self.scanner.DEVICE_OUT:
+                            if self.symbol.type == self.scanner.DEVICE_NAME:
+                                self.device_name = True
+                        else:
+                            print("SYNTAX[Invalid Connection]: Missing keywords")
+                            self.go_to_next_sentece()
+                            continue
+                else:
+                    print("SYNTAX[Invalid Keyword]: Unexpected keyword found")
+                    # print("expected", self.expect_type)
+                    # print("got", self.symbol.type)
+                    self.go_to_next_sentece()
                     continue
-                
+
             # Check INIT
             if self.phase == 1:
-                if self.new_line and self.symbol.type == self.scanner.CONNECT:  # Check for CONNECT
-                    self.phase = 2
-                    self.expect_type = self.scanner.SEMICOLON
-                    self.new_line = False
-                    continue
-                elif self.new_line:
+                if self.new_line:
                     if self.symbol.type != self.scanner.DEVICE_NAME:
                         print("SYNTAX[Invalid Initialisation]: Invalid device name")
                         self.expect_type = self.scanner.DEVICE_NAME
+                        # print("Next sentence new line expect device name")
                         self.go_to_next_sentece()
                         continue
                     else:
@@ -157,6 +173,7 @@ class Parser:
 
                     elif self.symbol.type == self.scanner.DEVICE_TYPE:
                         self.sentence_type = self.names.get_name_string(self.symbol.id)
+                        # print("device", self.names.get_name_string(self.symbol.id))
                         if self.sentence_type == "XOR":
                             self.expect_type = self.scanner.SEMICOLON
                         elif self.sentence_type == "DTYPE":
@@ -179,7 +196,7 @@ class Parser:
                     
                     elif self.symbol.type == self.scanner.NUMBER:
                         if self.sentence_type == "SWITCH":
-                            if self.names.get_name_string(self.symbol.id) not in {0,1}:
+                            if self.names.get_name_string(self.symbol.id) not in {'0','1'}:
                                 print("SYNTAX[Invalid Initialisation]: Invalid setting")
                             self.expect_type = self.scanner.SEMICOLON
                         elif self.sentence_type in {"NAND", "AND", "NOR", "OR"}:
@@ -188,20 +205,15 @@ class Parser:
                             self.expect_type = self.scanner.SEMICOLON
                     elif self.symbol.type == self.scanner.INIT_GATE:
                         self.expect_type = self.scanner.SEMICOLON
-                
+
             # Check for CONNECT
             elif self.phase == 2:
-                if self.new_line and self.symbol.type == self.scanner.MONITOR:  # Check for CONNECT
-                    self.phase = 3
-                    self.expect_type = self.scanner.SEMICOLON
-                    self.new_line = False
-                    continue
-
-                elif self.new_line:
+                if self.new_line:
                     if (self.symbol.type != self.scanner.DEVICE_NAME 
                         and self.symbol.type != self.scanner.DEVICE_OUT):
                         print("SYNTAX[Invalid Connection]: Invalid device I/O")
                         self.expect_type = self.scanner.DEVICE_NAME
+                        # print("Next sentence new line expect device name")
                         self.go_to_next_sentece()
                         continue
                     else:
@@ -225,11 +237,11 @@ class Parser:
             else:
                 self.expect_type = None
                 self.new_line = True
-        
+
 
 if __name__ == "__main__":
     names = Names()
-    scanner = Scanner('logsim/parser_connection_test_file.txt', names)
+    scanner = Scanner('parser_test_file.txt', names)
     network = None
     monitors = None
     devices = None
