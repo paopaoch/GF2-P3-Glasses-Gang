@@ -93,6 +93,9 @@ class Scanner:
     def read_file(self):
         return self.file.read(1)
 
+    def restart(self):
+        self.file.seek(0)
+
     def get_name(self):
         if not self.current_char.isalpha():
             raise TypeError("The current character should be Alphabet.")
@@ -141,7 +144,7 @@ class Scanner:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
     
-    def get_sentence(self, symbol, path):
+    def get_pointer(self, symbol, path, front=False):
         try:
             f = open(path, "r")
         except IOError:
@@ -149,7 +152,55 @@ class Scanner:
             sys.exit()
         start_pos = f.seek(symbol.line_pos)
         sentence = f.read(symbol.pos-start_pos)
-        return sentence.strip()
+        sentence = sentence.strip()
+        symbol_len = 0
+        if not front or sentence[-1] == ";":
+            pointer = " " * (len(sentence) - 1) + '^'
+            pointer_mes = sentence + '\n' + pointer
+        else:
+            for i in range(len(sentence)-1, 0, -1):
+                if sentence[i] != ' ':
+                    symbol_len += 1
+                else:
+                    break
+            pointer = " " * (len(sentence) - symbol_len) + '^'
+            pointer_mes = sentence + '\n' + pointer
+        return pointer_mes
+
+    def get_line_position(self, symbol, path):
+        try:
+            f = open(path, "r")
+        except IOError:
+            print("Error: can\'t find file or read data")
+            sys.exit()
+        line_number = 1
+        cur_char = f.read(1)
+        for i in range(symbol.pos-1):
+            if cur_char == '\n':
+                line_number += 1
+            cur_char = f.read(1)
+        return line_number
+    
+    def print_error_message(self, symbol, error_code, path):
+        sentence = self.get_sentence(symbol, path)
+        pointer, insert_line_num = self.get_pointer(symbol, path)
+        line_number = self.get_line_position(symbol, path)
+        error_mes = "Error in line " + str(line_number)
+        for i in sentence:
+            if insert_line_num == 0:
+                error_mes += pointer
+                error_mes += '\n'
+            if i != '\n':
+                error_mes += i
+            else:
+                error_mes += i
+                insert_line_num -=1
+        if insert_line_num:
+            error_mes += '\n'
+            error_mes += pointer
+
+        
+        return error_mes
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
@@ -159,7 +210,7 @@ class Scanner:
         symbol_string = ""
         name_rule = re.compile("\A[A-Z]+\d+$")
         in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")
-
+        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")
         if self.current_char == '':
             symbol_get.type = self.EOF
             symbol_get.pos = self.file.tell()
@@ -234,7 +285,7 @@ class Scanner:
         elif symbol_string in self.device_type_list:
             symbol_get.type = self.DEVICE_TYPE
             [symbol_get.id] = self.names.lookup([symbol_string])  
-        elif symbol_string in self.device_output_pin_list:
+        elif out_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_OUT
             [symbol_get.id] = self.names.lookup([symbol_string])
         else:
