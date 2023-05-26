@@ -294,7 +294,7 @@ class Gui(wx.Frame):
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
         self.text_switch = wx.StaticText(self, wx.ID_ANY, _(u"Switch: "),
                                             style=wx.TE_PROCESS_ENTER)
-        self.switch_button = wx.Button(self, wx.ID_ANY, _(u"Toggle Switch"))
+        # self.switch_button = wx.Button(self, wx.ID_ANY, _(u"Toggle Switch"))
         self.text_monitor = wx.StaticText(self, wx.ID_ANY, _(u"Monitor: "),
                                             style=wx.TE_PROCESS_ENTER)
         self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
@@ -305,7 +305,7 @@ class Gui(wx.Frame):
         self.sizer_run = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer_switch = wx.BoxSizer(wx.VERTICAL)
         self.sizer_monitor = wx.BoxSizer(wx.VERTICAL)
-        self.sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer_text_monitor = wx.BoxSizer(wx.VERTICAL)
         self.monitor_panel = wx.BoxSizer(wx.HORIZONTAL)
 
         self.main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
@@ -322,29 +322,57 @@ class Gui(wx.Frame):
 
         # sizer children for sizer_switch
         self.sizer_switch.Add(self.text_switch, 1, wx.ALL, 5)
-        self.sizer_switch.Add(self.switch_button, 1, wx.ALL, 5)
+        # self.sizer_switch.Add(self.switch_button, 1, wx.ALL, 5)
+
+        # toggle switch
+        for switch_id in self.devices.find_devices(self.devices.SWITCH):
+            switch_string = self.names.get_name_string(switch_id)
+            self.sub_sizer_switch = wx.BoxSizer(wx.HORIZONTAL)
+            self.sizer_switch.Add(self.sub_sizer_switch, 1, wx.ALL, 5)
+            self.exist_text_switch = wx.StaticText(self.sizer_monitor, wx.ID_ANY, 
+                                                    switch_string, style=wx.TE_PROCESS_ENTER)
+            switch_state = self.devices.get_device(switch_id).switch_state
+            if switch_state == 1:
+                self.toggle_btn = wx.ToggleButton(self.sizer_switch, label=_(u"On"))
+            else:
+                self.toggle_btn = wx.ToggleButton(self.sizer_switch, label=_(u"Off"))
+            self.toggle_btn.Bind(wx.EVT_BUTTON, self.switch_change)
+            self.sub_sizer_text_monitor.Add(self.exist_text_switch, 1, wx.ALL, 5)
+            self.sub_sizer_text_monitor.Add(self.toggle_btn, 1, wx.ALL, 5)
 
         # monitor scrollable panel -> choose option -> add/remove
         # sizer children for sizer_monitor
-        self.sizer_text_monitor.Add(self.text_monitor, 1, wx.ALL, 5)
-
         self.sizer_scrolled = wx.ScrolledWindow(self, style=wx.VSCROLL)
         self.sizer_scrolled.SetSizer(self.sizer_monitor)
         self.sizer_scrolled.SetScrollRate(0, 20)  # Adjust the scrolling speed
-        self.monitor_combo = wx.ComboBox(self.sizer_scrolled, wx.ID_ANY, choices=self.not_monitored_signal, style=wx.CB_READONLY)
-        self.monitor_add_button = wx.Button(self.sizer_scrolled, wx.ID_ANY, _(u"Add"))
-        # self.sizer_monitor.Add(self.sizer_text_monitor, 0, wx.ALL, 10)   
+        self.monitor_combo = wx.ComboBox(self.sizer_scrolled, wx.ID_ANY, 
+                                         choices=self.not_monitored_signal, 
+                                         style=wx.CB_READONLY)
+        self.monitor_add_button = wx.Button(self.sizer_scrolled, wx.ID_ANY,
+                                            _(u"Add"))  
         self.sizer_monitor.Add(self.monitor_panel, 0, wx.ALL, 10)   
         self.monitor_panel.Add(self.monitor_combo, 0, wx.ALL, 10)
         self.monitor_panel.Add(self.monitor_add_button, 1, wx.ALL, 10)
 
+        self.monitored_signal = self.monitors.get_signal_names()[0]
+        self.sizer_text_monitor.Add(self.text_monitor, 1, wx.ALL, 5)
+        for monitor in self.monitored_signal:
+            self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
+            self.sizer_text_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
+            self.exist_text_monitor = wx.StaticText(self.sizer_monitor, wx.ID_ANY, monitor,
+                                                    style=wx.TE_PROCESS_ENTER)
+            self.remove_monitor_button = wx.Button(self.sizer_monitor, wx.ID_ANY, _(u"Remove"))
+            self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button)
+            self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
+            self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
+            
         # place side_sizer items
         self.side_sizer.Add(self.sizer_cycle, 1, wx.ALL, 10)
         self.side_sizer.Add(self.sizer_run, 1, wx.ALL, 5)
         self.side_sizer.Add(self.sizer_switch, 1, wx.ALL, 5)
         self.side_sizer.Add(self.sizer_text_monitor, 1, wx.ALL, 5)
         self.side_sizer.Add(self.sizer_scrolled, 1, wx.EXPAND | wx.ALL, 5)
-        self.side_sizer.Add(self.text_box, 1, wx.ALL, 5)
+        self.side_sizer.Add(self.text_box, 1, wx.EXPAND | wx.ALL, 5)
         
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -353,7 +381,7 @@ class Gui(wx.Frame):
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
-        self.switch_button.Bind(wx.EVT_BUTTON, self.switch_change)
+        # self.switch_button.Bind(wx.EVT_BUTTON, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
 
@@ -418,20 +446,18 @@ class Gui(wx.Frame):
         self.canvas.render(text)
         self.main_sizer.GetContainingWindow().close()
 
-    def switch_change(self, event, switch_id):
+    def switch_change(self, event):
         """Event handler for when the user set switch to the other."""
+        self.toggle_btn = event.GetEventObject()
+        switch_id = self.toggle_btn.GetLabel()
         if switch_id is not None:
-            obj_switch = event.GetEventObject()
-            if obj_switch.GetLabel() == _("LOW"):
-                signal = 0
+            if self.toggle_btn.GetValue():
+                self.toggle_btn.SetLabel(_(u"On"))
+                new_signal = 1
             else:
-                signal = 1
-            new_signal = signal^1
+                self.toggle_btn.SetLabel(_(u"Off"))
+                new_signal = 0
             self.devices.set_switch(self, switch_id, new_signal)
-            if new_signal == 0:
-                obj_switch.SetLabel(_("LOW"))
-            elif new_signal == 1:
-                obj_switch.SetLabel(_("HIGH"))
             text = "switch input is flipped."
             self.canvas.render(text)
 
