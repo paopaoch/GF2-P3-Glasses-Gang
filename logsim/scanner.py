@@ -226,7 +226,8 @@ class Scanner:
             symbol_get.type = self.DEVICE_NAME
             [symbol_get.id] = self.names.lookup([symbol_string])  
         elif symbol_string.isdigit():
-            symbol_get.type = self.NUMBER            
+            symbol_get.type = self.NUMBER 
+            [symbol_get.id] = self.names.lookup([symbol_string])          
         elif in_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_IN
             [symbol_get.id] = self.names.lookup([symbol_string])   
