@@ -54,6 +54,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         """Initialise variables"""
         self.devices = devices
         self.monitors = monitors
+        self.cycles_completed = 0
         """Initialise canvas properties and useful variables."""
         super().__init__(parent, -1,
                          attribList=[wxcanvas.WX_GL_RGBA,
@@ -92,14 +93,14 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
-    def render(self, text, cycles=0, monitors=[]):
+    def render(self, text, cycles=0, gui_monitors={}): # gui_monitors = {monitor_string: signal_list}
         """Handle all drawing operations."""
 
         # Clear everything
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         if cycles > 0:
             self.cycles_completed = cycles
-            self.monitored_monitors = monitors
+            self.gui_monitors = gui_monitors
 
         self.SetCurrent(self.context)
         if not self.init:
@@ -107,22 +108,79 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init_gl()
             self.init = True
 
-        # Draw specified text at position (10, 10)
-        self.render_text(text, 10, 10)
+        margin = self.monitors.get_margin()
+        if not margin:
+            margin = 0
 
         # Draw a sample signal trace
-        GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
-        GL.glBegin(GL.GL_LINE_STRIP)
-        for i in range(10):
-            x = (i * 20) + 10
-            x_next = (i * 20) + 30
-            if i % 2 == 0:
-                y = 75
+        # GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
+        # GL.glBegin(GL.GL_LINE_STRIP)
+        # for i in range(10):
+        #     x = (i * 20) + 10
+        #     x_next = (i * 20) + 30
+        #     if i % 2 == 0:
+        #         y = 75
+        #     else:
+        #         y = 100
+        #     GL.glVertex2f(x, y)
+        #     GL.glVertex2f(x_next, y)
+        # GL.glEnd()
+        if self.cycles_completed > 0:
+            GL.glBegin(GL.GL_LINES)
+            # Draw x-axis
+            GL.glColor3f(1.0, 0.0, 0.0)  # Red color
+            cycle_width = 20
+            y_val = 20
+            if margin:
+                x_start = 100 + margin
             else:
-                y = 100
-            GL.glVertex2f(x, y)
-            GL.glVertex2f(x_next, y)
-        GL.glEnd()
+                x_start = 100
+            x_end = x_start + (self.cycles_completed + 1)*cycle_width
+            GL.glVertex2f(x_start, y_val)
+            GL.glVertex2f(x_end, y_val)
+
+            par = 5
+            for i in range(self.cycles_completed+1):
+                GL.glVertex2f(x_start+i*cycle_width, y_val+par)
+                GL.glVertex2f(x_start+i*cycle_width, y_val-par)
+            
+            # Draw arrowhead
+            GL.glBegin(GL.GL_TRIANGLES)
+            GL.glVertex2f(x_end - 10, y_val - 5)  # Bottom-left point of arrowhead
+            GL.glVertex2f(x_end, y_val)                            # Tip of arrowhead
+            GL.glVertex2f(x_end - 10, y_val + 5)  # Bottom-right point of arrowhead
+            GL.glEnd()
+
+            # label the axis
+            self.render_text("Time", x_start, y_val)
+            for i in range(self.cycles_completed+1):
+                self.render_text(str(i), x_start+i*cycle_width, y_val-10)
+
+            # draw output signals at monitoring points
+            for i in range(len(self.gui_monitors)):
+                monitor_str_list = [self.gui_monitors.keys()]
+                monitor_str = monitor_str_list[i]
+                height = y_val + i*50
+                self.render_text(monitor_str, 20, height)
+                self.render_text("1", x_start-10, height+10)
+                self.render_text("0", x_start-10, height+10)
+                signal_list = self.gui_monitors[monitor_str]
+                GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
+                GL.glBegin(GL.GL_LINE_STRIP)
+                for j in range(self.cycles_completed):
+                    if signal_list[j] == self.LOW:
+                        GL.glVertex2f(x_start+j*cycle_width, height-20)
+                        GL.glVertex2f(x_start+(j+1)*cycle_width, height-20)
+                    elif signal_list[j] == self.HIGH:
+                        GL.glVertex2f(x_start+j*cycle_width, height)
+                        GL.glVertex2f(x_start+(j+1)*cycle_width, height)
+                    elif signal_list[j] == self.RISING:
+                        GL.glVertex2f(x_start+j*cycle_width, height)
+                        GL.glVertex2f(x_start+(j+1)*cycle_width, height+20)
+                    elif signal_list[j] == self.FALLING:
+                        GL.glVertex2f(x_start+j*cycle_width, height)
+                        GL.glVertex2f(x_start+(j+1)*cycle_width, height-20)
+                GL.glEnd()
 
         # We have been drawing to the back buffer, flush the graphics pipeline
         # and swap the back buffer to the front
@@ -261,6 +319,7 @@ class Gui(wx.Frame):
         self.devices = devices
         self.network = network
         self.not_monitored_signal = self.monitors.get_signal_names()[1]
+        self.cycles_completed = 0
 
         """Initialise widgets and layout."""
         super().__init__(parent=None, title=title, size=(800, 600))
@@ -359,9 +418,10 @@ class Gui(wx.Frame):
         for monitor in self.monitored_signal:
             self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
             self.sizer_text_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
-            self.exist_text_monitor = wx.StaticText(self.sizer_monitor, wx.ID_ANY, monitor,
-                                                    style=wx.TE_PROCESS_ENTER)
-            self.remove_monitor_button = wx.Button(self.sizer_monitor, wx.ID_ANY, _(u"Remove"))
+            self.exist_text_monitor = wx.StaticText(self.sizer_monitor, wx.ID_ANY,
+                                                    monitor, style=wx.TE_PROCESS_ENTER)
+            self.remove_monitor_button = wx.Button(self.sizer_monitor, wx.ID_ANY,
+                                                    _(u"Remove"))
             self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button)
             self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
             self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
@@ -424,6 +484,7 @@ class Gui(wx.Frame):
             if self.network.execute_network():
                 self.monitors.record_signals()
                 self.cycles_completed += 1
+        self.gui_monitors = self.convert_gui_monitors()
         text = "Cycles completed."
         self.canvas.render(text)
 
@@ -438,6 +499,7 @@ class Gui(wx.Frame):
                 if self.network.execute_network():
                     self.monitors.record_signals()
                     self.cycles_completed += 1
+            self.gui_monitors = self.convert_gui_monitors()
             self.canvas.render(self.cycles_completed)
 
     def on_quit_button(self, event):
@@ -490,6 +552,16 @@ class Gui(wx.Frame):
         self.sizer_monitor.Layout()
         self.main_sizer.Layout()
 
+    def convert_gui_monitors(self):
+        """Convert the dictionary {(device_id, output_id): [signal_list]}
+          to {monitor_string: [signal_list]}"""
+        gui_dict = {}
+        for device_id, output_id in self.monitors.monitors_dictionary:
+            monitor_string = self.devices.get_signal_name(device_id, output_id)
+            signal_list = self.monitors.monitors_dictionary[(device_id, output_id)]
+            gui_dict[monitor_string] = signal_list
+        return gui_dict
+    
     def on_text_box(self, event):
         """Handle the event when the user enters text."""
         text_box_value = self.text_box.GetValue()

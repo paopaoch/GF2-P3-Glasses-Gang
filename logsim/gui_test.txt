@@ -1,0 +1,15 @@
+INIT;
+G1 is NAND with 2 inputs;
+G2 is NAND with 2 inputs;
+XOR1 is XOR;
+SW1 is SWITCH, initially_at 0;
+SW2 is SWITCH, initially_at 0;
+CONNECT;
+SW1 is_connected_to G1.I1;
+SW2 is_connected_to G2.I2;
+G1 is_connected_to G2.I1;
+G2 is_connected_to G1.I2;
+G1 is_connected_to XOR1.I1;
+G2 is_connected_to XOR1.I2;
+MONITOR;
+Initial_monitor_at G1 G2 XOR1;
