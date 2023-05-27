@@ -234,7 +234,7 @@ class Scanner:
                 self.file.seek(self.file.tell() - 1)
                 break
             elif self.current_char == '':
-                self.file.seek(self.file.tell() - 1)
+                self.file.seek(self.file.tell())
                 break
             elif self.current_char == '/':
                 self.current_char = self.read_file()
