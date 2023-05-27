@@ -155,7 +155,7 @@ class Scanner:
         sentence = sentence.strip()                     # Remove spaces before or after the sentence
         comment_regex = "\/\*.*?\*\/"
         sentence = ' '.join(sentence.split('\n'))       # Remove any newline within a sentence
-        sentence = re.sub(comment_regex, "", sentence)  # Remove comments
+        sentence = re.sub(comment_regex, '', sentence)  # Remove comments
         symbol_len = 1
         if not front or sentence[-1] == ";":            # Pointer points to the end of a symbol
             pointer = " " * (len(sentence) - 1) + '^'   # or semicolumn
@@ -184,11 +184,12 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, error_code, path, front=False):
+    def print_error_message(self, symbol, error, path, front=False):
         pointer_mes = self.get_pointer(symbol, path, front)
         line_number = self.get_line_position(symbol, path)
         error_mes = "Error in line: " + str(line_number)
         error_mes += '\n' + pointer_mes
+        error_mes += '\n' + error.error_message()
         return error_mes
 
     def get_symbol(self):

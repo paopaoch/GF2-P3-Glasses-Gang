@@ -1,4 +1,4 @@
-INIT;/*comment*/ D1 is DTYPE; 
+INIT;/*comment*/D1 is DTYPE; 
 SW1 is SWITCH initially_at 0;
 SW2 is SWITCH initially_at 1;
 SW3 is SWITCH initially_at 0;
