@@ -153,7 +153,8 @@ class Scanner:
         start_pos = f.seek(symbol.line_pos)
         sentence = f.read(symbol.pos-start_pos)
         sentence = sentence.strip()
-        symbol_len = 0
+        sentence = ' '.join(sentence.split('\n'))
+        symbol_len = 1
         if not front or sentence[-1] == ";":
             pointer = " " * (len(sentence) - 1) + '^'
             pointer_mes = sentence + '\n' + pointer
@@ -181,25 +182,11 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, error_code, path):
-        sentence = self.get_sentence(symbol, path)
-        pointer, insert_line_num = self.get_pointer(symbol, path)
+    def print_error_message(self, symbol, error_code, path, front=False):
+        pointer_mes = self.get_pointer(symbol, path, front)
         line_number = self.get_line_position(symbol, path)
-        error_mes = "Error in line " + str(line_number)
-        for i in sentence:
-            if insert_line_num == 0:
-                error_mes += pointer
-                error_mes += '\n'
-            if i != '\n':
-                error_mes += i
-            else:
-                error_mes += i
-                insert_line_num -=1
-        if insert_line_num:
-            error_mes += '\n'
-            error_mes += pointer
-
-        
+        error_mes = "Error in line: " + str(line_number)
+        error_mes += '\n' + pointer_mes
         return error_mes
 
     def get_symbol(self):
