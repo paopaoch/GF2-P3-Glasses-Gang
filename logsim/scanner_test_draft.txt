@@ -1,4 +1,14 @@
-INIT;
-G1 is NAND with 2 inputs; /*dhjshdkjshdkjh*/
-abc
-CONNECT; ! /*ghjghgjghgjhgjh
+INIT; D1 is DTYPE; 
+SW1 is SWITCH initially_at 0;
+SW2 is SWITCH initially_at 1;
+SW3 is SWITCH initially_at 0;
+SW4 is SWITCH initially_at 0;
+AND1 is AND with 10 inputs;
+CONNECT;
+D1.Q is_connected_to D1.I2;
+SW1 is_connected_to D1.DATA;
+SW1 is_connected_to D1.I0;
+SW3 is_connected_to D1.CLEAR;
+CK1 is_connected_to AND1.SET;
+MONITOR;
+Initial_monitor_at D1 D2

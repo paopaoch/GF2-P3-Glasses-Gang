@@ -54,23 +54,31 @@ class Parser:
         self.expect_type = None
         self.sentence_type = None
 
+    def set_new_line_word(self):
+        if self.phase == 1:
+            self.expect_type = self.scanner.DEVICE_NAME
+        elif self.phase == 2:
+            self.expect_type = self.scanner.DEVICE_OUT
+        elif self.phase == 3:
+            self.expect_type = self.scanner.INIT_MONITOR
+        else:
+            raise ValueError("Phase can only be 1, 2, or 3")
+        self.new_line = True
 
     def go_to_next_sentece(self):
         while (self.symbol.type != self.scanner.SEMICOLON
                and self.symbol.type != self.scanner.EOF):
             self.symbol = self.scanner.get_symbol()
-            # print(self.count)
+            print(self.count)
             self.count += 1
-        self.new_line = True
-        if self.phase == 1:
-            self.expect_type = self.scanner.DEVICE_NAME
-        elif self.phase == 2:
-            self.expect_type = self.scanner.DEVICE_OUT
-        else:
-            self.expect_type = self.scanner.INIT_MONITOR
+        self.set_new_line_word()
         # print("Found new sentence")
 
-    
+    def increment_phase(self):
+        self.phase += 1
+        self.new_line = False
+        self.expect_type = self.scanner.SEMICOLON
+
 
     def parse_network(self):
         """Parse the circuit definition file."""
@@ -93,7 +101,11 @@ class Parser:
         self.new_line = False
 
         while self.symbol.type != self.scanner.EOF:
+            print(self.symbol.type, self.scanner.EOF)
+            print(self.scanner.DEVICE_NAME)
             self.symbol = self.scanner.get_symbol()
+            if self.symbol.type == self.scanner.EOF:
+                break
             # print(self.count)
             self.count += 1
             if self.symbol.type == self.scanner.ERROR:
@@ -106,26 +118,19 @@ class Parser:
             if self.expect_type == self.scanner.SEMICOLON:
                 if self.symbol.type != self.scanner.SEMICOLON:
                     print("SYNTAX[No Termination]: Missing termination mark")
-                if self.phase == 1:
-                    self.expect_type = self.scanner.DEVICE_NAME
-                elif self.phase == 2:
-                    self.expect_type = self.scanner.DEVICE_OUT
-                else:
-                    self.expect_type = self.scanner.INIT_MONITOR
+                self.set_new_line_word()
                 self.new_line = True
                 continue
 
             if self.expect_type != self.symbol.type:
-                if self.new_line:
+                if self.new_line and self.phase != 3:
                     if self.phase == 1:
                         if self.symbol.type == self.scanner.CONNECT:
                             print("DONE WITH INIT")
-                            self.phase = 2
-                            self.new_line = False
-                            self.expect_type = self.scanner.SEMICOLON
+                            self.increment_phase()
                             continue
                         elif self.expect_type == self.scanner.NUMBER:
-                            print("SYNTAX[Invalid Initialisation]: Invalid setting")
+                            print("SYNTAX[Invalid Initialisation]: Invalid setting should init with numbers")
                             self.go_to_next_sentece()
                             continue
                         else:
@@ -135,24 +140,39 @@ class Parser:
                     if self.phase == 2:
                         if self.symbol.type == self.scanner.MONITOR:
                             print("DONE WITH CONNECT")
-                            self.phase = 3
-                            self.new_line = False
-                            self.expect_type = self.scanner.SEMICOLON
+                            self.increment_phase()
                             continue
-
-                        elif self.expect_type == self.scanner.DEVICE_OUT:
-                            if self.symbol.type == self.scanner.DEVICE_NAME:
-                                self.device_name = True
+                    
+                        if self.expect_type == self.scanner.DEVICE_OUT:
+                            if self.symbol.type != self.scanner.DEVICE_NAME:
+                                print("SYNTAX[Invalid Connection]: Missing keywords expected a device output")
+                                self.go_to_next_sentece()
+                                continue
                         else:
                             print("SYNTAX[Invalid Connection]: Missing keywords")
                             self.go_to_next_sentece()
                             continue
                 else:
-                    print("SYNTAX[Invalid Keyword]: Unexpected keyword found")
-                    # print("expected", self.expect_type)
-                    # print("got", self.symbol.type)
-                    self.go_to_next_sentece()
-                    continue
+                    if self.phase == 3:
+                        if self.expect_type == self.scanner.DEVICE_OUT:
+                            if self.symbol.type == self.scanner.SEMICOLON:
+                                self.expect_type = self.scanner.DEVICE_OUT
+                                continue
+                            if self.symbol.type == self.scanner.EOF:
+                                print("SYNTAX[No Termination]: Missing termination mark")
+                                self.expect_type = self.scanner.EOF
+                                break
+                            elif self.symbol.type != self.scanner.DEVICE_NAME:
+                                print(self.expect_type)
+                                print(self.scanner.DEVICE_OUT)
+                                print("SYNTAX[Invalid Monitor]: Missing keywords expected a device output")
+                                continue
+                    else:
+                        print("SYNTAX[Invalid Keyword]: Unexpected keyword found")
+                        print("expected", self.names.get_name_string(self.symbol.id))
+                        print("got", self.symbol.type)
+                        self.go_to_next_sentece()
+                        continue
 
             # Check INIT
             if self.phase == 1:
@@ -226,17 +246,12 @@ class Parser:
                     if self.symbol.type == self.scanner.DEVICE_IN:
                         self.expect_type = self.scanner.SEMICOLON
 
-            # # Check for MONITOR
-            # elif self.phase == 2 and self.symbol.type != self.CONNECT:
-            #     print("SYNTAX[Incomplete File]: Missing start mark")
-            #     self.phase = 3
-            #     expect_semi_colon = True
+            elif self.phase == 3:
+                if self.symbol.type == self.scanner.INIT_MONITOR:
+                    self.expect_type = self.scanner.DEVICE_OUT
+                    self.new_line = False
 
-            # elif expect_semi_colon and self.symbol.type != self.SEMICOLON:
-            #     print("SYNTAX[No Termination]: Missing termination mark")
-            else:
-                self.expect_type = None
-                self.new_line = True
+        return True
 
 
 if __name__ == "__main__":

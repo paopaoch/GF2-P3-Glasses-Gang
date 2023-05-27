@@ -14,13 +14,13 @@ f = 'scanner_test_draft.txt'
 scanner2 = Scanner(f,names2)
 
 # test symbol.type
-'''
+
 sym = symbol_type_list[scanner2.get_symbol().type]
 print(sym)
 while sym != "EOF" :
     sym = symbol_type_list[scanner2.get_symbol().type]
     print(sym)
-'''
+
 
 # test symbol.id
 # test G1
@@ -41,6 +41,7 @@ sym_type = symbol_type_list[sym.type]
 print(scanner2.names.get_name_string(sym_id))
 '''
 # test get_sentence(symbol,path)
+'''
 scanner2.get_symbol()
 sym = scanner2.get_symbol()
 print(scanner2.get_sentence(sym,f)=="INIT;")
@@ -49,6 +50,6 @@ scanner2.get_symbol()
 scanner2.get_symbol()
 sym = scanner2.get_symbol()
 print(scanner2.get_sentence(sym,f)=="G1 is NAND with")
-
+'''
 
 
