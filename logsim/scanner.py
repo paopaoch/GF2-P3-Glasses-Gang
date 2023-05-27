@@ -152,15 +152,17 @@ class Scanner:
             sys.exit()
         start_pos = f.seek(symbol.line_pos)
         sentence = f.read(symbol.pos-start_pos)
-        sentence = sentence.strip()
-        sentence = ' '.join(sentence.split('\n'))
+        sentence = sentence.strip()                     # Remove spaces before or after the sentence
+        comment_regex = "\/\*.*?\*\/"
+        sentence = ' '.join(sentence.split('\n'))       # Remove any newline within a sentence
+        sentence = re.sub(comment_regex, "", sentence)  # Remove comments
         symbol_len = 1
-        if not front or sentence[-1] == ";":
-            pointer = " " * (len(sentence) - 1) + '^'
+        if not front or sentence[-1] == ";":            # Pointer points to the end of a symbol
+            pointer = " " * (len(sentence) - 1) + '^'   # or semicolumn
             pointer_mes = sentence + '\n' + pointer
-        else:
-            for i in range(len(sentence)-1, 0, -1):
-                if sentence[i] != ' ':
+        else:                                           # Pointer points before the symbol
+            for i in range(len(sentence)-1, 0, -1):     # or points to the first character
+                if sentence[i] != ' ':                  # at the start of a sentence
                     symbol_len += 1
                 else:
                     break
@@ -178,7 +180,7 @@ class Scanner:
         cur_char = f.read(1)
         for i in range(symbol.pos-1):
             if cur_char == '\n':
-                line_number += 1
+                line_number += 1               # line number increases when find newline
             cur_char = f.read(1)
         return line_number
     
@@ -195,9 +197,9 @@ class Scanner:
         self.skip_spaces_and_linebreaks()
         symbol_get = Symbol()
         symbol_string = ""
-        name_rule = re.compile("\A[A-Z]+\d+$")
-        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")
-        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")
+        name_rule = re.compile("\A[A-Z]+\d+$")                              # Regex format for device name
+        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")    # Regex format for device input
+        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")                   # Regex format for device output
         if self.current_char == '':
             symbol_get.type = self.EOF
             symbol_get.pos = self.file.tell()

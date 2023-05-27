@@ -56,7 +56,8 @@ scanner2.get_symbol()
 scanner2.get_symbol()
 scanner2.get_symbol()
 scanner2.get_symbol()
-sym = scanner2.get_symbol() # test for symbol in between sentence
+
+sym = scanner2.get_symbol() # test for symbol in between sentence and remove comment
 print(scanner2.print_error_message(sym,"",f,front=False))
 print(scanner2.print_error_message(sym,"",f,front=True))
 
