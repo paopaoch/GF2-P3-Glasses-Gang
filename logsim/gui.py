@@ -251,7 +251,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glColor3f(0.0, 0.0, 0.0)  # text is black
         GL.glRasterPos2f(x_pos, y_pos)
         font = GLUT.GLUT_BITMAP_HELVETICA_12
-        print(text)
         for character in text:
             if character == '\n':
                 y_pos = y_pos - 20
