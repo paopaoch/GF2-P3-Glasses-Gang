@@ -132,7 +132,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             for i in range(self.cycles_completed+1):
                 GL.glVertex2f(x_start+i*cycle_width, y_val+par)
                 GL.glVertex2f(x_start+i*cycle_width, y_val-par)
-            GL.glEnd()
+            GL.glEnd
             # Draw arrowhead
             GL.glBegin(GL.GL_TRIANGLES)
             GL.glVertex2f(x_end - 10, y_val - 5)  # Bottom-left point of arrowhead
