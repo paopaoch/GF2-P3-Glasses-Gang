@@ -51,7 +51,7 @@ class Error:
         self.semantic_error_count = 0
 
     def add_error(self, error_type):
-        if error_type is None:
+        if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
         if error_type == self.SYNTAX:
             self.syntax_error_count += 1
@@ -59,7 +59,7 @@ class Error:
             self.semantic_error_count += 1
 
     def error_message(self, error_type):
-        if error_type is None:
+        if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
         error_mes = ""
         if error_type == self.SYNTAX:
@@ -86,7 +86,7 @@ class Error:
             elif self.error_code == self.KEYWORD_NOT_FOUND:
                 error_mes = "SYNTAX[Keyword Not Found]: Invalid keyword"
             elif self.error_code == self.INVALID_COMMENT:
-                error_mes = "SYNTAX[Invalid Comment]: Missing '*/'"
+                error_mes = "SYNTAX[Invalid Comment]: Missing end comment mark '*/'"
         elif error_type == self.SEMANTIC:
             # elif self.error_code == self.devices.NO_ERROR:
             pass

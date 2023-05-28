@@ -1,11 +1,13 @@
 """Read the circuit definition file and translate the characters into symbols.
 
 Used in the Logic Simulator project to read the characters in the definition
-file and translate them into symbols that are usable by the parser.
+file and translate them into symbols that are usable by the parser. Print error
+messages and check for invalid comment error.
 
 Classes
 -------
-Scanner - reads definition file and translates characters into symbols.
+Scanner - reads definition file and translates characters into symbols. Print
+          error messages and check for invalid comments.
 Symbol - encapsulates a symbol and stores its properties.
 """
 import sys
@@ -29,7 +31,9 @@ class Symbol:
         """Initialise symbol properties."""
         self.type = None
         self.id = None
+        # Position of the last char of the symbol
         self.pos = None
+        # Position of the first char of the sentence that symbol is in
         self.line_pos = None
 
 
@@ -46,6 +50,8 @@ class Scanner:
     ----------
     path: path to the circuit definition file.
     names: instance of the names.Names() class.
+    devices: instance of the devices.Devices() class.
+    network: instance of the network.Network() class.
 
     Public methods
     -------------
@@ -88,6 +94,7 @@ class Scanner:
         self.names.lookup(self.device_output_pin_list)
 
         self.current_char = None
+        # Position of start char of the sentence is reading
         self.last_line_pos = 0
 
     def read_file(self):
@@ -166,17 +173,20 @@ class Scanner:
             sys.exit()
         start_pos = f.seek(symbol.line_pos)
         sentence = f.read(symbol.pos-start_pos)
-        sentence = sentence.strip()                     # Remove spaces before or after the sentence
+        # Remove spaces before or after the sentence
+        sentence = sentence.strip()
         comment_regex = "\/\*.*?\*\/"
-        sentence = ' '.join(sentence.split('\n'))       # Remove any newline within a sentence
-        sentence = re.sub(comment_regex, '', sentence)  # Remove comments
+        # Remove any newline within a sentence
+        sentence = ' '.join(sentence.split('\n'))
+        # Remove comments
+        sentence = re.sub(comment_regex, '', sentence)
         symbol_len = 1
-        if not front or sentence[-1] == ";":            # Pointer points to the end of a symbol
-            pointer = " " * (len(sentence) - 1) + '^'   # or semicolumn
+        if not front or sentence[-1] == ";":
+            pointer = " " * (len(sentence) - 1) + '^'
             pointer_mes = sentence + '\n' + pointer
-        else:                                           # Pointer points before the symbol
-            for i in range(len(sentence)-1, 0, -1):     # or points to the first character
-                if sentence[i] != ' ':                  # at the start of a sentence
+        else:
+            for i in range(len(sentence)-1, 0, -1):
+                if sentence[i] != ' ':
                     symbol_len += 1
                 else:
                     break
@@ -193,17 +203,21 @@ class Scanner:
         line_number = 1
         cur_char = f.read(1)
         for i in range(symbol.pos-1):
+            # line number increases when find newline
             if cur_char == '\n':
-                line_number += 1               # line number increases when find newline
+                line_number += 1
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, path, front=False):
-        pointer_mes = self.get_pointer(symbol, path, front)
-        line_number = self.get_line_position(symbol, path)
-        error_mes = "Error in line: " + str(line_number)
-        error_mes += '\n' + pointer_mes
-        error_mes += '\n' + self.error.error_message()
+    def print_error_message(self, symbol, path, pointer=True, front=False):
+        if pointer:
+            pointer_mes = self.get_pointer(symbol, path, front)
+            line_number = self.get_line_position(symbol, path)
+            error_mes = "Error in line: " + str(line_number)
+            error_mes += '\n' + pointer_mes
+            error_mes += '\n' + self.error.error_message()
+        else:
+            error_mes = self.error.error_message()
         return error_mes
 
     def get_symbol(self):
@@ -212,9 +226,12 @@ class Scanner:
         self.skip_spaces_and_linebreaks()
         symbol_get = Symbol()
         symbol_string = ""
-        name_rule = re.compile("\A[A-Z]+\d+$")                              # Regex format for device name
-        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")    # Regex format for device input
-        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")                   # Regex format for device output
+        # Regex format for device name
+        name_rule = re.compile("\A[A-Z]+\d+$")
+        # Regex format for device input
+        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")
+        # Regex format for device output
+        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")
         if self.current_char == '':
             symbol_get.type = self.EOF
             symbol_get.pos = self.file.tell()
