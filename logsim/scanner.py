@@ -55,24 +55,54 @@ class Scanner:
 
     Public methods
     -------------
-    get_name(self):
-    get_nuber(self):
-    skip_spaces_and_linebreaks(self):
-    skip_comment(self):
-    get_symbol(self): Translates the next sequence of characters into a symbol
-                      and returns the symbol.
+    read_file(self): Read file for the next character.
+
+    restart(self): Restart reading the file from the beginning.
+
+    get_name(self): Return the alphabetic string may with "_", update
+                    the current character to the next non-alphabetic
+                    character. 
+
+    get_number(self): Return the numerical string, update the current
+                      character to the next non-numerical character.
+
+    skip_spaces_and_linebreaks(self): Skip the spaces and linebreaks
+                                      between symbols.
+
+    skip_comment(self): Skip comments if comment is in valid form, or
+                        report syntax error if invalid comment detected.
+
+    get_pointer(self, symbol, path, front=False): Return pointer message 
+                        which includes the sentence where the symbol located,
+                        and a pointer points to the desired position.
+
+    get_line_position(self, symbol, path): Return the line number of the 
+                                           symbol located in the file.
+
+    print_error_message(self, symbol, path, pointer=True, front=False):
+                    Return the complete error message which includes the
+                    line number, pointer message(optional), and error message.
+
+    get_symbol(self): Translates the next sequence of characters into a 
+                      symbol and returns the symbol.
     """
 
     def __init__(self, path, names, devices, network):
         """Open specified file and initialise reserved words and IDs."""
+        # Open the file
         try:
             self.file = open(path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
-        
+
+        # Set Name instance
         self.names = names
+
+        # Create Error instance
         self.error = Error(self.names, network, devices)
+
+        # Assign symbol types
         self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT, 
                                  self.MONITOR, self.DEVICE_TYPE, 
                                  self.NUMBER, self.DEVICE_NAME, 
@@ -82,6 +112,8 @@ class Scanner:
                                  self.INIT_CLK, self.CONNECTION, 
                                  self.INIT_MONITOR, self.SEMICOLON, 
                                  self.EOF] = range(18)
+        
+        # Add keywords to names
         self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR', 
                                  'SWITCH', 'DTYPE', 'CLOCK']
         self.device_input_pin_list = ['I1', 'I2', 'I3', 'I4', 'I5', 
@@ -92,18 +124,23 @@ class Scanner:
         self.names.lookup(self.device_type_list)
         self.names.lookup(self.device_input_pin_list)
         self.names.lookup(self.device_output_pin_list)
-
+        
+        # Character at current reading position
         self.current_char = None
+        
         # Position of start char of the sentence is reading
         self.last_line_pos = 0
 
     def read_file(self):
+        """Read file for the next character."""
         return self.file.read(1)
 
     def restart(self):
+        """Go back to the start of the file."""
         self.file.seek(0)
 
     def get_name(self):
+        """Return alphabetic string may with '_', update current_char."""
         if not self.current_char.isalpha():
             raise TypeError("The current character should be Alphabet.")
         name = ""
@@ -113,6 +150,7 @@ class Scanner:
         return name
 
     def get_number(self):
+        """Return numerical string, update current_char."""
         if not self.current_char.isdigit():
             raise TypeError("The current character should be Digit.")
         number = ""
@@ -122,10 +160,12 @@ class Scanner:
         return number
 
     def skip_spaces_and_linebreaks(self):
+        """Skip spaces and linebreaks, update current_char."""
         while self.current_char.isspace() or self.current_char == '\n':
             self.current_char = self.read_file()
     
     def skip_comment(self):
+        """Skip comment if valid comment, otherwise report error."""
         if not self.current_char == '*':
             raise TypeError("The current character should be '*'.")
         sentence = "/*"
@@ -166,20 +206,28 @@ class Scanner:
         self.skip_spaces_and_linebreaks()
     
     def get_pointer(self, symbol, path, front=False):
+        """Return the pointer message.
+        
+        Pointer message includes the sentence where the symbol located, 
+        and a pointer points to the symbol, can eithrt point to the end 
+        of the symbol or start of the symbol.
+        """
         try:
             f = open(path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
+        # extract the sentence the symbol located
         start_pos = f.seek(symbol.line_pos)
         sentence = f.read(symbol.pos-start_pos)
-        # Remove spaces before or after the sentence
+        # Remove spaces at the two sides
         sentence = sentence.strip()
-        comment_regex = "\/\*.*?\*\/"
         # Remove any newline within a sentence
         sentence = ' '.join(sentence.split('\n'))
         # Remove comments
+        comment_regex = "\/\*.*?\*\/"
         sentence = re.sub(comment_regex, '', sentence)
+        # Create the pointer message
         symbol_len = 1
         if not front or sentence[-1] == ";":
             pointer = " " * (len(sentence) - 1) + '^'
@@ -195,6 +243,7 @@ class Scanner:
         return pointer_mes
 
     def get_line_position(self, symbol, path):
+        """Return the line number of the symbol located in the file."""
         try:
             f = open(path, "r")
         except IOError:
@@ -210,6 +259,11 @@ class Scanner:
         return line_number
     
     def print_error_message(self, symbol, path, pointer=True, front=False):
+        """Return the complete error message.
+        
+        Complete error message includes the line number,
+        pointer message(optional), and error message.
+        """
         if pointer:
             pointer_mes = self.get_pointer(symbol, path, front)
             line_number = self.get_line_position(symbol, path)
