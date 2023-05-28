@@ -197,8 +197,8 @@ class Scanner:
             end_right = self.current_char
         if not (end_left == '*' and end_right == '/'):
             self.error.error_code = self.error.INVALID_COMMENT
-            sentence = sentence[:4] + " ... " + sentence[-4:]
-            sentence += '\n' + " " * 13 + '^'
+            sentence = sentence[:5] + " ... " + sentence[-5:]
+            sentence += '\n' + " " * 15 + '^'
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
         else:
