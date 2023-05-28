@@ -25,7 +25,7 @@ class Error:
     No public methods.
     """
 
-    def __init__(self, names: Names, network: Network, devices: Devices):
+    def __init__(self, names, network, devices):
         """Initialise error properties."""
         self.names = names
         self.network = network
@@ -64,7 +64,7 @@ class Error:
         error_mes = ""
         if error_type == self.SYNTAX:
             if self.error_code == self.INIT_MISS_KEYWORD:
-                error_mes = f"SYNTAX[Invalid Initialisation]: Missing keywords {optional_mess}"
+                error_mes = "SYNTAX[Invalid Initialisation]: Missing keywords"
             elif self.error_code == self.INIT_WRONG_NAME:
                 error_mes = "SYNTAX[Invalid Initialisation]: Invalid device name"
             elif self.error_code == self.INIT_WRONG_SET:
@@ -80,7 +80,7 @@ class Error:
             elif self.error_code == self.MISS_DESCRIPTION:
                 error_mes = "SYNTAX[Incomplete File]: Missing sentences"
             elif self.error_code == self.MISS_START_MARK:
-                error_mes = f"SYNTAX[Incomplete File]: Missing start mark {optional_mess}"
+                error_mes = "SYNTAX[Incomplete File]: Missing start mark"
             elif self.error_code == self.MISS_TERMINATION:
                 error_mes = "SYNTAX[No Termination]: Missing termination mark"
             elif self.error_code == self.KEYWORD_NOT_FOUND:
