@@ -97,7 +97,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         """Handle all drawing operations."""
 
         # Clear everything
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         if cycles > 0:
             self.cycles_completed = cycles
             self.gui_monitors = gui_monitors
@@ -113,6 +112,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             margin = 0
 
         self.render_text(text, 10, 10)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
         if self.cycles_completed > 0:
             GL.glBegin(GL.GL_LINES)
@@ -132,7 +132,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             for i in range(self.cycles_completed+1):
                 GL.glVertex2f(x_start+i*cycle_width, y_val+par)
                 GL.glVertex2f(x_start+i*cycle_width, y_val-par)
-            
+            GL.glEnd()
             # Draw arrowhead
             GL.glBegin(GL.GL_TRIANGLES)
             GL.glVertex2f(x_end - 10, y_val - 5)  # Bottom-left point of arrowhead
@@ -241,10 +241,10 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init = False
             text = "".join(["Positive mouse wheel rotation. Zoom is now: ",
                             str(self.zoom)])
-        if text:
-            self.render(text)
-        else:
-            self.Refresh()  # triggers the paint event
+        # if text:
+        #     self.render(text)
+        # else:
+        self.Refresh()  # triggers the paint event
 
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
@@ -336,7 +336,7 @@ class Gui(wx.Frame):
 
         # Configure the widgets
         self.text = wx.StaticText(self, wx.ID_ANY, _(u"Cycles"))
-        self.spin = wx.SpinCtrl(self, wx.ID_ANY, "10")
+        self.spin = wx.SpinCtrl(self, wx.ID_ANY, "10", min=1)
         self.run_button = wx.Button(self, wx.ID_ANY, _(u"Run"))
         self.continue_button = wx.Button(self, wx.ID_ANY, _(u"Continue"))
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
@@ -413,17 +413,6 @@ class Gui(wx.Frame):
         self.scrolled_monitor.SetSizer(self.sizer_monitor)
         self.scrolled_monitor.SetScrollRate(0, 20)  # Adjust the scrolling speed
         self.scrolled_monitor.SetAutoLayout(True)
-        self.monitored_signal = self.monitors.get_signal_names()[0]
-        for monitor in self.monitored_signal:
-            self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
-            self.sizer_monitor.Add(self.sub_sizer_text_monitor, 0, wx.ALIGN_CENTER|wx.ALL, 5)
-            self.exist_text_monitor = wx.StaticText(self.scrolled_monitor, wx.ID_ANY,
-                                                    monitor, style=wx.TE_PROCESS_ENTER)
-            self.remove_monitor_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
-                                                    _(u"Remove"))
-            self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
-            self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 0, wx.ALIGN_CENTER|wx.ALL, 5)
-            self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 0, wx.ALIGN_CENTER|wx.ALL, 5)
 
         self.monitor_combo = wx.ComboBox(self.scrolled_monitor, wx.ID_ANY, 
                                          choices=self.not_monitored_signal, 
@@ -431,8 +420,19 @@ class Gui(wx.Frame):
         self.monitor_add_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
                                             _(u"Add"))  
         self.sizer_monitor.Add(self.sub_sizer_monitor, 1, wx.ALIGN_LEFT|wx.ALL, 5)   
-        self.sub_sizer_monitor.Add(self.monitor_combo, 1, wx.ALIGN_LEFT|wx.ALL, 5)
-        self.sub_sizer_monitor.Add(self.monitor_add_button, 1, wx.ALIGN_LEFT|wx.ALL, 5)
+        self.sub_sizer_monitor.Add(self.monitor_combo, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+        self.sub_sizer_monitor.Add(self.monitor_add_button, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+        self.monitored_signal = self.monitors.get_signal_names()[0]
+        for monitor in self.monitored_signal:
+            self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
+            self.sizer_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
+            self.exist_text_monitor = wx.StaticText(self.scrolled_monitor, wx.ID_ANY,
+                                                    monitor, style=wx.TE_PROCESS_ENTER)
+            self.remove_monitor_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
+                                                    _(u"Remove"))
+            self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
+            self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
+            self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
             
         # place side_sizer items
         self.side_sizer.Add(self.sizer_cycle, 0, wx.ALL, 5)
@@ -495,7 +495,7 @@ class Gui(wx.Frame):
                 self.cycles_completed += 1
         self.gui_monitors = self.convert_gui_monitors()
         text = "Cycles completed."
-        self.canvas.render(text)
+        self.canvas.render("", self.cycles_completed, self.gui_monitors)
 
     def on_continue_button(self, event):
         """Event handler for when the user clicks the continue button"""
@@ -509,7 +509,7 @@ class Gui(wx.Frame):
                     self.monitors.record_signals()
                     self.cycles_completed += 1
             self.gui_monitors = self.convert_gui_monitors()
-            self.canvas.render(self.cycles_completed)
+            self.canvas.render("", self.cycles_completed, self.gui_monitors)
 
     def on_quit_button(self, event):
         """Event handler for when the user clicks the quit button."""
@@ -542,7 +542,6 @@ class Gui(wx.Frame):
             self.not_monitored_signal = self.monitors.get_signal_names()[1]
             # sizer changes
             if monitor_error == self.monitors.NO_ERROR:
-                self.monitor_combo.SetItems(self.not_monitored_signal)
                 self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
                 self.sizer_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
                 self.exist_text_monitor = wx.StaticText(self.scrolled_monitor, wx.ID_ANY,
@@ -552,6 +551,7 @@ class Gui(wx.Frame):
                 self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
                 self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
                 self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
+                self.monitor_combo.SetItems(self.not_monitored_signal)
                 text = "Successfully made monitor."
                 self.canvas.render(text)
             else:
