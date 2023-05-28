@@ -20,7 +20,7 @@ from devices import Devices
 from network import Network
 from monitors import Monitors
 from scanner import Scanner
-from parse import Parser
+from parse_just_connect import Parser
 from userint import UserInterface
 from gui import Gui
 
