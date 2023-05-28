@@ -147,7 +147,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
             # draw output signals at monitoring points
             for i in range(len(self.gui_monitors)):
-                monitor_str_list = [self.gui_monitors.keys()]
+                monitor_str_list = list(self.gui_monitors.keys())
                 monitor_str = monitor_str_list[i]
                 height = y_val + i*50
                 self.render_text(monitor_str, 20, height)
@@ -251,7 +251,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glColor3f(0.0, 0.0, 0.0)  # text is black
         GL.glRasterPos2f(x_pos, y_pos)
         font = GLUT.GLUT_BITMAP_HELVETICA_12
-
+        print(text)
         for character in text:
             if character == '\n':
                 y_pos = y_pos - 20
