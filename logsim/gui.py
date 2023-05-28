@@ -138,7 +138,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             GL.glVertex2f(x_end - 10, y_val - 5)  # Bottom-left point of arrowhead
             GL.glVertex2f(x_end, y_val)                            # Tip of arrowhead
             GL.glVertex2f(x_end - 10, y_val + 5)  # Bottom-right point of arrowhead
-            GL.glEnd()
+            GL.glEnd
 
             # label the axis
             self.render_text("Time", x_start, y_val)
@@ -493,7 +493,7 @@ class Gui(wx.Frame):
                 self.cycles_completed += 1
         self.gui_monitors = self.convert_gui_monitors()
         text = "Cycles completed."
-        self.canvas.render(text)
+        self.canvas.render(text, cycles=num_cycles)
 
     def on_continue_button(self, event):
         """Event handler for when the user clicks the continue button"""
@@ -507,7 +507,7 @@ class Gui(wx.Frame):
                     self.monitors.record_signals()
                     self.cycles_completed += 1
             self.gui_monitors = self.convert_gui_monitors()
-            self.canvas.render(self.cycles_completed)
+            self.canvas.render("", cycles=self.cycles_completed)
 
     def on_quit_button(self, event):
         """Event handler for when the user clicks the quit button."""
