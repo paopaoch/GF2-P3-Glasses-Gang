@@ -58,13 +58,13 @@ class Error:
         elif error_type == self.SEMANTIC:
             self.semantic_error_count += 1
 
-    def error_message(self, error_type):
+    def error_message(self, error_type, optional_mess=""):
         if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
         error_mes = ""
         if error_type == self.SYNTAX:
             if self.error_code == self.INIT_MISS_KEYWORD:
-                error_mes = "SYNTAX[Invalid Initialisation]: Missing keywords"
+                error_mes = f"SYNTAX[Invalid Initialisation]: Missing keywords {optional_mess}"
             elif self.error_code == self.INIT_WRONG_NAME:
                 error_mes = "SYNTAX[Invalid Initialisation]: Invalid device name"
             elif self.error_code == self.INIT_WRONG_SET:
@@ -80,7 +80,7 @@ class Error:
             elif self.error_code == self.MISS_DESCRIPTION:
                 error_mes = "SYNTAX[Incomplete File]: Missing sentences"
             elif self.error_code == self.MISS_START_MARK:
-                error_mes = "SYNTAX[Incomplete File]: Missing start mark"
+                error_mes = f"SYNTAX[Incomplete File]: Missing start mark {optional_mess}"
             elif self.error_code == self.MISS_TERMINATION:
                 error_mes = "SYNTAX[No Termination]: Missing termination mark"
             elif self.error_code == self.KEYWORD_NOT_FOUND:
