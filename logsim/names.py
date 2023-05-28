@@ -42,6 +42,7 @@ class Names:
         """Initialise names list."""
         self.error_code_count = 0  # how many error codes have been declared
         self.names = []
+        
 
     def unique_error_codes(self, num_error_codes):
         """Return a list of unique integer error codes."""
@@ -52,7 +53,7 @@ class Names:
         self.error_code_count += num_error_codes
         return range(self.error_code_count - num_error_codes,
                      self.error_code_count)
-    
+
 
     def query(self, name_string):
         """Return the corresponding name ID for name_string.

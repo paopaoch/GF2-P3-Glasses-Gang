@@ -1,16 +1,18 @@
 """Read the circuit definition file and translate the characters into symbols.
 
 Used in the Logic Simulator project to read the characters in the definition
-file and translate them into symbols that are usable by the parser.
+file and translate them into symbols that are usable by the parser. Print error
+messages and check for invalid comment error.
 
 Classes
 -------
-Scanner - reads definition file and translates characters into symbols.
+Scanner - reads definition file and translates characters into symbols. Print
+          error messages and check for invalid comments.
 Symbol - encapsulates a symbol and stores its properties.
 """
 import sys
 import re
-
+from error import Error
 
 class Symbol:
 
@@ -29,7 +31,9 @@ class Symbol:
         """Initialise symbol properties."""
         self.type = None
         self.id = None
+        # Position of the last char of the symbol
         self.pos = None
+        # Position of the first char of the sentence that symbol is in
         self.line_pos = None
 
 
@@ -46,27 +50,59 @@ class Scanner:
     ----------
     path: path to the circuit definition file.
     names: instance of the names.Names() class.
+    devices: instance of the devices.Devices() class.
+    network: instance of the network.Network() class.
 
     Public methods
     -------------
-    get_name(self):
-    get_nuber(self):
-    skip_spaces_and_linebreaks(self):
-    skip_comment(self):
-    get_symbol(self): Translates the next sequence of characters into a symbol
-                      and returns the symbol.
+    read_file(self): Read file for the next character.
+
+    restart(self): Restart reading the file from the beginning.
+
+    get_name(self): Return the alphabetic string may with "_", update
+                    the current character to the next non-alphabetic
+                    character. 
+
+    get_number(self): Return the numerical string, update the current
+                      character to the next non-numerical character.
+
+    skip_spaces_and_linebreaks(self): Skip the spaces and linebreaks
+                                      between symbols.
+
+    skip_comment(self): Skip comments if comment is in valid form, or
+                        report syntax error if invalid comment detected.
+
+    get_pointer(self, symbol, path, front=False): Return pointer message 
+                        which includes the sentence where the symbol located,
+                        and a pointer points to the desired position.
+
+    get_line_position(self, symbol, path): Return the line number of the 
+                                           symbol located in the file.
+
+    print_error_message(self, symbol, path, pointer=True, front=False):
+                    Return the complete error message which includes the
+                    line number, pointer message(optional), and error message.
+
+    get_symbol(self): Translates the next sequence of characters into a 
+                      symbol and returns the symbol.
     """
 
-    def __init__(self, path, names):
+    def __init__(self, path, names, devices, network):
         """Open specified file and initialise reserved words and IDs."""
+        # Open the file
         try:
             self.file = open(path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
-        
+
+        # Set Name instance
         self.names = names
 
+        # Create Error instance
+        self.error = Error(self.names, network, devices)
+
+        # Assign symbol types
         self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT, 
                                  self.MONITOR, self.DEVICE_TYPE, 
                                  self.NUMBER, self.DEVICE_NAME, 
@@ -76,6 +112,8 @@ class Scanner:
                                  self.INIT_CLK, self.CONNECTION, 
                                  self.INIT_MONITOR, self.SEMICOLON, 
                                  self.EOF] = range(18)
+        
+        # Add keywords to names
         self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR', 
                                  'SWITCH', 'DTYPE', 'CLOCK']
         self.device_input_pin_list = ['I1', 'I2', 'I3', 'I4', 'I5', 
@@ -86,17 +124,23 @@ class Scanner:
         self.names.lookup(self.device_type_list)
         self.names.lookup(self.device_input_pin_list)
         self.names.lookup(self.device_output_pin_list)
-
+        
+        # Character at current reading position
         self.current_char = None
+        
+        # Position of start char of the sentence is reading
         self.last_line_pos = 0
 
     def read_file(self):
+        """Read file for the next character."""
         return self.file.read(1)
 
     def restart(self):
+        """Go back to the start of the file."""
         self.file.seek(0)
 
     def get_name(self):
+        """Return alphabetic string may with '_', update current_char."""
         if not self.current_char.isalpha():
             raise TypeError("The current character should be Alphabet.")
         name = ""
@@ -106,6 +150,7 @@ class Scanner:
         return name
 
     def get_number(self):
+        """Return numerical string, update current_char."""
         if not self.current_char.isdigit():
             raise TypeError("The current character should be Digit.")
         number = ""
@@ -115,54 +160,81 @@ class Scanner:
         return number
 
     def skip_spaces_and_linebreaks(self):
+        """Skip spaces and linebreaks, update current_char."""
         while self.current_char.isspace() or self.current_char == '\n':
             self.current_char = self.read_file()
     
     def skip_comment(self):
+        """Skip comment if valid comment, otherwise report error."""
         if not self.current_char == '*':
             raise TypeError("The current character should be '*'.")
+        sentence = "/*"
         self.current_char = self.read_file()
+        sentence += self.current_char
         if self.current_char == '':
-            print("Invalid comment")
+            self.error.error_code = self.error.INVALID_COMMENT
+            sentence += '\n' + " " * len(sentence) + '^'
+            print(sentence)
+            print(self.error.error_message(self.error.SYNTAX))
             return
         
         end_left = self.current_char
         self.current_char = self.read_file()
         end_right = self.current_char
+        sentence += self.current_char
         if self.current_char == '':
-            print("Invalid comment")
+            self.error.error_code = self.error.INVALID_COMMENT
+            sentence += '\n' + " " * len(sentence) + '^'
+            print(sentence)
+            print(self.error.error_message(self.error.SYNTAX))
             return
         
         while (not (end_left == '*' and end_right == '/')
                 and (not self.current_char == '')):
             self.current_char = self.read_file()
+            sentence += self.current_char
             end_left = end_right
             end_right = self.current_char
         if not (end_left == '*' and end_right == '/'):
-            print("Invalid comment")
+            self.error.error_code = self.error.INVALID_COMMENT
+            sentence = sentence[:4] + " ... " + sentence[-4:]
+            sentence += '\n' + " " * 13 + '^'
+            print(sentence)
+            print(self.error.error_message(self.error.SYNTAX))
         else:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
     
     def get_pointer(self, symbol, path, front=False):
+        """Return the pointer message.
+        
+        Pointer message includes the sentence where the symbol located, 
+        and a pointer points to the symbol, can eithrt point to the end 
+        of the symbol or start of the symbol.
+        """
         try:
             f = open(path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
+        # extract the sentence the symbol located
         start_pos = f.seek(symbol.line_pos)
         sentence = f.read(symbol.pos-start_pos)
-        sentence = sentence.strip()                     # Remove spaces before or after the sentence
+        # Remove spaces at the two sides
+        sentence = sentence.strip()
+        # Remove any newline within a sentence
+        sentence = ' '.join(sentence.split('\n'))
+        # Remove comments
         comment_regex = "\/\*.*?\*\/"
-        sentence = ' '.join(sentence.split('\n'))       # Remove any newline within a sentence
-        sentence = re.sub(comment_regex, '', sentence)  # Remove comments
+        sentence = re.sub(comment_regex, '', sentence)
+        # Create the pointer message
         symbol_len = 1
-        if not front or sentence[-1] == ";":            # Pointer points to the end of a symbol
-            pointer = " " * (len(sentence) - 1) + '^'   # or semicolumn
+        if not front or sentence[-1] == ";":
+            pointer = " " * (len(sentence) - 1) + '^'
             pointer_mes = sentence + '\n' + pointer
-        else:                                           # Pointer points before the symbol
-            for i in range(len(sentence)-1, 0, -1):     # or points to the first character
-                if sentence[i] != ' ':                  # at the start of a sentence
+        else:
+            for i in range(len(sentence)-1, 0, -1):
+                if sentence[i] != ' ':
                     symbol_len += 1
                 else:
                     break
@@ -171,6 +243,7 @@ class Scanner:
         return pointer_mes
 
     def get_line_position(self, symbol, path):
+        """Return the line number of the symbol located in the file."""
         try:
             f = open(path, "r")
         except IOError:
@@ -179,17 +252,26 @@ class Scanner:
         line_number = 1
         cur_char = f.read(1)
         for i in range(symbol.pos-1):
+            # line number increases when find newline
             if cur_char == '\n':
-                line_number += 1               # line number increases when find newline
+                line_number += 1
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, error, path, front=False):
-        pointer_mes = self.get_pointer(symbol, path, front)
-        line_number = self.get_line_position(symbol, path)
-        error_mes = "Error in line: " + str(line_number)
-        error_mes += '\n' + pointer_mes
-        error_mes += '\n' + error.error_message()
+    def print_error_message(self, symbol, path, pointer=True, front=False):
+        """Return the complete error message.
+        
+        Complete error message includes the line number,
+        pointer message(optional), and error message.
+        """
+        if pointer:
+            pointer_mes = self.get_pointer(symbol, path, front)
+            line_number = self.get_line_position(symbol, path)
+            error_mes = "Error in line: " + str(line_number)
+            error_mes += '\n' + pointer_mes
+            error_mes += '\n' + self.error.error_message()
+        else:
+            error_mes = self.error.error_message()
         return error_mes
 
     def get_symbol(self):
@@ -198,9 +280,12 @@ class Scanner:
         self.skip_spaces_and_linebreaks()
         symbol_get = Symbol()
         symbol_string = ""
-        name_rule = re.compile("\A[A-Z]+\d+$")                              # Regex format for device name
-        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")    # Regex format for device input
-        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")                   # Regex format for device output
+        # Regex format for device name
+        name_rule = re.compile("\A[A-Z]+\d+$")
+        # Regex format for device input
+        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")
+        # Regex format for device output
+        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")
         if self.current_char == '':
             symbol_get.type = self.EOF
             symbol_get.pos = self.file.tell()

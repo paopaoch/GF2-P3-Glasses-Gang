@@ -69,7 +69,7 @@ class Parser:
         while (self.symbol.type != self.scanner.SEMICOLON
                and self.symbol.type != self.scanner.EOF):
             self.symbol = self.scanner.get_symbol()
-            print(self.count)
+            # print(self.count)
             self.count += 1
         self.set_new_line_word()
         # print("Found new sentence")
@@ -79,6 +79,62 @@ class Parser:
         self.new_line = False
         self.expect_type = self.scanner.SEMICOLON
 
+    def check_structure(self):
+        self.symbol = self.scanner.get_symbol()
+        self.expect_type = self.scanner.INIT
+        self.phase = 1
+        pos = 1
+        init_pos = 0
+        connect_pos = None
+        monitor_pos = None
+        error = False
+        if self.symbol.type != self.expect_type:  # Check for INIT
+            # print("SYNTAX[Incomplete File]: Missing start mark")
+            self.scanner.restart()
+            error = True
+        else:
+            init_pos = 1
+
+        # Loop through file for crude checking of file structure
+        while self.symbol.type != self.scanner.EOF:
+            self.symbol = self.scanner.get_symbol()
+            pos += 1
+            if self.symbol.type == self.scanner.CONNECT:
+                if self.phase == 1:
+                    self.phase = 2
+                    connect_pos = pos
+
+            if self.symbol.type == self.scanner.MONITOR:
+                if self.phase in [1,2]:
+                    self.phase = 3
+                    monitor_pos = pos
+
+        if init_pos == 0:
+            print("SYNTAX[Incomplete File]: Missing start mark")
+            error = True
+        if connect_pos is None:
+            print("SYNTAX[Incomplete File]: Missing start mark")
+            error = True
+        if monitor_pos is None:
+            print("SYNTAX[Incomplete File]: Missing start mark")
+            error = True
+
+        if connect_pos is not None:
+            if connect_pos - init_pos < 3:
+                print("SYNTAX[Incomplete File]: Missing sentences") # missing init statements
+                error = True
+        if connect_pos is not None and monitor_pos is not None:
+            if monitor_pos - connect_pos < 3:
+                print("SYNTAX[Incomplete File]: Missing sentences") # missing connection statements
+                error = True
+        if monitor_pos is not None:
+            if pos - monitor_pos < 3:
+                print("SYNTAX[Incomplete File]: Missing sentences") # missing monitor statements
+                error = True
+        self.scanner.restart()
+        if error:
+            return False
+        return True
 
     def parse_network(self):
         """Parse the circuit definition file."""
@@ -86,6 +142,8 @@ class Parser:
         # skeleton code. When complete, should return False when there are
         # errors in the circuit definition file.
         # return True
+        if not self.check_structure():
+            return
         self.count = 0
         self.expect_type = self.scanner.INIT
         self.symbol = self.scanner.get_symbol()
@@ -100,11 +158,18 @@ class Parser:
         self.expect_type = self.scanner.SEMICOLON
         self.new_line = False
 
-        while self.symbol.type != self.scanner.EOF:
-            print(self.symbol.type, self.scanner.EOF)
-            print(self.scanner.DEVICE_NAME)
+        while True:
+            # print(self.symbol.type, self.scanner.EOF)
+            # print(self.scanner.DEVICE_NAME)
             self.symbol = self.scanner.get_symbol()
             if self.symbol.type == self.scanner.EOF:
+                if self.expect_type == self.scanner.EOF:
+                    print("DONE WITH MONITOR")
+                else:
+                    if self.phase == 3:
+                        print("SYNTAX[No Termination]: Missing Termination Mark")
+                    else:
+                        print("SYNTAX[Incomplete]: File is incompleted")
                 break
             # print(self.count)
             self.count += 1
@@ -156,21 +221,17 @@ class Parser:
                     if self.phase == 3:
                         if self.expect_type == self.scanner.DEVICE_OUT:
                             if self.symbol.type == self.scanner.SEMICOLON:
-                                self.expect_type = self.scanner.DEVICE_OUT
-                                continue
-                            if self.symbol.type == self.scanner.EOF:
-                                print("SYNTAX[No Termination]: Missing termination mark")
                                 self.expect_type = self.scanner.EOF
-                                break
+                                continue
                             elif self.symbol.type != self.scanner.DEVICE_NAME:
-                                print(self.expect_type)
-                                print(self.scanner.DEVICE_OUT)
+                                # print(self.expect_type)
+                                # print(self.scanner.DEVICE_OUT)
                                 print("SYNTAX[Invalid Monitor]: Missing keywords expected a device output")
                                 continue
                     else:
-                        print("SYNTAX[Invalid Keyword]: Unexpected keyword found")
-                        print("expected", self.names.get_name_string(self.symbol.id))
-                        print("got", self.symbol.type)
+                        print("SYNTAX[Invalid Keyword]: Missing keywords")
+                        # print("expected", self.names.get_name_string(self.symbol.id))
+                        # print("got", self.symbol.type)
                         self.go_to_next_sentece()
                         continue
 
@@ -256,10 +317,10 @@ class Parser:
 
 if __name__ == "__main__":
     names = Names()
-    scanner = Scanner('parser_test_file.txt', names)
     network = None
     monitors = None
     devices = None
+    scanner = Scanner('parser_test_file.txt', names, devices, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
 

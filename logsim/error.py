@@ -8,6 +8,10 @@ Classes
 Error - store error type and its corresponding error message.
 """
 
+from names import Names
+from network import Network
+from devices import Devices
+
 
 class Error:
     """Store error type.
@@ -21,10 +25,12 @@ class Error:
     No public methods.
     """
 
-    def __init__(self, names):
+    def __init__(self, names: Names, network: Network, devices: Devices):
         """Initialise error properties."""
         self.names = names
-        self.error_type = None    # either syntax or semantic
+        self.network = network
+        self.devices = devices
+        # self.error_type = None    # either syntax or semantic
         self.error_type_list = [self.SYNTAX, self.SEMANTIC] = range(2)
         self.error_code = None
         self.syntax_error_list = [self.INIT_MISS_KEYWORD, 
@@ -44,21 +50,21 @@ class Error:
         self.syntax_error_count = 0
         self.semantic_error_count = 0
 
-    def add_error(self):
-        if not self.error_type:
+    def add_error(self, error_type):
+        if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
-        if self.error_type == self.SYNTAX:
+        if error_type == self.SYNTAX:
             self.syntax_error_count += 1
-        elif self.error_type == self.SEMANTIC:
+        elif error_type == self.SEMANTIC:
             self.semantic_error_count += 1
 
-    def error_message(self):
-        if self.error_type is None:
+    def error_message(self, error_type, optional_mess=""):
+        if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
         error_mes = ""
-        if self.error_type == self.SYNTAX:
+        if error_type == self.SYNTAX:
             if self.error_code == self.INIT_MISS_KEYWORD:
-                error_mes = "SYNTAX[Invalid Initialisation]: Missing keywords"
+                error_mes = f"SYNTAX[Invalid Initialisation]: Missing keywords {optional_mess}"
             elif self.error_code == self.INIT_WRONG_NAME:
                 error_mes = "SYNTAX[Invalid Initialisation]: Invalid device name"
             elif self.error_code == self.INIT_WRONG_SET:
@@ -74,15 +80,17 @@ class Error:
             elif self.error_code == self.MISS_DESCRIPTION:
                 error_mes = "SYNTAX[Incomplete File]: Missing sentences"
             elif self.error_code == self.MISS_START_MARK:
-                error_mes = "SYNTAX[Incomplete File]: Missing start mark"
+                error_mes = f"SYNTAX[Incomplete File]: Missing start mark {optional_mess}"
             elif self.error_code == self.MISS_TERMINATION:
                 error_mes = "SYNTAX[No Termination]: Missing termination mark"
             elif self.error_code == self.KEYWORD_NOT_FOUND:
                 error_mes = "SYNTAX[Keyword Not Found]: Invalid keyword"
             elif self.error_code == self.INVALID_COMMENT:
-                error_mes = "SYNTAX[Invalid Comment]: Missing '*/'"
-        elif self.error_type == self.SEMANTIC:
+                error_mes = "SYNTAX[Invalid Comment]: Missing end comment mark '*/'"
+        elif error_type == self.SEMANTIC:
+            # elif self.error_code == self.devices.NO_ERROR:
             pass
         
+        self.add_error(error_type)
         return error_mes
         
