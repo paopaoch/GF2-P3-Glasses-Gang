@@ -317,10 +317,10 @@ class Parser:
 
 if __name__ == "__main__":
     names = Names()
-    scanner = Scanner('parser_test_file.txt', names)
     network = None
     monitors = None
     devices = None
+    scanner = Scanner('parser_test_file.txt', names, devices, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
 
