@@ -72,7 +72,7 @@ def main(arg_list):
             sys.exit()
 
         [path] = arguments
-        scanner = Scanner(path, names)
+        scanner = Scanner(path, names,devices, network)
         parser = Parser(names, devices, network, monitors, scanner)
         if parser.parse_network():
             # Initialise an instance of the gui.Gui() class

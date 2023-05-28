@@ -114,19 +114,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
         self.render_text(text, 10, 10)
 
-        # Draw a sample signal trace
-        # GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
-        # GL.glBegin(GL.GL_LINE_STRIP)
-        # for i in range(10):
-        #     x = (i * 20) + 10
-        #     x_next = (i * 20) + 30
-        #     if i % 2 == 0:
-        #         y = 75
-        #     else:
-        #         y = 100
-        #     GL.glVertex2f(x, y)
-        #     GL.glVertex2f(x_next, y)
-        # GL.glEnd()
         if self.cycles_completed > 0:
             GL.glBegin(GL.GL_LINES)
             # Draw x-axis
@@ -170,16 +157,16 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                 GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
                 GL.glBegin(GL.GL_LINE_STRIP)
                 for j in range(self.cycles_completed):
-                    if signal_list[j] == self.LOW:
+                    if signal_list[j] == self.devices.LOW:
                         GL.glVertex2f(x_start+j*cycle_width, height-20)
                         GL.glVertex2f(x_start+(j+1)*cycle_width, height-20)
-                    elif signal_list[j] == self.HIGH:
+                    elif signal_list[j] == self.devices.HIGH:
                         GL.glVertex2f(x_start+j*cycle_width, height)
                         GL.glVertex2f(x_start+(j+1)*cycle_width, height)
-                    elif signal_list[j] == self.RISING:
+                    elif signal_list[j] == self.devices.RISING:
                         GL.glVertex2f(x_start+j*cycle_width, height)
                         GL.glVertex2f(x_start+(j+1)*cycle_width, height+20)
-                    elif signal_list[j] == self.FALLING:
+                    elif signal_list[j] == self.devices.FALLING:
                         GL.glVertex2f(x_start+j*cycle_width, height)
                         GL.glVertex2f(x_start+(j+1)*cycle_width, height-20)
                 GL.glEnd()
@@ -355,7 +342,6 @@ class Gui(wx.Frame):
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
         self.text_switch = wx.StaticText(self, wx.ID_ANY, _(u"Switch:"),
                                             style=wx.TE_PROCESS_ENTER)
-        # self.switch_button = wx.Button(self, wx.ID_ANY, _(u"Toggle Switch"))
         self.text_monitor = wx.StaticText(self, wx.ID_ANY, _(u"Monitor: "),
                                             style=wx.TE_PROCESS_ENTER)
         self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
@@ -368,7 +354,7 @@ class Gui(wx.Frame):
         self.sub_sizer_sw_state = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer_monitor = wx.BoxSizer(wx.VERTICAL)
         self.sizer_text_monitor = wx.BoxSizer(wx.VERTICAL)
-        self.monitor_panel = wx.BoxSizer(wx.HORIZONTAL)
+        self.sub_sizer_monitor = wx.BoxSizer(wx.HORIZONTAL)
 
         self.main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
         self.main_sizer.Add(self.side_sizer, 1, wx.ALL, 5)
@@ -426,10 +412,13 @@ class Gui(wx.Frame):
                                          style=wx.CB_READONLY)
         self.monitor_add_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
                                             _(u"Add"))  
-        self.sizer_monitor.Add(self.monitor_panel, 0, wx.ALL, 10)   
-        self.monitor_panel.Add(self.monitor_combo, 0, wx.ALL, 10)
-        self.monitor_panel.Add(self.monitor_add_button, 1, wx.ALL, 10)
+        self.sizer_monitor.Add(self.sub_sizer_monitor, 0, wx.ALL, 10)   
+        self.sub_sizer_monitor.Add(self.monitor_combo, 0, wx.ALL, 10)
+        self.sub_sizer_monitor.Add(self.monitor_add_button, 1, wx.ALL, 10)
 
+        # self.scrolled_monitor = wx.ScrolledWindow(self, style=wx.VSCROLL)
+        # self.scrolled_monitor.SetSizer(self.sizer_text_monitor)
+        # self.scrolled_monitor.SetScrollRate(0, 20)  # Adjust the scrolling speed
         # monitor text/button -> remove
         self.monitored_signal = self.monitors.get_signal_names()[0]
         self.sizer_text_monitor.Add(self.text_monitor, 1, wx.ALL, 5)
