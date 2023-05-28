@@ -183,6 +183,7 @@ class Parser:
             if self.expect_type == self.scanner.SEMICOLON:
                 if self.symbol.type != self.scanner.SEMICOLON:
                     print("SYNTAX[No Termination]: Missing termination mark")
+                self.go_to_next_sentece()
                 self.set_new_line_word()
                 self.new_line = True
                 continue
