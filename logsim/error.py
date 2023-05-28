@@ -51,7 +51,7 @@ class Error:
         self.semantic_error_count = 0
 
     def add_error(self, error_type):
-        if not error_type:
+        if error_type is None:
             raise TypeError("there is no error type.")
         if error_type == self.SYNTAX:
             self.syntax_error_count += 1
