@@ -3,7 +3,7 @@ SW1 is SWITCH initially_at 0;
 SW2 is SWITCH initially_at 1;
 SW3 is SWITCH initially_at 0;
 SW4 is SWITCH initially_at 0;
-AND1 is AND with 10 inputs;
+AND1 is AND with 16 inputs;
 CONNECT;
 D1.Q is_connected_to D1.I2;
 SW1 is_connected_to D1.DATA;

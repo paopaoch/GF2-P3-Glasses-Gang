@@ -136,6 +136,12 @@ class Parser:
             return False
         return True
 
+    @staticmethod
+    def init_device_holder():
+        return{"device_id": None, 
+                "device_kind": None, 
+                "device_property": None}
+
     def parse_network(self):
         """Parse the circuit definition file."""
         # For now just return True, so that userint and gui can run in the
@@ -151,6 +157,8 @@ class Parser:
         self.sentence_type = None
         self.phase = 1
         self.device_name = False
+
+        self.device_holder = self.init_device_holder()
 
         if self.symbol.type != self.expect_type:  # Check for INIT
             print("SYNTAX[Incomplete File]: Missing start mark")
@@ -178,14 +186,21 @@ class Parser:
                 print("SYNTAX[Keyword Not Found]: Scanner can not process invalid keyword")
                 # print("Next sentence, wrong keyword")
                 self.go_to_next_sentece()
+                self.device_holder = self.init_device_holder()
                 continue
 
             if self.expect_type == self.scanner.SEMICOLON:
                 if self.symbol.type != self.scanner.SEMICOLON:
                     print("SYNTAX[No Termination]: Missing termination mark")
-                self.go_to_next_sentece()
-                self.set_new_line_word()
-                self.new_line = True
+                    self.go_to_next_sentece()
+                else:
+                    if self.phase == 1 and self.device_holder["device_id"] is not None:
+                        err = self.devices.make_device(self.device_holder["device_id"]
+                                                 , self.device_holder["device_kind"]
+                                                 , self.device_holder["device_property"])
+                        self.device_holder = self.init_device_holder()
+                        # print(err)
+                    self.set_new_line_word()
                 continue
 
             if self.expect_type != self.symbol.type:
@@ -246,6 +261,7 @@ class Parser:
                         self.go_to_next_sentece()
                         continue
                     else:
+                        self.device_holder["device_id"] = self.symbol.id
                         self.expect_type = self.scanner.INIT_IS
                         self.new_line = False
   
@@ -257,14 +273,28 @@ class Parser:
                         self.sentence_type = self.names.get_name_string(self.symbol.id)
                         # print("device", self.names.get_name_string(self.symbol.id))
                         if self.sentence_type == "XOR":
+                            self.device_holder["device_kind"] = self.devices.XOR
                             self.expect_type = self.scanner.SEMICOLON
                         elif self.sentence_type == "DTYPE":
+                            self.device_holder["device_kind"] = self.devices.D_TYPE
                             self.expect_type = self.scanner.SEMICOLON
                         elif self.sentence_type == "SWITCH":
+                            self.device_holder["device_kind"] = self.devices.SWITCH
                             self.expect_type = self.scanner.INIT_SWITCH
-                        elif self.sentence_type in {"NAND", "AND", "NOR", "OR"}:
+                        elif self.sentence_type == "NAND":
+                            self.device_holder["device_kind"] = self.devices.NAND
+                            self.expect_type = self.scanner.INIT_WITH
+                        elif self.sentence_type == "AND":
+                            self.device_holder["device_kind"] = self.devices.AND
+                            self.expect_type = self.scanner.INIT_WITH
+                        elif self.sentence_type == "NOR":
+                            self.device_holder["device_kind"] = self.devices.NOR
+                            self.expect_type = self.scanner.INIT_WITH
+                        elif self.sentence_type == "OR":
+                            self.device_holder["device_kind"] = self.devices.OR
                             self.expect_type = self.scanner.INIT_WITH
                         elif self.sentence_type == "CLOCK":
+                            self.device_holder["device_kind"] = self.devices.CLOCK
                             self.expect_type = self.scanner.INIT_CLK
 
                     elif self.symbol.type == self.scanner.INIT_SWITCH:
@@ -280,10 +310,14 @@ class Parser:
                         if self.sentence_type == "SWITCH":
                             if self.names.get_name_string(self.symbol.id) not in {'0','1'}:
                                 print("SYNTAX[Invalid Initialisation]: Invalid setting")
+                            else:
+                                self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
                             self.expect_type = self.scanner.SEMICOLON
                         elif self.sentence_type in {"NAND", "AND", "NOR", "OR"}:
+                            self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
                             self.expect_type = self.scanner.INIT_GATE
                         elif self.sentence_type == "CLOCK":
+                            self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
                             self.expect_type = self.scanner.SEMICOLON
                     elif self.symbol.type == self.scanner.INIT_GATE:
                         self.expect_type = self.scanner.SEMICOLON
@@ -318,9 +352,9 @@ class Parser:
 
 if __name__ == "__main__":
     names = Names()
-    network = None
+    devices = Devices(names)
+    network = Network(names, devices)
     monitors = None
-    devices = None
     scanner = Scanner('parser_test_file.txt', names, devices, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
