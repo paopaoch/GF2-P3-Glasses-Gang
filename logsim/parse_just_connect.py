@@ -55,8 +55,16 @@ class Parser:
 
         # Make connections
         print(self.network.make_connection(SW1_ID, None, OR1_ID, I2))
-        self.network.make_connection(CK1_ID, None, OR1_ID, I1)
+        print(self.network.make_connection(CK1_ID, None, OR1_ID, I1))
         # self.network.make_connection(CK1_ID, None, OR1_ID, I2)
+
+        print(self.monitors.make_monitor(OR1_ID, None))
+
+        for _ in range(100):
+            self.network.execute_network()
+            self.monitors.record_signals()
+
+        self.monitors.display_signals()
 
         return True
 
@@ -66,7 +74,7 @@ if __name__ == "__main__":
     devices = Devices(names)
     scanner = None
     network = Network(names, devices)
-    monitors = None
+    monitors = Monitors(names=names,devices=devices,network=network)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
 
