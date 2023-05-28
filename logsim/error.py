@@ -8,6 +8,10 @@ Classes
 Error - store error type and its corresponding error message.
 """
 
+from names import Names
+from network import Network
+from devices import Devices
+
 
 class Error:
     """Store error type.
@@ -21,10 +25,12 @@ class Error:
     No public methods.
     """
 
-    def __init__(self, names):
+    def __init__(self, names: Names, network: Network, devices: Devices):
         """Initialise error properties."""
         self.names = names
-        self.error_type = None    # either syntax or semantic
+        self.network = network
+        self.devices = devices
+        # self.error_type = None    # either syntax or semantic
         self.error_type_list = [self.SYNTAX, self.SEMANTIC] = range(2)
         self.error_code = None
         self.syntax_error_list = [self.INIT_MISS_KEYWORD, 
@@ -44,19 +50,19 @@ class Error:
         self.syntax_error_count = 0
         self.semantic_error_count = 0
 
-    def add_error(self):
-        if not self.error_type:
+    def add_error(self, error_type):
+        if not error_type:
             raise TypeError("there is no error type.")
-        if self.error_type == self.SYNTAX:
+        if error_type == self.SYNTAX:
             self.syntax_error_count += 1
-        elif self.error_type == self.SEMANTIC:
+        elif error_type == self.SEMANTIC:
             self.semantic_error_count += 1
 
-    def error_message(self):
-        if self.error_type is None:
+    def error_message(self, error_type):
+        if error_type is None:
             raise TypeError("there is no error type.")
         error_mes = ""
-        if self.error_type == self.SYNTAX:
+        if error_type == self.SYNTAX:
             if self.error_code == self.INIT_MISS_KEYWORD:
                 error_mes = "SYNTAX[Invalid Initialisation]: Missing keywords"
             elif self.error_code == self.INIT_WRONG_NAME:
@@ -81,8 +87,10 @@ class Error:
                 error_mes = "SYNTAX[Keyword Not Found]: Invalid keyword"
             elif self.error_code == self.INVALID_COMMENT:
                 error_mes = "SYNTAX[Invalid Comment]: Missing '*/'"
-        elif self.error_type == self.SEMANTIC:
+        elif error_type == self.SEMANTIC:
+            # elif self.error_code == self.devices.NO_ERROR:
             pass
         
+        self.add_error(error_type)
         return error_mes
         

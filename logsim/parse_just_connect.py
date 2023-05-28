@@ -54,7 +54,7 @@ class Parser:
         CK2 = self.devices.get_device(CK1_ID)
 
         # Make connections
-        self.network.make_connection(SW1_ID, None, OR1_ID, I2)
+        print(self.network.make_connection(SW1_ID, None, OR1_ID, I2))
         self.network.make_connection(CK1_ID, None, OR1_ID, I1)
         # self.network.make_connection(CK1_ID, None, OR1_ID, I2)
 

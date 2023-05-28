@@ -263,6 +263,6 @@ if __name__ == "__main__":
 
     test_parser = Parser(names, devices, network, monitors, scanner)
 
-    test_parser.parse_network()
+    # test_parser.parse_network()
 
 
