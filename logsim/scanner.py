@@ -10,7 +10,7 @@ Symbol - encapsulates a symbol and stores its properties.
 """
 import sys
 import re
-
+from error import Error
 
 class Symbol:
 
@@ -57,7 +57,7 @@ class Scanner:
                       and returns the symbol.
     """
 
-    def __init__(self, path, names):
+    def __init__(self, path, names, devices, network):
         """Open specified file and initialise reserved words and IDs."""
         try:
             self.file = open(path, "r")
@@ -66,7 +66,7 @@ class Scanner:
             sys.exit()
         
         self.names = names
-
+        self.error = Error(self.names, network, devices)
         self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT, 
                                  self.MONITOR, self.DEVICE_TYPE, 
                                  self.NUMBER, self.DEVICE_NAME, 
@@ -121,25 +121,39 @@ class Scanner:
     def skip_comment(self):
         if not self.current_char == '*':
             raise TypeError("The current character should be '*'.")
+        sentence = "/*"
         self.current_char = self.read_file()
+        sentence += self.current_char
         if self.current_char == '':
-            print("Invalid comment")
+            self.error.error_code = self.error.INVALID_COMMENT
+            sentence += '\n' + " " * len(sentence) + '^'
+            print(sentence)
+            print(self.error.error_message(self.error.SYNTAX))
             return
         
         end_left = self.current_char
         self.current_char = self.read_file()
         end_right = self.current_char
+        sentence += self.current_char
         if self.current_char == '':
-            print("Invalid comment")
+            self.error.error_code = self.error.INVALID_COMMENT
+            sentence += '\n' + " " * len(sentence) + '^'
+            print(sentence)
+            print(self.error.error_message(self.error.SYNTAX))
             return
         
         while (not (end_left == '*' and end_right == '/')
                 and (not self.current_char == '')):
             self.current_char = self.read_file()
+            sentence += self.current_char
             end_left = end_right
             end_right = self.current_char
         if not (end_left == '*' and end_right == '/'):
-            print("Invalid comment")
+            self.error.error_code = self.error.INVALID_COMMENT
+            sentence = sentence[:4] + " ... " + sentence[-4:]
+            sentence += '\n' + " " * 13 + '^'
+            print(sentence)
+            print(self.error.error_message(self.error.SYNTAX))
         else:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
@@ -184,12 +198,12 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, error, path, front=False):
+    def print_error_message(self, symbol, path, front=False):
         pointer_mes = self.get_pointer(symbol, path, front)
         line_number = self.get_line_position(symbol, path)
         error_mes = "Error in line: " + str(line_number)
         error_mes += '\n' + pointer_mes
-        error_mes += '\n' + error.error_message()
+        error_mes += '\n' + self.error.error_message()
         return error_mes
 
     def get_symbol(self):
