@@ -11,6 +11,7 @@ Gui - configures the main window and all the widgets.
 import wx
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
+from PIL import Image
 
 from names import Names
 from devices import Devices
@@ -101,7 +102,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
     def render(self, text, cycles=0, gui_monitors={}): # gui_monitors = {monitor_string: signal_list}
         """Handle all drawing operations."""
 
-        # Clear everything
         if cycles > 0:
             self.cycles_completed = cycles
             self.gui_monitors = gui_monitors
@@ -116,6 +116,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         if not margin:
             margin = 0
 
+        # Clear everything
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         
         self.render_text(text, 10, 10)
@@ -270,10 +271,15 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.on_paint(0)  # Repaint the canvas
 
     def capture_image(self):
-        """Capture the OpenGL canvas content as an image"""
+        """Capture and save the OpenGL canvas content as an image"""
         width, height = self.GetClientSize()
-        pixels = GL.glReadPixels(0, 0, width, height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE)
+        # Synchronize OpenGL rendering
+        GL.glFinish()
+        pixels = GL.glReadPixels(0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE)
         image = wx.Image(width, height, pixels)
+        image = image.Mirror(False)  # Flip horizontally
+        image = image.Mirror(True)  # Flip vertically
+        image = image.Mirror(True)
         return image
 
     def save_image(self, file_path):
@@ -647,5 +653,3 @@ class Gui(wx.Frame):
             file_path = dlg.GetPath()
             self.canvas.save_image(file_path)
         dlg.Destroy()
-        text = "Image saved successfully"
-        self.canvas.render(text)
