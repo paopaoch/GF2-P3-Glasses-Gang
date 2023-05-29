@@ -48,6 +48,11 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     render_text(self, text, x_pos, y_pos): Handles text drawing
                                            operations.
+
+    capture_image(self): Capture the OpenGL canvas content as 
+                            an image
+
+    save_image(self, file_path): Save the image on the computer
     """
 
     def __init__(self, parent, devices, monitors):
@@ -111,8 +116,9 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         if not margin:
             margin = 0
 
-        self.render_text(text, 10, 10)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        
+        self.render_text(text, 10, 10)
 
         if self.cycles_completed > 0:
             GL.glBegin(GL.GL_LINES)
@@ -238,10 +244,10 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init = False
             text = "".join(["Positive mouse wheel rotation. Zoom is now: ",
                             str(self.zoom)])
-        # if text:
-        #     self.render(text)
-        # else:
-        self.Refresh()  # triggers the paint event
+        if text:
+            self.render(text)
+        else:
+            self.Refresh()  # triggers the paint event
 
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
@@ -262,6 +268,23 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.pan_y = 0
         self.init = False
         self.on_paint(0)  # Repaint the canvas
+
+    def capture_image(self):
+        """Capture the OpenGL canvas content as an image"""
+        width, height = self.GetClientSize()
+        pixels = GL.glReadPixels(0, 0, width, height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE)
+        image = wx.Image(width, height, pixels)
+        return image
+
+    def save_image(self, file_path):
+        """Save the image on the computer"""
+        image = self.capture_image()
+        if image.SaveFile(file_path, wx.BITMAP_TYPE_PNG):
+            print(f"Image saved successfully: {file_path}")
+            text = "".join(["Image saved successfully: ", file_path])
+            self.render(text)
+        else:
+            print("Failed to save the image.")
 
 
 class Gui(wx.Frame):
@@ -303,6 +326,11 @@ class Gui(wx.Frame):
                                  button
 
     on_text_box(self, event): Event handler for when the user enters text.
+                                 
+    on_reset_view(self, event): Event handler for when the user clicks the reset view 
+                                button
+
+    on_save_image(self, event): Event handler for when the user clicks the save button    
     """
 
     def __init__(self, title, path, names, devices, network, monitors):
@@ -349,8 +377,9 @@ class Gui(wx.Frame):
         self.text_monitor = wx.StaticText(self, wx.ID_ANY, _(u"Monitor: "),
                                             style=wx.TE_PROCESS_ENTER)
         self.reset_view_button = wx.Button(self, wx.ID_ANY, _(u"Reset View"))
-        self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
-                                    style=wx.TE_PROCESS_ENTER)
+        self.save_button = wx.Button(self, wx.ID_ANY, _(u"Save Image"))
+        # self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
+        #                             style=wx.TE_PROCESS_ENTER)
 
         # configuration of sizer chirdren for side sizer
         self.sizer_cycle = wx.BoxSizer(wx.VERTICAL)
@@ -361,6 +390,7 @@ class Gui(wx.Frame):
         self.sizer_monitor = wx.BoxSizer(wx.VERTICAL)
         self.sizer_text_monitor = wx.BoxSizer(wx.VERTICAL)
         self.sub_sizer_monitor = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer_tool = wx.BoxSizer(wx.HORIZONTAL)
 
         self.main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
         self.main_sizer.Add(self.side_sizer, 1, wx.ALL, 5)
@@ -373,6 +403,10 @@ class Gui(wx.Frame):
         self.sizer_run.Add(self.run_button, 1, wx.ALL, 5)
         self.sizer_run.Add(self.continue_button, 1, wx.ALL, 5)
         self.sizer_run.Add(self.quit_button, 1, wx.ALL, 5)
+
+        # sizer children for sizer_tool
+        self.sizer_tool.Add(self.reset_view_button, 1, wx.ALL, 5)
+        self.sizer_tool.Add(self.save_button, 1, wx.ALL, 5)
 
         # sizer children for sizer_switch
         self.sizer_text_switch.Add(self.text_switch, 0, wx.ALL, 5)
@@ -446,8 +480,8 @@ class Gui(wx.Frame):
         self.side_sizer.Add(self.scrolled_switch, 3, wx.EXPAND | wx.ALL, 5)
         self.side_sizer.Add(self.sizer_text_monitor, 0, wx.ALL, 5)
         self.side_sizer.Add(self.scrolled_monitor, 3, wx.EXPAND | wx.ALL, 5)
-        self.side_sizer.Add(self.reset_view_button, 0, wx.ALL, 5)
-        self.side_sizer.Add(self.text_box, 1, wx.EXPAND | wx.ALL, 5)
+        self.side_sizer.Add(self.sizer_tool, 0, wx.ALL, 5)
+        # self.side_sizer.Add(self.text_box, 1, wx.EXPAND | wx.ALL, 5)
         
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -456,10 +490,10 @@ class Gui(wx.Frame):
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
-        # self.switch_button.Bind(wx.EVT_BUTTON, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.reset_view_button.Bind(wx.EVT_BUTTON, self.on_reset_view)
-        self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
+        self.save_button.Bind(wx.EVT_BUTTON, self.on_save_image)
+        # self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
 
         self.SetSizeHints(1000, 600)
         self.SetSizer(self.main_sizer)
@@ -501,7 +535,6 @@ class Gui(wx.Frame):
                 self.monitors.record_signals()
                 self.cycles_completed += 1
         self.gui_monitors = self.convert_gui_monitors()
-        text = "Cycles completed."
         self.canvas.render("", self.cycles_completed, self.gui_monitors)
 
     def on_continue_button(self, event):
@@ -579,7 +612,7 @@ class Gui(wx.Frame):
             self.monitor_combo.SetItems(self.not_monitored_signal)
             text = "Successfully removed monitor."
             self.canvas.render(text)
-            self.sizer_text_monitor.Layout
+            self.sizer_text_monitor.Layout()
             self.sizer_monitor.Layout()
             self.main_sizer.Layout()
         return remove_pushed
@@ -594,12 +627,25 @@ class Gui(wx.Frame):
             gui_dict[monitor_string] = signal_list
         return gui_dict
     
-    def on_text_box(self, event):
-        """Handle the event when the user enters text."""
-        text_box_value = self.text_box.GetValue()
-        text = "".join(["New text box value: ", text_box_value])
-        self.canvas.render(text)
+    # def on_text_box(self, event):
+    #     """Handle the event when the user enters text."""
+    #     text_box_value = self.text_box.GetValue()
+    #     text = "".join(["New text box value: ", text_box_value])
+    #     self.canvas.render(text)
 
     def on_reset_view(self, event):
         """Reset the view to the origin"""
         self.canvas.reset_view()
+        text = "Reset to the origin"
+        self.canvas.render(text)
+
+    def on_save_image(self, event):
+        """Save the image on the computer"""
+        dlg = wx.FileDialog(self, "Save Image", wildcard="PNG files (*.png)|*.png",
+                            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() == wx.ID_OK:
+            file_path = dlg.GetPath()
+            self.canvas.save_image(file_path)
+        dlg.Destroy()
+        text = "Image saved successfully"
+        self.canvas.render(text)
