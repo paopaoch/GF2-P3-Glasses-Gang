@@ -184,10 +184,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init_gl()
             self.init = True
 
-        size = self.GetClientSize()
-        text = "".join(["Canvas redrawn on paint event, size is ",
-                        str(size.width), ", ", str(size.height)])
-        self.render(text)
+        self.render("")
 
     def on_size(self, event):
         """Handle the canvas resize event."""
@@ -257,6 +254,14 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                 GL.glRasterPos2f(x_pos, y_pos)
             else:
                 GLUT.glutBitmapCharacter(font, ord(character))
+
+    def reset_view(self):
+        """Return to the origin"""
+        self.zoom = 1
+        self.pan_x = 0
+        self.pan_y = 0
+        self.init = False
+        self.on_paint(0)  # Repaint the canvas
 
 
 class Gui(wx.Frame):
@@ -343,6 +348,7 @@ class Gui(wx.Frame):
                                             style=wx.TE_PROCESS_ENTER)
         self.text_monitor = wx.StaticText(self, wx.ID_ANY, _(u"Monitor: "),
                                             style=wx.TE_PROCESS_ENTER)
+        self.reset_view_button = wx.Button(self, wx.ID_ANY, _(u"Reset View"))
         self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
                                     style=wx.TE_PROCESS_ENTER)
 
@@ -440,6 +446,7 @@ class Gui(wx.Frame):
         self.side_sizer.Add(self.scrolled_switch, 3, wx.EXPAND | wx.ALL, 5)
         self.side_sizer.Add(self.sizer_text_monitor, 0, wx.ALL, 5)
         self.side_sizer.Add(self.scrolled_monitor, 3, wx.EXPAND | wx.ALL, 5)
+        self.side_sizer.Add(self.reset_view_button, 0, wx.ALL, 5)
         self.side_sizer.Add(self.text_box, 1, wx.EXPAND | wx.ALL, 5)
         
         # Bind events to widgets
@@ -451,6 +458,7 @@ class Gui(wx.Frame):
         self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
         # self.switch_button.Bind(wx.EVT_BUTTON, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
+        self.reset_view_button.Bind(wx.EVT_BUTTON, self.on_reset_view)
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
 
         self.SetSizeHints(1000, 600)
@@ -466,13 +474,13 @@ class Gui(wx.Frame):
                           "About Logsim", wx.ICON_INFORMATION | wx.OK)
         if Id == wx.ID_HELP_COMMANDS:
             wx.MessageBox(_("User Commands\n"
-                            "\nr  N       - run the simulation for N cycles\n"
-                            "\nc  N       - continue simulation for N cycles\n"
-                            "\ns  X  N    - set switch X to N (0 or 1)\n"
-                            "\nm  X       - set a monitor on signal X\n"
-                            "\nz  X       - zap the monior on signal X\n"
-                            "\nh          - help (this command)\n"
-                            "\nq          - quit the simulation"),
+                            "\nRun              - run the simulation for N cycles\n"
+                            "\nContinue         - continue simulation for N cycles\n"
+                            "\nToggle Switch    - set switch X to another (0 or 1)\n"
+                            "\nAdd              - set a monitor on signal X\n"
+                            "\nRemove           - zap the monior on signal X\n"
+                            "\nHelp             - help (this command)\n"
+                            "\nQuit             - quit the simulation"),
                             _("Help"), wx.OK | wx.ICON_INFORMATION)
 
     def on_spin(self, event):
@@ -591,3 +599,7 @@ class Gui(wx.Frame):
         text_box_value = self.text_box.GetValue()
         text = "".join(["New text box value: ", text_box_value])
         self.canvas.render(text)
+
+    def on_reset_view(self, event):
+        """Reset the view to the origin"""
+        self.canvas.reset_view()
