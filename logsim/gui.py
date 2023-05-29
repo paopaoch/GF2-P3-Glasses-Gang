@@ -119,7 +119,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             # Draw x-axis
             GL.glColor3f(1.0, 0.0, 0.0)  # Red color
             cycle_width = 20
-            y_val = 20
+            y_val = 50
             if margin:
                 x_start = 100 + margin
             else:
@@ -128,7 +128,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             GL.glVertex2f(x_start, y_val)
             GL.glVertex2f(x_end, y_val)
 
-            par = 5
+            par = 10
             for i in range(self.cycles_completed+1):
                 GL.glVertex2f(x_start+i*cycle_width, y_val+par)
                 GL.glVertex2f(x_start+i*cycle_width, y_val-par)
@@ -141,7 +141,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             GL.glEnd()
 
             # label the axis
-            self.render_text("Time", x_start, y_val)
+            self.render_text("Time", 50, y_val)
             for i in range(self.cycles_completed+1):
                 self.render_text(str(i), x_start+i*cycle_width, y_val-10)
 
@@ -149,10 +149,10 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             for i in range(len(self.gui_monitors)):
                 monitor_str_list = list(self.gui_monitors.keys())
                 monitor_str = monitor_str_list[i]
-                height = y_val + i*50
-                self.render_text(monitor_str, 20, height)
-                self.render_text("1", x_start-10, height+10)
-                self.render_text("0", x_start-10, height+10)
+                height = y_val + (i+1)*100
+                self.render_text(monitor_str, 50, height)
+                self.render_text("1", x_start-10, height+20)
+                self.render_text("0", x_start-10, height-20)
                 signal_list = self.gui_monitors[monitor_str]
                 GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
                 GL.glBegin(GL.GL_LINE_STRIP)
@@ -161,8 +161,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                         GL.glVertex2f(x_start+j*cycle_width, height-20)
                         GL.glVertex2f(x_start+(j+1)*cycle_width, height-20)
                     elif signal_list[j] == self.devices.HIGH:
-                        GL.glVertex2f(x_start+j*cycle_width, height)
-                        GL.glVertex2f(x_start+(j+1)*cycle_width, height)
+                        GL.glVertex2f(x_start+j*cycle_width, height+20)
+                        GL.glVertex2f(x_start+(j+1)*cycle_width, height+20)
                     elif signal_list[j] == self.devices.RISING:
                         GL.glVertex2f(x_start+j*cycle_width, height)
                         GL.glVertex2f(x_start+(j+1)*cycle_width, height+20)
