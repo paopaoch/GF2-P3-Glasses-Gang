@@ -25,12 +25,11 @@ class Error:
     No public methods.
     """
 
-    def __init__(self, names, network, devices):
+    def __init__(self, names, devices, network):
         """Initialise error properties."""
         self.names = names
-        self.network = network
         self.devices = devices
-        # self.error_type = None    # either syntax or semantic
+        self.network = network
         self.error_type_list = [self.SYNTAX, self.SEMANTIC] = range(2)
         self.error_code = None
         self.syntax_error_list = [self.INIT_MISS_KEYWORD, 
