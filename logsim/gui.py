@@ -11,7 +11,6 @@ Gui - configures the main window and all the widgets.
 import wx
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
-from PIL import Image
 
 from names import Names
 from devices import Devices
@@ -477,7 +476,7 @@ class Gui(wx.Frame):
         self.scrolled_monitor.SetSizer(self.sizer_monitor)
         self.scrolled_monitor.SetScrollRate(0, 20)  # Adjust the scrolling speed
         self.scrolled_monitor.SetAutoLayout(True)
-
+        self.scrolled_monitor.SetBackgroundColour(wx.Colour(200, 200, 200))
         self.monitor_combo = wx.ComboBox(self.scrolled_monitor, wx.ID_ANY, 
                                          choices=self.not_monitored_signal, 
                                          style=wx.CB_READONLY)
