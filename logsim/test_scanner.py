@@ -7,25 +7,102 @@ from network import Network
 from scanner import Scanner, Symbol
 
 @pytest.fixture
-def new_scanner():
+def scanner_example_1():
     """Return a new instance of the Scanner class."""
-    new_names = Names()
-    new_devices = Devices(new_names)
-    new_network = Network(new_names, new_devices)
-    filename = 'test_scanner.txt'
-    return Scanner(filename, new_names, new_devices, new_network)
+    names_1 = Names()
+    devices_1 = Devices(names_1)
+    network_1 = Network(names_1, devices_1)
+    filename_1 = 'scanner_test_files/scanner_example_file_1.txt'
+    return Scanner(filename_1, names_1, devices_1, network_1)
 
-def test_get_symbol(new_scanner):
+@pytest.fixture
+def scanner_example_2():
+    """Return a new instance of the Scanner class."""
+    names_2 = Names()
+    devices_2 = Devices(names_2)
+    network_2 = Network(names_2, devices_2)
+    filename_2 = 'scanner_test_files/scanner_example_file_2.txt'
+    return Scanner(filename_2, names_2, devices_2, network_2)
+
+@pytest.fixture
+def scanner_example_3():
+    """Return a new instance of the Scanner class."""
+    names_3 = Names()
+    devices_3 = Devices(names_3)
+    network_3 = Network(names_3, devices_3)
+    filename_3 = 'scanner_test_files/scanner_example_file_3.txt'
+    return Scanner(filename_3, names_3, devices_3, network_3)
+
+def test_get_name(scanner_example_1):
+    """Test if get_name() return alphabets."""
+    scanner_example_1.current_char = scanner_example_1.read_file()
+    name = scanner_example_1.get_name()
+    assert name == "AND"
+
+def test_get_number(scanner_example_1):
+    """Test if get_number() return digits."""
+    scanner_example_1.file.seek(6)
+    scanner_example_1.current_char = scanner_example_1.read_file()
+    number = scanner_example_1.get_number()
+    assert number == "123"
+
+def test_get_symbol(scanner_example_1):
     """Test if get_symbol() return a correct Symbol type."""
-    sym = new_scanner.get_symbol() # sym is device type "AND"
-    assert sym.type == new_scanner.DEVICE_TYPE
-    assert new_scanner.names.get_name_string(sym.id) == "AND"
+    sym = scanner_example_1.get_symbol() # sym is device type "AND"
+    assert sym.type == scanner_example_1.DEVICE_TYPE
+    assert scanner_example_1.names.get_name_string(sym.id) == "AND"
     assert sym.pos == 3            # position of last character
-    assert sym.line_pos == 0       # position of start of a sentence
-    new_scanner.get_symbol()
-    sym = new_scanner.get_symbol() # sym is device input "G123.I7"
-    assert sym.type == new_scanner.DEVICE_IN
-    assert new_scanner.names.get_name_string(sym.id) == "G123.I7"
-    assert sym.pos == 11
-    assert sym.line_pos == 4
+    assert sym.line_pos == 0       # position of start of a line
+    scanner_example_1.get_symbol()
+    sym = scanner_example_1.get_symbol() # sym is device input "G123.I7"
+    assert sym.type == scanner_example_1.DEVICE_IN
+    assert scanner_example_1.names.get_name_string(sym.id) == "G123.I7"
+    assert sym.pos == 12
+    assert sym.line_pos == 5
+
+def test_skip_valid_comment(scanner_example_2):
+    """Test if skip_comment() is able to skip valid comment."""
+    sym = scanner_example_2.get_symbol() # sym is "INIT" as it skips comment
+    assert sym.type == scanner_example_2.INIT
+
+def test_report_invalid_comment(scanner_example_2):
+    """Test if skip_comment() is able to report invalid comment."""
+    scanner_example_2.get_symbol()
+    scanner_example_2.get_symbol()
+    scanner_example_2.get_symbol()
+    assert (scanner_example_2.error.error_code 
+            == scanner_example_2.error.INVALID_COMMENT)
+
+def test_get_line_position(scanner_example_1):
+    """Test if get_line_position() return a correct line number."""
+    sym = scanner_example_1.get_symbol()        # sym is "AND"
+    line_number = scanner_example_1.get_line_position(sym)  # line number is 1
+    assert line_number == 1
+
+    scanner_example_1.get_symbol()
+    sym = scanner_example_1.get_symbol()        # sym is "G123.I7"
+    line_number = scanner_example_1.get_line_position(sym)  # line number is 2
+    assert line_number == 2
+
+
+def test_get_pointer(scanner_example_3):
+    scanner_example_3.get_symbol()
+    scanner_example_3.get_symbol()
+    sym = scanner_example_3.get_symbol()  # sym is "d1" invalid device name error
+    pointer_msg = scanner_example_3.get_pointer(sym)
+    assert pointer_msg == "INIT; d1 is DTYPE;" + '\n' + "       ^"
+
+
+def test_print_error_message(scanner_example_3):
+    scanner_example_3.get_symbol()
+    scanner_example_3.get_symbol()
+    sym = scanner_example_3.get_symbol()
+    error_type = scanner_example_3.error.SYNTAX
+    scanner_example_3.error.error_code = scanner_example_3.error.INIT_WRONG_NAME
+    msg = scanner_example_3.print_error_message(sym, error_type)
+    
+    assert msg == ("Error in line: 1" 
+                + '\n' + "INIT; d1 is DTYPE;" 
+                + '\n' + "       ^" 
+                + '\n' + "SYNTAX[Invalid Initialisation]: Invalid device name ")
 

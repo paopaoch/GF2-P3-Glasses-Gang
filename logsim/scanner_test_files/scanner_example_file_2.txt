@@ -1,0 +1,4 @@
+/* This is a valid comment */
+INIT;
+/* This is an invalid comment*
+CONNECT;
