@@ -444,11 +444,15 @@ class Gui(wx.Frame):
                 self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
                                                     _(u"ON"), style=wx.TE_PROCESS_ENTER)
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
-            else:
+                # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
+            elif switch_state == 0:
                 self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
                                                     _(u"OFF"), style=wx.TE_PROCESS_ENTER)
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
+                self.toggle_btn.SetValue(True)
+                self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
 
+            print(self.toggle_btn.GetValue())
             self.sizer_switch.Add(self.sub_sizer_switch, 1, wx.ALL, 5)
             self.sub_sizer_switch.Add(self.exist_text_switch, 1, wx.ALIGN_CENTER|wx.ALL, 5)
             self.sub_sizer_switch.Add(self.exist_switch_state, 1, wx.ALIGN_CENTER|wx.ALL, 5)
@@ -458,7 +462,9 @@ class Gui(wx.Frame):
             self.toggle_btn = sizer.GetItem(2).GetWindow()  # Get the toggle button in the sizer
             self.toggle_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
             self.toggle_btn.SetId(wx.NewId())  # Assign a unique ID to the toggle button
+            print(self.toggle_btn)
 
+        print(self.sizers)
         # monitor scrollable panel -> choose option -> add
         # sizer children for sizer_monitor
         # monitor text/button -> remove
@@ -590,12 +596,15 @@ class Gui(wx.Frame):
             switch_id = self.names.query(static_text.GetLabel())
             if switch_id is not None:
                 self.exist_switch_state = sizer_.GetItem(1).GetWindow()
+                print(self.toggle_btn.GetValue())
                 if self.toggle_btn.GetValue():
                     self.exist_switch_state.SetLabel(_(u"OFF"))
                     new_signal = 0
+                    self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
                 else:
                     self.exist_switch_state.SetLabel(_(u"ON"))
                     new_signal = 1
+                    self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
                 print(self.devices.set_switch(switch_id, new_signal))
                 self.devices.set_switch(switch_id, new_signal)
                 self.gui_monitors = self.convert_gui_monitors()
