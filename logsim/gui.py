@@ -452,7 +452,7 @@ class Gui(wx.Frame):
                 self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
                 self.toggle_btn.SetValue(True)
-                self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
+                self.toggle_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
 
             print(self.toggle_btn.GetValue())
             self.sizer_switch.Add(self.sub_sizer_switch, 1, wx.ALL, 5)
@@ -493,6 +493,7 @@ class Gui(wx.Frame):
                                                     monitor, style=wx.TE_PROCESS_ENTER)
             self.remove_monitor_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
                                                     _(u"Remove"))
+            self.remove_monitor_button.SetBackgroundColour(wx.Colour(80, 150, 150))
             self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
             self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
             self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
@@ -606,7 +607,7 @@ class Gui(wx.Frame):
                     self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
                 else:
                     self.exist_switch_state.SetLabel(_(u"ON"))
-                    self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
+                    self.exist_switch_state.SetForegroundColour(wx.Colour(80, 150, 150))
                     new_signal = 1
                     self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
                 print(self.devices.set_switch(switch_id, new_signal))
@@ -631,6 +632,7 @@ class Gui(wx.Frame):
                                                         monitor, style=wx.TE_PROCESS_ENTER)
                 self.remove_monitor_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
                                                         _(u"Remove"))
+                self.remove_monitor_button.SetBackgroundColour(wx.Colour(80, 150, 150))
                 self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
                 self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
                 self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
