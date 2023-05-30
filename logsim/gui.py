@@ -443,11 +443,13 @@ class Gui(wx.Frame):
             if switch_state == 1:
                 self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
                                                     _(u"ON"), style=wx.TE_PROCESS_ENTER)
+                self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
                 # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
             elif switch_state == 0:
                 self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
                                                     _(u"OFF"), style=wx.TE_PROCESS_ENTER)
+                self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
                 self.toggle_btn.SetValue(True)
                 self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
@@ -599,10 +601,12 @@ class Gui(wx.Frame):
                 print(self.toggle_btn.GetValue())
                 if self.toggle_btn.GetValue():
                     self.exist_switch_state.SetLabel(_(u"OFF"))
+                    self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
                     new_signal = 0
                     self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
                 else:
                     self.exist_switch_state.SetLabel(_(u"ON"))
+                    self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
                     new_signal = 1
                     self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
                 print(self.devices.set_switch(switch_id, new_signal))
