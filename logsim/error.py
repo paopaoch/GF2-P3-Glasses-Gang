@@ -76,7 +76,7 @@ class Error:
             elif self.error_code == self.MONITOR_MISS_KEYWORD:
                 error_mes = f"SYNTAX[Invalid Monitor]: Missing keywords {optional_mess}"
             elif self.error_code == self.MONITOR_WRONG_POINT:
-                error_mes = f"SYNTAX[Invalid Monitor]: Invalid monitor point {optional_mess}"
+                error_mes = f"""SYNTAX[Invalid Monitor]: Invalid monitor point {optional_mess}"""
             elif self.error_code == self.MISS_DESCRIPTION:
                 error_mes = f"SYNTAX[Incomplete File]: Missing sentences {optional_mess}"
             elif self.error_code == self.MISS_START_MARK:
@@ -87,9 +87,30 @@ class Error:
                 error_mes = f"SYNTAX[Keyword Not Found]: Invalid keyword {optional_mess}"
             elif self.error_code == self.INVALID_COMMENT:
                 error_mes = f"SYNTAX[Invalid Comment]: Missing end comment mark '*/' {optional_mess}"
+        
         elif error_type == self.SEMANTIC:
-            # elif self.error_code == self.devices.NO_ERROR:
-            pass
+            if self.error_code == self.devices.INVALID_QUALIFIER: # Checks for the number values
+                error_mes = f"SEMANTIC[INIT]: Invalid Device Qualifier {optional_mess}"
+            elif self.error_code == self.devices.NO_QUALIFIER: # Check for the whether the number exists
+                error_mes = f"SEMANTIC[INIT]: No quaifier inputed {optional_mess}"
+            elif self.error_code == self.devices.BAD_DEVICE:
+                error_mes = f"SEMANTIC[INIT]: Bad device {optional_mess}" # Dunno what this is
+            elif self.error_code == self.devices.QUALIFIER_PRESENT:
+                error_mes = f"SEMANTIC[INIT]: Qualfier given but not expected {optional_mess}" # Check
+            elif self.error_code == self.devices.DEVICE_PRESENT:
+                error_mes = f"SEMANTIC[INIT]: Device is being initialised twice {optional_mess}"
+
+            elif self.error_code == self.network.INPUT_TO_INPUT:
+                error_mes = f"SEMANTIC[CONNECT]: Input is connected to an input {optional_mess}"
+            elif self.error_code == self.network.OUTPUT_TO_OUTPUT:
+                error_mes = f"SEMANTIC[CONNECT]: Output is connected to an output {optional_mess}"
+            elif self.error_code == self.network.INPUT_CONNECTED:
+                error_mes = f"SEMANTIC[CONNECT]: Input is already connected {optional_mess}"
+                
+            elif self.error_code == self.network.PORT_ABSENT:
+                error_mes = f"SEMANTIC[REFERENCE]: Referencing to an nonexisting port {optional_mess}"
+            elif self.error_code == self.network.DEVICE_ABSENT:
+                error_mes = f"SEMANTIC[REFERENCE]: Referencing a nonexisting device {optional_mess}"
         
         self.add_error(error_type)
         return error_mes
