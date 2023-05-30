@@ -1,0 +1,15 @@
+INIT; D1 DTYPE;    /* missing "is" */
+SW1 is SWITCH 0;   /* missing "initially_at" */
+SW2 is SWITCH initially_at 1;
+SW3 is SWITCH initially_at 0;
+CK1 is CLOCK 20;  /* missing "with_simulation_cycles" */
+AND1 is AND with 2;   /* missing "inputs" */
+CONNECT;
+CK1 is_connected_to AND1.I1;
+SW1 AND1.I2;    /* missing "is_connected_to" */
+AND1 is_connected_to D1.DATA;
+CK1 is_connected_to D1.CLK;
+SW2 is_connected_to D1.SET;
+SW3 is_connected_to D1.CLEAR;
+MONITOR;
+D1.QBAR D1.Q AND1;   /* missing "Initial_monitor_at" */

@@ -1,0 +1,3 @@
+MONITOR;  /* "AND1.I1" invalid, second monitor sentence invalid */
+Initial_monitor_at AND1.I1 D1.Q AND1;
+Initial_monitor_at CK1;

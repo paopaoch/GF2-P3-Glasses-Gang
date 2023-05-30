@@ -470,7 +470,7 @@ if __name__ == "__main__":
     devices = Devices(names)
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
-    scanner = Scanner('parser_test_file.txt', names, devices, monitors)
+    scanner = Scanner('parse_test_files/check_init.txt', names, devices, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
 
