@@ -64,29 +64,29 @@ class Error:
         error_mes = ""
         if error_type == self.SYNTAX:
             if self.error_code == self.INIT_MISS_KEYWORD:
-                error_mes = "SYNTAX[Invalid Initialisation]: Missing keywords"
+                error_mes = f"SYNTAX[Invalid Initialisation]: Missing keywords {optional_mess}"
             elif self.error_code == self.INIT_WRONG_NAME:
-                error_mes = "SYNTAX[Invalid Initialisation]: Invalid device name"
+                error_mes = f"SYNTAX[Invalid Initialisation]: Invalid device name {optional_mess}"
             elif self.error_code == self.INIT_WRONG_SET:
-                error_mes = "SYNTAX[Invalid Initialisation]: Invalid setting"
+                error_mes = f"SYNTAX[Invalid Initialisation]: Invalid setting {optional_mess}"
             elif self.error_code == self.CONNECT_MISS_KEYWORD:
-                error_mes = "SYNTAX[Invalid Connection]: Missing keywords"
+                error_mes = f"SYNTAX[Invalid Connection]: Missing keywords {optional_mess}"
             elif self.error_code == self.CONNECT_WRONG_IO:
-                error_mes = "SYNTAX[Invalid Connection]: Invalid device I/O"
+                error_mes = f"SYNTAX[Invalid Connection]: Invalid device I/O {optional_mess}"
             elif self.error_code == self.MONITOR_MISS_KEYWORD:
-                error_mes = "SYNTAX[Invalid Monitor]: Missing keywords"
+                error_mes = f"SYNTAX[Invalid Monitor]: Missing keywords {optional_mess}"
             elif self.error_code == self.MONITOR_WRONG_POINT:
-                error_mes = "SYNTAX[Invalid Monitor]: Invalid monitor point"
+                error_mes = f"SYNTAX[Invalid Monitor]: Invalid monitor point {optional_mess}"
             elif self.error_code == self.MISS_DESCRIPTION:
-                error_mes = "SYNTAX[Incomplete File]: Missing sentences"
+                error_mes = f"SYNTAX[Incomplete File]: Missing sentences {optional_mess}"
             elif self.error_code == self.MISS_START_MARK:
-                error_mes = "SYNTAX[Incomplete File]: Missing start mark"
+                error_mes = f"SYNTAX[Incomplete File]: Missing start mark {optional_mess}"
             elif self.error_code == self.MISS_TERMINATION:
-                error_mes = "SYNTAX[No Termination]: Missing termination mark"
+                error_mes = f"SYNTAX[No Termination]: Missing termination mark {optional_mess}"
             elif self.error_code == self.KEYWORD_NOT_FOUND:
-                error_mes = "SYNTAX[Keyword Not Found]: Invalid keyword"
+                error_mes = f"SYNTAX[Keyword Not Found]: Invalid keyword {optional_mess}"
             elif self.error_code == self.INVALID_COMMENT:
-                error_mes = "SYNTAX[Invalid Comment]: Missing end comment mark '*/'"
+                error_mes = f"SYNTAX[Invalid Comment]: Missing end comment mark '*/' {optional_mess}"
         elif error_type == self.SEMANTIC:
             # elif self.error_code == self.devices.NO_ERROR:
             pass
