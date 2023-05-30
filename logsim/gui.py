@@ -455,7 +455,7 @@ class Gui(wx.Frame):
             self.sub_sizer_switch.Add(self.toggle_btn, 1, wx.ALIGN_CENTER|wx.ALL, 5)
 
         for sizer_name, sizer in self.sizers.items():
-            self.toggle_btn = sizer.GetItem(1).GetWindow()  # Get the toggle button in the sizer
+            self.toggle_btn = sizer.GetItem(2).GetWindow()  # Get the toggle button in the sizer
             self.toggle_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
             self.toggle_btn.SetId(wx.NewId())  # Assign a unique ID to the toggle button
 
@@ -505,7 +505,7 @@ class Gui(wx.Frame):
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
-        self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
+        # self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.reset_view_button.Bind(wx.EVT_BUTTON, self.on_reset_view)
         self.save_button.Bind(wx.EVT_BUTTON, self.on_save_image)
@@ -579,7 +579,7 @@ class Gui(wx.Frame):
         sizer_name = None
         sizer_ = None
         for name, sizer in self.sizers.items():
-            if self.toggle_btn in sizer.GetChildren():
+            if any(item.GetWindow() == self.toggle_btn for item in sizer.GetChildren()):
                 sizer_name = name
                 sizer_ = sizer
                 break
