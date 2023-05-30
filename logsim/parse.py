@@ -138,9 +138,16 @@ class Parser:
 
     @staticmethod
     def init_device_holder():
-        return{"device_id": None, 
+        return {"device_id": None, 
                 "device_kind": None, 
                 "device_property": None}
+
+    @staticmethod
+    def init_connection_holder():
+        return {"first_device_id": None,
+                "first_port_id": None,
+                "second_device_id": None,
+                "second_port_id": None}
 
     def parse_network(self):
         """Parse the circuit definition file."""
@@ -159,6 +166,7 @@ class Parser:
         self.device_name = False
 
         self.device_holder = self.init_device_holder()
+        self.connection_holder =  self.init_connection_holder()
 
         if self.symbol.type != self.expect_type:  # Check for INIT
             print("SYNTAX[Incomplete File]: Missing start mark")
@@ -187,6 +195,7 @@ class Parser:
                 # print("Next sentence, wrong keyword")
                 self.go_to_next_sentece()
                 self.device_holder = self.init_device_holder()
+                self.connection_holder =  self.init_connection_holder()
                 continue
 
             if self.expect_type == self.scanner.SEMICOLON:
@@ -199,7 +208,14 @@ class Parser:
                                                  , self.device_holder["device_kind"]
                                                  , self.device_holder["device_property"])
                         self.device_holder = self.init_device_holder()
-                        # print(err)
+                        print(err)
+                    elif self.phase == 2 and self.connection_holder["first_device_id"] is not None and self.connection_holder["second_device_id"]:
+                        err = self.network.make_connection(self.connection_holder["first_device_id"]
+                                                           , self.connection_holder["first_port_id"]
+                                                           , self.connection_holder["second_device_id"]
+                                                           , self.connection_holder["second_port_id"])
+                        self.connection_holder =  self.init_connection_holder()
+                        print(err)
                     self.set_new_line_word()
                 continue
 
@@ -333,6 +349,14 @@ class Parser:
                         self.go_to_next_sentece()
                         continue
                     else:
+                        if self.symbol.type == self.scanner.DEVICE_OUT:
+                            output_name = self.names.get_name_string(self.symbol.id)
+                            gate_name, output = output_name.split(".")
+                            # print(gate_name, output)
+                            self.connection_holder["first_device_id"] = self.names.query(gate_name)
+                            self.connection_holder["first_port_id"] = self.names.query(output)
+                        else:
+                            self.connection_holder["first_device_id"] = self.symbol.id
                         self.expect_type = self.scanner.CONNECTION
                         self.new_line = False
 
@@ -340,12 +364,25 @@ class Parser:
                     if self.symbol.type == self.scanner.CONNECTION:
                         self.expect_type = self.scanner.DEVICE_IN
                     if self.symbol.type == self.scanner.DEVICE_IN:
+                        input_name = self.names.get_name_string(self.symbol.id)
+                        gate_name, input = input_name.split(".")
+                        self.connection_holder["second_device_id"] = self.names.query(gate_name)
+                        self.connection_holder["second_port_id"] = self.names.query(input)
                         self.expect_type = self.scanner.SEMICOLON
+                        # print(self.connection_holder)
 
             elif self.phase == 3:
                 if self.symbol.type == self.scanner.INIT_MONITOR:
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.new_line = False
+                elif self.symbol.type == self.scanner.DEVICE_OUT:
+                    output_name = self.names.get_name_string(self.symbol.id)
+                    gate_name, output = output_name.split(".")
+                    err = self.monitors.make_monitor(self.names.query(gate_name), self.names.query(output))
+                    print(err)
+                elif self.symbol.type == self.scanner.DEVICE_NAME:
+                    err = self.monitors.make_monitor(self.symbol.id, None)
+                    print(err)
 
         return True
 
@@ -354,7 +391,7 @@ if __name__ == "__main__":
     names = Names()
     devices = Devices(names)
     network = Network(names, devices)
-    monitors = None
+    monitors = Monitors(names, devices, network)
     scanner = Scanner('parser_test_file.txt', names, devices, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
