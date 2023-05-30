@@ -90,6 +90,7 @@ class Scanner:
     def __init__(self, path, names, devices, network):
         """Open specified file and initialise reserved words and IDs."""
         # Open the file
+        self.path = path
         try:
             self.file = open(path, "r")
         except IOError:
@@ -258,20 +259,20 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, path, pointer=True, front=False):
+    def print_error_message(self, symbol, error_type, pointer=True, front=False):
         """Return the complete error message.
         
         Complete error message includes the line number,
         pointer message(optional), and error message.
         """
         if pointer:
-            pointer_mes = self.get_pointer(symbol, path, front)
-            line_number = self.get_line_position(symbol, path)
+            pointer_mes = self.get_pointer(symbol, self.path, front)
+            line_number = self.get_line_position(symbol, self.path)
             error_mes = "Error in line: " + str(line_number)
             error_mes += '\n' + pointer_mes
-            error_mes += '\n' + self.error.error_message()
+            error_mes += '\n' + self.error.error_message(error_type=error_type)
         else:
-            error_mes = self.error.error_message()
+            error_mes = self.error.error_message(error_type=error_type)
         return error_mes
 
     def get_symbol(self):
