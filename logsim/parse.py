@@ -79,7 +79,8 @@ class Parser:
         self.new_line = False
         self.expect_type = self.scanner.SEMICOLON
 
-    def handle_error(self, error_code, error_type, front=False, start_of_sen=False):
+    def handle_error(self, error_code, error_type, 
+                     front=False, start_of_sen=False):
         self.scanner.error.error_code = error_code
         err = self.scanner.print_error_message(self.symbol, 
                                                error_type, 
@@ -180,6 +181,212 @@ class Parser:
                 "first_port_id": None,
                 "second_device_id": None,
                 "second_port_id": None}
+    
+    def parse_semicolon(self):
+        if self.symbol.type != self.scanner.SEMICOLON:
+            self.handle_error(self.scanner.error.MISS_TERMINATION,
+                                    self.scanner.error.SYNTAX,
+                                    front=True)
+            while self.symbol.type != self.scanner.SEMICOLON:
+                if self.phase == 1:
+                    if self.symbol.type == self.scanner.CONNECT:
+                        self.increment_phase()
+                        break
+                elif self.phase == 2:
+                    if self.symbol.type == self.scanner.MONITOR:
+                        self.increment_phase()
+                        break
+                # self.symbol = self.scanner.get_symbol() # Dont think we need this
+            self.go_to_next_sentece()
+        else:
+            if self.phase == 1 and self.device_holder["device_id"] is not None:
+                err = self.devices.make_device(self.device_holder["device_id"],
+                                        self.device_holder["device_kind"],
+                                        self.device_holder["device_property"])
+                self.device_holder = self.init_device_holder()
+                print(err)
+            elif (self.phase == 2 
+                    and self.connection_holder["first_device_id"] is not None
+                    and self.connection_holder["second_device_id"]):
+                err = self.network.make_connection(
+                    self.connection_holder["first_device_id"]
+                    ,self.connection_holder["first_port_id"]
+                    ,self.connection_holder["second_device_id"]
+                    ,self.connection_holder["second_port_id"])
+                self.connection_holder = self.init_connection_holder()
+                print(err)
+            self.set_new_line_word()
+
+    def handle_unexpected_keyword(self):
+        if self.new_line and self.phase != 3:
+            if self.phase == 1:
+                if self.symbol.type == self.scanner.CONNECT:
+                    print("DONE WITH INIT")
+                    self.increment_phase()
+                    return True, False
+                elif self.expect_type == self.scanner.DEVICE_NAME:
+                    self.handle_error(self.scanner.error.INIT_WRONG_NAME,
+                                        self.scanner.error.SYNTAX)
+                    self.expect_type = self.scanner.DEVICE_NAME
+                    self.go_to_next_sentece()
+                    return True, False
+                else:
+                    self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
+                                        self.scanner.error.SYNTAX)
+                    self.go_to_next_sentece()
+                    return True, False
+            if self.phase == 2:
+                if self.symbol.type == self.scanner.MONITOR:
+                    print("DONE WITH CONNECT")
+                    self.increment_phase()
+                    return True, False
+            
+                elif self.expect_type == self.scanner.DEVICE_OUT:
+                    if self.symbol.type != self.scanner.DEVICE_NAME:
+                        self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
+                                            self.scanner.error.SYNTAX)
+                        self.go_to_next_sentece()
+                        return True, False
+                
+                else:
+                    print("SYNTAX[Invalid Connection]: Missing keywords")
+                    self.go_to_next_sentece()
+                    return True, False
+        else:
+            if self.phase == 1:
+                if self.expect_type == self.scanner.NUMBER:
+                    self.handle_error(self.scanner.error.INIT_WRONG_SET,
+                                        self.scanner.error.SYNTAX)
+                    self.go_to_next_sentece()
+                    return True, False
+                else:
+                    self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
+                                        self.scanner.error.SYNTAX,
+                                        front=True)
+                    self.go_to_next_sentece()
+                    return True, False
+
+            elif self.phase == 2:
+                if self.expect_type == self.scanner.DEVICE_IN:
+                    self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
+                                    self.scanner.error.SYNTAX)
+                    self.expect_type = self.scanner.DEVICE_NAME
+                    self.go_to_next_sentece()
+                else:
+                    self.handle_error(self.scanner.error.CONNECT_MISS_KEYWORD,
+                                    self.scanner.error.SYNTAX,
+                                    front=True)
+                    self.expect_type = self.scanner.DEVICE_NAME
+                    self.go_to_next_sentece()
+                return True, False
+            elif self.phase == 3:
+                if self.expect_type == self.scanner.DEVICE_OUT:
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        self.expect_type = self.scanner.EOF
+                        return True, False
+                    elif self.symbol.type != self.scanner.DEVICE_NAME:
+                        self.handle_error(self.scanner.error.MONITOR_WRONG_POINT,
+                                            self.scanner.error.SYNTAX)
+                        return False, True
+        return False, False
+
+    def parse_init(self):
+        if self.new_line:
+            self.device_holder["device_id"] = self.symbol.id
+            self.expect_type = self.scanner.INIT_IS
+            self.new_line = False
+
+        else:
+            if self.symbol.type == self.scanner.INIT_IS:
+                self.expect_type = self.scanner.DEVICE_TYPE
+
+            elif self.symbol.type == self.scanner.DEVICE_TYPE:
+                self.sentence_type = self.names.get_name_string(self.symbol.id)
+                if self.sentence_type == "XOR":
+                    self.device_holder["device_kind"] = self.devices.XOR
+                    self.expect_type = self.scanner.SEMICOLON
+                elif self.sentence_type == "DTYPE":
+                    self.device_holder["device_kind"] = self.devices.D_TYPE
+                    self.expect_type = self.scanner.SEMICOLON
+                elif self.sentence_type == "SWITCH":
+                    self.device_holder["device_kind"] = self.devices.SWITCH
+                    self.expect_type = self.scanner.INIT_SWITCH
+                elif self.sentence_type == "NAND":
+                    self.device_holder["device_kind"] = self.devices.NAND
+                    self.expect_type = self.scanner.INIT_WITH
+                elif self.sentence_type == "AND":
+                    self.device_holder["device_kind"] = self.devices.AND
+                    self.expect_type = self.scanner.INIT_WITH
+                elif self.sentence_type == "NOR":
+                    self.device_holder["device_kind"] = self.devices.NOR
+                    self.expect_type = self.scanner.INIT_WITH
+                elif self.sentence_type == "OR":
+                    self.device_holder["device_kind"] = self.devices.OR
+                    self.expect_type = self.scanner.INIT_WITH
+                elif self.sentence_type == "CLOCK":
+                    self.device_holder["device_kind"] = self.devices.CLOCK
+                    self.expect_type = self.scanner.INIT_CLK
+
+            elif self.symbol.type == self.scanner.INIT_SWITCH:
+                self.expect_type = self.scanner.NUMBER
+            
+            elif self.symbol.type == self.scanner.INIT_WITH:
+                self.expect_type = self.scanner.NUMBER
+
+            elif self.symbol.type == self.scanner.INIT_CLK:
+                self.expect_type = self.scanner.NUMBER
+            
+            elif self.symbol.type == self.scanner.NUMBER:
+                if self.sentence_type == "SWITCH":
+                    if self.names.get_name_string(self.symbol.id) not in {'0','1'}:
+                        self.handle_error(self.scanner.error.INIT_WRONG_SET,
+                                            self.scanner.error.SYNTAX)
+                    else:
+                        self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
+                    self.expect_type = self.scanner.SEMICOLON
+                elif self.sentence_type in {"NAND", "AND", "NOR", "OR"}:
+                    self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
+                    self.expect_type = self.scanner.INIT_GATE
+                elif self.sentence_type == "CLOCK":
+                    self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
+                    self.expect_type = self.scanner.SEMICOLON
+            elif self.symbol.type == self.scanner.INIT_GATE:
+                self.expect_type = self.scanner.SEMICOLON
+
+    def parse_connect(self):
+        if self.new_line:
+            if self.symbol.type == self.scanner.DEVICE_OUT:
+                output_name = self.names.get_name_string(self.symbol.id)
+                gate_name, output = output_name.split(".")
+                self.connection_holder["first_device_id"] = self.names.query(gate_name)
+                self.connection_holder["first_port_id"] = self.names.query(output)
+            else:
+                self.connection_holder["first_device_id"] = self.symbol.id
+            self.expect_type = self.scanner.CONNECTION
+            self.new_line = False
+
+        else:
+            if self.symbol.type == self.scanner.CONNECTION:
+                self.expect_type = self.scanner.DEVICE_IN
+            if self.symbol.type == self.scanner.DEVICE_IN:
+                input_name = self.names.get_name_string(self.symbol.id)
+                gate_name, input = input_name.split(".")
+                self.connection_holder["second_device_id"] = self.names.query(gate_name)
+                self.connection_holder["second_port_id"] = self.names.query(input)
+                self.expect_type = self.scanner.SEMICOLON
+                
+    def parse_monitor(self):
+        if self.symbol.type == self.scanner.INIT_MONITOR:
+            self.expect_type = self.scanner.DEVICE_OUT
+            self.new_line = False
+        elif self.symbol.type == self.scanner.DEVICE_OUT:
+            output_name = self.names.get_name_string(self.symbol.id)
+            gate_name, output = output_name.split(".")
+            err = self.monitors.make_monitor(self.names.query(gate_name), self.names.query(output))
+            print(err)
+        elif self.symbol.type == self.scanner.DEVICE_NAME:
+            err = self.monitors.make_monitor(self.symbol.id, None)
+            print(err)
 
     def parse_network(self):
         """Parse the circuit definition file."""
@@ -198,8 +405,6 @@ class Parser:
         self.new_line = False
 
         while True:
-            # print(self.symbol.type, self.scanner.EOF)
-            # print(self.scanner.DEVICE_NAME)
             self.symbol = self.scanner.get_symbol()
             if self.symbol.type == self.scanner.EOF:
                 if self.expect_type == self.scanner.EOF:
@@ -208,8 +413,6 @@ class Parser:
                     if self.phase == 3:
                         self.handle_error(self.scanner.error.MISS_TERMINATION,
                                           self.scanner.error.SYNTAX)
-                    # else:
-                    #     print("SYNTAX[Incomplete]: File is incompleted") # I think this is redundant
                 break
             # print(self.count)
             self.count += 1
@@ -235,212 +438,29 @@ class Parser:
                 continue
 
             if self.expect_type == self.scanner.SEMICOLON:
-                if self.symbol.type != self.scanner.SEMICOLON:
-                    self.handle_error(self.scanner.error.MISS_TERMINATION,
-                                          self.scanner.error.SYNTAX)
-                    while self.symbol.type != self.scanner.SEMICOLON:
-                        if self.phase == 1:
-                            if self.symbol.type == self.scanner.CONNECT:
-                                self.increment_phase()
-                                break
-                        elif self.phase == 2:
-                            if self.symbol.type == self.scanner.MONITOR:
-                                self.increment_phase()
-                                break
-                        self.symbol = self.scanner.get_symbol()
-                    self.go_to_next_sentece()
-                else:
-                    if self.phase == 1 and self.device_holder["device_id"] is not None:
-                        err = self.devices.make_device(self.device_holder["device_id"]
-                                                 , self.device_holder["device_kind"]
-                                                 , self.device_holder["device_property"])
-                        self.device_holder = self.init_device_holder()
-                        print(err)
-                    elif (self.phase == 2 
-                          and self.connection_holder["first_device_id"] is not None
-                          and self.connection_holder["second_device_id"]):
-                        err = self.network.make_connection(self.connection_holder["first_device_id"]
-                                                           , self.connection_holder["first_port_id"]
-                                                           , self.connection_holder["second_device_id"]
-                                                           , self.connection_holder["second_port_id"])
-                        self.connection_holder =  self.init_connection_holder()
-                        print(err)
-                    self.set_new_line_word()
+                self.parse_semicolon()
                 continue
 
             if self.expect_type != self.symbol.type:
-                if self.new_line and self.phase != 3:
-                    if self.phase == 1:
-                        if self.symbol.type == self.scanner.CONNECT:
-                            print("DONE WITH INIT")
-                            self.increment_phase()
-                            continue
-                        elif self.expect_type == self.scanner.DEVICE_NAME:
-                            self.handle_error(self.scanner.error.INIT_WRONG_NAME,
-                                              self.scanner.error.SYNTAX)
-                            self.expect_type = self.scanner.DEVICE_NAME
-                            self.go_to_next_sentece()
-                            continue
-                        else:
-                            self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
-                                              self.scanner.error.SYNTAX)
-                            self.go_to_next_sentece()
-                            continue
-                    if self.phase == 2:
-                        if self.symbol.type == self.scanner.MONITOR:
-                            print("DONE WITH CONNECT")
-                            self.increment_phase()
-                            continue
-                    
-                        elif self.expect_type == self.scanner.DEVICE_OUT:
-                            if self.symbol.type != self.scanner.DEVICE_NAME:
-                                self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
-                                                  self.scanner.error.SYNTAX)
-                                self.go_to_next_sentece()
-                                continue
-                        
-                        else:
-                            print("SYNTAX[Invalid Connection]: Missing keywords")
-                            self.go_to_next_sentece()
-                            continue
+                continue_break = self.handle_unexpected_keyword()
+                if continue_break[1]:
+                    break
+                elif continue_break[0]:
+                    continue
                 else:
-                    if self.phase == 1:
-                        if self.expect_type == self.scanner.NUMBER:
-                            self.handle_error(self.scanner.error.INIT_WRONG_SET,
-                                              self.scanner.error.SYNTAX)
-                            self.go_to_next_sentece()
-                            continue
-                        else:
-                            self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
-                                              self.scanner.error.SYNTAX,
-                                              front=True)
-                            self.go_to_next_sentece()
-                            continue
+                    pass
 
-                    elif self.phase == 2:
-                        if self.expect_type == self.scanner.DEVICE_IN:
-                            self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
-                                            self.scanner.error.SYNTAX)
-                            self.expect_type = self.scanner.DEVICE_NAME
-                            self.go_to_next_sentece()
-                        else:
-                            self.handle_error(self.scanner.error.CONNECT_MISS_KEYWORD,
-                                            self.scanner.error.SYNTAX,
-                                            front=True)
-                            self.expect_type = self.scanner.DEVICE_NAME
-                            self.go_to_next_sentece()
-                        continue
-                    elif self.phase == 3:
-                        if self.expect_type == self.scanner.DEVICE_OUT:
-                            if self.symbol.type == self.scanner.SEMICOLON:
-                                self.expect_type = self.scanner.EOF
-                                continue
-                            elif self.symbol.type != self.scanner.DEVICE_NAME:
-                                self.handle_error(self.scanner.error.MONITOR_WRONG_POINT,
-                                                  self.scanner.error.SYNTAX)
-                                continue
             # Check INIT
             if self.phase == 1:
-                if self.new_line:
-                    self.device_holder["device_id"] = self.symbol.id
-                    self.expect_type = self.scanner.INIT_IS
-                    self.new_line = False
-  
-                else:
-                    if self.symbol.type == self.scanner.INIT_IS:
-                        self.expect_type = self.scanner.DEVICE_TYPE
-
-                    elif self.symbol.type == self.scanner.DEVICE_TYPE:
-                        self.sentence_type = self.names.get_name_string(self.symbol.id)
-                        # print("device", self.names.get_name_string(self.symbol.id))
-                        if self.sentence_type == "XOR":
-                            self.device_holder["device_kind"] = self.devices.XOR
-                            self.expect_type = self.scanner.SEMICOLON
-                        elif self.sentence_type == "DTYPE":
-                            self.device_holder["device_kind"] = self.devices.D_TYPE
-                            self.expect_type = self.scanner.SEMICOLON
-                        elif self.sentence_type == "SWITCH":
-                            self.device_holder["device_kind"] = self.devices.SWITCH
-                            self.expect_type = self.scanner.INIT_SWITCH
-                        elif self.sentence_type == "NAND":
-                            self.device_holder["device_kind"] = self.devices.NAND
-                            self.expect_type = self.scanner.INIT_WITH
-                        elif self.sentence_type == "AND":
-                            self.device_holder["device_kind"] = self.devices.AND
-                            self.expect_type = self.scanner.INIT_WITH
-                        elif self.sentence_type == "NOR":
-                            self.device_holder["device_kind"] = self.devices.NOR
-                            self.expect_type = self.scanner.INIT_WITH
-                        elif self.sentence_type == "OR":
-                            self.device_holder["device_kind"] = self.devices.OR
-                            self.expect_type = self.scanner.INIT_WITH
-                        elif self.sentence_type == "CLOCK":
-                            self.device_holder["device_kind"] = self.devices.CLOCK
-                            self.expect_type = self.scanner.INIT_CLK
-
-                    elif self.symbol.type == self.scanner.INIT_SWITCH:
-                        self.expect_type = self.scanner.NUMBER
-                    
-                    elif self.symbol.type == self.scanner.INIT_WITH:
-                        self.expect_type = self.scanner.NUMBER
-
-                    elif self.symbol.type == self.scanner.INIT_CLK:
-                        self.expect_type = self.scanner.NUMBER
-                    
-                    elif self.symbol.type == self.scanner.NUMBER:
-                        if self.sentence_type == "SWITCH":
-                            if self.names.get_name_string(self.symbol.id) not in {'0','1'}:
-                                self.handle_error(self.scanner.error.INIT_WRONG_SET,
-                                                  self.scanner.error.SYNTAX)
-                            else:
-                                self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
-                            self.expect_type = self.scanner.SEMICOLON
-                        elif self.sentence_type in {"NAND", "AND", "NOR", "OR"}:
-                            self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
-                            self.expect_type = self.scanner.INIT_GATE
-                        elif self.sentence_type == "CLOCK":
-                            self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
-                            self.expect_type = self.scanner.SEMICOLON
-                    elif self.symbol.type == self.scanner.INIT_GATE:
-                        self.expect_type = self.scanner.SEMICOLON
+                self.parse_init()
 
             # Check for CONNECT
             elif self.phase == 2:
-                if self.new_line:
-                    if self.symbol.type == self.scanner.DEVICE_OUT:
-                        output_name = self.names.get_name_string(self.symbol.id)
-                        gate_name, output = output_name.split(".")
-                        # print(gate_name, output)
-                        self.connection_holder["first_device_id"] = self.names.query(gate_name)
-                        self.connection_holder["first_port_id"] = self.names.query(output)
-                    else:
-                        self.connection_holder["first_device_id"] = self.symbol.id
-                    self.expect_type = self.scanner.CONNECTION
-                    self.new_line = False
+                self.parse_connect()
 
-                else:
-                    if self.symbol.type == self.scanner.CONNECTION:
-                        self.expect_type = self.scanner.DEVICE_IN
-                    if self.symbol.type == self.scanner.DEVICE_IN:
-                        input_name = self.names.get_name_string(self.symbol.id)
-                        gate_name, input = input_name.split(".")
-                        self.connection_holder["second_device_id"] = self.names.query(gate_name)
-                        self.connection_holder["second_port_id"] = self.names.query(input)
-                        self.expect_type = self.scanner.SEMICOLON
-                        # print(self.connection_holder)
-
+            # Check for MONITOR
             elif self.phase == 3:
-                if self.symbol.type == self.scanner.INIT_MONITOR:
-                    self.expect_type = self.scanner.DEVICE_OUT
-                    self.new_line = False
-                elif self.symbol.type == self.scanner.DEVICE_OUT:
-                    output_name = self.names.get_name_string(self.symbol.id)
-                    gate_name, output = output_name.split(".")
-                    err = self.monitors.make_monitor(self.names.query(gate_name), self.names.query(output))
-                    print(err)
-                elif self.symbol.type == self.scanner.DEVICE_NAME:
-                    err = self.monitors.make_monitor(self.symbol.id, None)
-                    print(err)
+                self.parse_monitor()
 
         return True
 
