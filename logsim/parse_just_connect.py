@@ -38,19 +38,21 @@ class Parser:
         self.scanner = scanner
 
     def parse_network(self):
-        [SW1_ID, CK1_ID, OR1_ID, DT1_ID, I1, I2,] = self.names.lookup(["SW1", "CK2", "OR1", "DT1", "I1",
+        [SW1_ID, SW2_ID, CK1_ID, OR1_ID, DT1_ID, I1, I2,] = self.names.lookup(["SW1", "SW2", "CK2", "OR1", "DT1", "I1",
                                                      "I2"])
         
         # Make dem devices
         OR_error = self.devices.make_device(OR1_ID, self.devices.OR, 2)
         SW1_error = self.devices.make_device(SW1_ID, self.devices.SWITCH, 0)
+        SW2_error = self.devices.make_device(SW1_ID, self.devices.SWITCH, 1)
         CK1_error = self.devices.make_device(CK1_ID, self.devices.CLOCK, 20)
 
-        print(OR_error, SW1_error, CK1_error)
+        print(OR_error, SW1_error, SW2_error, CK1_error)
 
         # Get devices
         OR1 = self.devices.get_device(OR1_ID)
         SW1 = self.devices.get_device(SW1_ID)
+        SW2 = self.devices.get_device(SW2_ID)
         CK2 = self.devices.get_device(CK1_ID)
 
         # Make connections
@@ -59,6 +61,7 @@ class Parser:
         # self.network.make_connection(CK1_ID, None, OR1_ID, I2)
 
         print(self.monitors.make_monitor(OR1_ID, None))
+        print(self.monitors.make_monitor(SW1_ID, None))
 
         for _ in range(100):
             self.network.execute_network()
