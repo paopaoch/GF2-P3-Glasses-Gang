@@ -1,0 +1,1 @@
+INIT; d1 is DTYPE;
