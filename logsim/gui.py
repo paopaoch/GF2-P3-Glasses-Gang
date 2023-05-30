@@ -425,6 +425,7 @@ class Gui(wx.Frame):
         self.sub_sizer_sw_state.Add(self.text_state, 1, wx.ALIGN_LEFT|wx.ALL, 5)
 
         self.scrolled_switch = wx.ScrolledWindow(self, style=wx.VSCROLL)
+        self.scrolled_switch.SetBackgroundColour(wx.Colour(200, 200, 200))
         self.scrolled_switch.SetSizer(self.sizer_switch)
         self.scrolled_switch.SetScrollRate(0, 20)  # Adjust the scrolling speed
         self.scrolled_switch.SetAutoLayout(True)
