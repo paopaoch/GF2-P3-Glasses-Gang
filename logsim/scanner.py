@@ -198,15 +198,16 @@ class Scanner:
             end_right = self.current_char
         if not (end_left == '*' and end_right == '/'):
             self.error.error_code = self.error.INVALID_COMMENT
-            sentence = sentence[:5] + " ... " + sentence[-5:]
-            sentence += '\n' + " " * 15 + '^'
+            sentence = " ".join(sentence.split('\n'))
+            sentence = sentence[:3] + " ... " + sentence[-3:]
+            sentence += '\n' + " " * 11 + '^'
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
         else:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
     
-    def get_pointer(self, symbol, path, front=False):
+    def get_pointer(self, symbol, front=False, start_of_sen=False):
         """Return the pointer message.
         
         Pointer message includes the sentence where the symbol located, 
@@ -214,7 +215,7 @@ class Scanner:
         of the symbol or start of the symbol.
         """
         try:
-            f = open(path, "r")
+            f = open(self.path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
@@ -229,6 +230,9 @@ class Scanner:
         comment_regex = "\/\*.*?\*\/"
         sentence = re.sub(comment_regex, '', sentence)
         # Create the pointer message
+        if start_of_sen:
+            pointer_mes = sentence + '\n' + '^'
+            return pointer_mes
         symbol_len = 1
         if not front or sentence[-1] == ";":
             pointer = " " * (len(sentence) - 1) + '^'
@@ -243,10 +247,10 @@ class Scanner:
             pointer_mes = sentence + '\n' + pointer
         return pointer_mes
 
-    def get_line_position(self, symbol, path):
+    def get_line_position(self, symbol):
         """Return the line number of the symbol located in the file."""
         try:
-            f = open(path, "r")
+            f = open(self.path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
@@ -259,20 +263,22 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, error_type, pointer=True, front=False):
+    def print_error_message(self, symbol, error_type, front=False, 
+                            start_of_sen=False, optional_mess=""):
         """Return the complete error message.
         
         Complete error message includes the line number,
-        pointer message(optional), and error message.
+        pointer message, and error message.
         """
-        if pointer:
-            pointer_mes = self.get_pointer(symbol, self.path, front)
-            line_number = self.get_line_position(symbol, self.path)
-            error_mes = "Error in line: " + str(line_number)
+        line_number = self.get_line_position(symbol)
+        error_mes = "Error in line: " + str(line_number)
+        if not start_of_sen:
+            pointer_mes = self.get_pointer(symbol, front, start_of_sen)
             error_mes += '\n' + pointer_mes
-            error_mes += '\n' + self.error.error_message(error_type=error_type)
+            error_mes += '\n' + self.error.error_message(error_type, optional_mess)
         else:
-            error_mes = self.error.error_message(error_type=error_type)
+            pointer_mes = self.get_pointer(symbol, front, start_of_sen)
+            error_mes = self.error.error_message(error_type, optional_mess)
         return error_mes
 
     def get_symbol(self):
