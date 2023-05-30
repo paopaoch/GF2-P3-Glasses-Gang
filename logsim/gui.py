@@ -586,8 +586,10 @@ class Gui(wx.Frame):
         print(sizer_name)
         if sizer_name is not None:
             static_text = sizer_.GetItem(0).GetWindow()
+            print(static_text.GetLabel())
             switch_id = self.names.query(static_text.GetLabel())
             if switch_id is not None:
+                self.exist_switch_state = sizer_.GetItem(1).GetWindow()
                 if self.toggle_btn.GetValue():
                     self.exist_switch_state.SetLabel(_(u"OFF"))
                     new_signal = 0
@@ -595,7 +597,7 @@ class Gui(wx.Frame):
                     self.exist_switch_state.SetLabel(_(u"ON"))
                     new_signal = 1
                 print(self.devices.set_switch(switch_id, new_signal))
-                
+                self.devices.set_switch(switch_id, new_signal)
                 self.gui_monitors = self.convert_gui_monitors()
                 text = "switch input is flipped."
                 self.canvas.render(text)
