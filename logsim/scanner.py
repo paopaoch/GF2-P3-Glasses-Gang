@@ -33,7 +33,7 @@ class Symbol:
         self.id = None
         # Position of the last char of the symbol
         self.pos = None
-        # Position of the first char of the sentence that symbol is in
+        # Position of the first char of the line that symbol is in
         self.line_pos = None
 
 
@@ -90,6 +90,7 @@ class Scanner:
     def __init__(self, path, names, devices, network):
         """Open specified file and initialise reserved words and IDs."""
         # Open the file
+        self.path = path
         try:
             self.file = open(path, "r")
         except IOError:
@@ -128,7 +129,7 @@ class Scanner:
         # Character at current reading position
         self.current_char = None
         
-        # Position of start char of the sentence is reading
+        # Position of start char of the line is reading
         self.last_line_pos = 0
 
     def read_file(self):
@@ -162,7 +163,10 @@ class Scanner:
     def skip_spaces_and_linebreaks(self):
         """Skip spaces and linebreaks, update current_char."""
         while self.current_char.isspace() or self.current_char == '\n':
+            if self.current_char == '\n':
+                self.last_line_pos = self.file.tell()
             self.current_char = self.read_file()
+
     
     def skip_comment(self):
         """Skip comment if valid comment, otherwise report error."""
@@ -197,15 +201,16 @@ class Scanner:
             end_right = self.current_char
         if not (end_left == '*' and end_right == '/'):
             self.error.error_code = self.error.INVALID_COMMENT
-            sentence = sentence[:5] + " ... " + sentence[-5:]
-            sentence += '\n' + " " * 15 + '^'
+            sentence = " ".join(sentence.split('\n'))
+            sentence = sentence[:3] + " ... " + sentence[-3:]
+            sentence += '\n' + " " * 11 + '^'
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
         else:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
     
-    def get_pointer(self, symbol, path, front=False):
+    def get_pointer(self, symbol, front=False, start_of_sen=False):
         """Return the pointer message.
         
         Pointer message includes the sentence where the symbol located, 
@@ -213,39 +218,43 @@ class Scanner:
         of the symbol or start of the symbol.
         """
         try:
-            f = open(path, "r")
+            f = open(self.path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
-        # extract the sentence the symbol located
-        start_pos = f.seek(symbol.line_pos)
-        sentence = f.read(symbol.pos-start_pos)
-        # Remove spaces at the two sides
-        sentence = sentence.strip()
-        # Remove any newline within a sentence
-        sentence = ' '.join(sentence.split('\n'))
-        # Remove comments
-        comment_regex = "\/\*.*?\*\/"
-        sentence = re.sub(comment_regex, '', sentence)
+            
+        # extract the line the symbol located
+        f.seek(symbol.line_pos)
+        sentence = ""
+        symbol_pos = symbol.pos - symbol.line_pos
+        cur_char = f.read(1)
+        while cur_char != '\n':
+            sentence += cur_char
+            cur_char = f.read(1)
+            if cur_char == '':
+                break
+
         # Create the pointer message
-        symbol_len = 1
-        if not front or sentence[-1] == ";":
-            pointer = " " * (len(sentence) - 1) + '^'
+        if start_of_sen or sentence == '':
+            pointer_mes = sentence + '\n' + '^'
+            return pointer_mes
+            
+        if not front or symbol.type == self.SEMICOLON:
+            pointer = " " * (symbol_pos - 1)  + '^'
             pointer_mes = sentence + '\n' + pointer
         else:
-            for i in range(len(sentence)-1, 0, -1):
-                if sentence[i] != ' ':
-                    symbol_len += 1
-                else:
-                    break
-            pointer = " " * (len(sentence) - symbol_len) + '^'
+            symbol_len = 0
+            f.seek(symbol.line_pos)
+            strings = f.read(symbol_pos)
+            symbol_len = len(strings.split(' ')[-1])
+            pointer = " " * (symbol_pos - symbol_len) + '^'
             pointer_mes = sentence + '\n' + pointer
         return pointer_mes
 
-    def get_line_position(self, symbol, path):
+    def get_line_position(self, symbol):
         """Return the line number of the symbol located in the file."""
         try:
-            f = open(path, "r")
+            f = open(self.path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
@@ -258,20 +267,22 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
     
-    def print_error_message(self, symbol, path, pointer=True, front=False):
+    def print_error_message(self, symbol, error_type, front=False, 
+                            start_of_sen=False, optional_mess=""):
         """Return the complete error message.
         
         Complete error message includes the line number,
-        pointer message(optional), and error message.
+        pointer message, and error message.
         """
-        if pointer:
-            pointer_mes = self.get_pointer(symbol, path, front)
-            line_number = self.get_line_position(symbol, path)
-            error_mes = "Error in line: " + str(line_number)
+        line_number = self.get_line_position(symbol)
+        error_mes = "Error in line: " + str(line_number)
+        if not start_of_sen:
+            pointer_mes = self.get_pointer(symbol, front, start_of_sen)
             error_mes += '\n' + pointer_mes
-            error_mes += '\n' + self.error.error_message()
+            error_mes += '\n' + self.error.error_message(error_type, optional_mess)
         else:
-            error_mes = self.error.error_message()
+            pointer_mes = self.get_pointer(symbol, front, start_of_sen)
+            error_mes = self.error.error_message(error_type, optional_mess)
         return error_mes
 
     def get_symbol(self):
@@ -295,7 +306,6 @@ class Scanner:
             symbol_get.type = self.SEMICOLON
             symbol_get.pos = self.file.tell()
             symbol_get.line_pos = self.last_line_pos
-            self.last_line_pos = self.file.tell()
             return symbol_get
 
         while not (self.current_char.isspace() or self.current_char == '\n'):
@@ -306,9 +316,11 @@ class Scanner:
                 num = self.get_number()
                 symbol_string += num
             elif self.current_char == ';':
+                symbol_get.pos = self.file.tell() - 1
                 self.file.seek(self.file.tell() - 1)
                 break
             elif self.current_char == '':
+                symbol_get.pos = self.file.tell()
                 self.file.seek(self.file.tell())
                 break
             elif self.current_char == '/':
@@ -365,8 +377,8 @@ class Scanner:
             [symbol_get.id] = self.names.lookup([symbol_string])
         else:
             symbol_get.type = self.ERROR
-
-        symbol_get.pos = self.file.tell()
+        if symbol_get.pos is None:
+            symbol_get.pos = self.file.tell() - 1
         symbol_get.line_pos = self.last_line_pos
         return symbol_get
         

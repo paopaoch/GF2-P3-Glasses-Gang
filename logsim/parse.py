@@ -110,10 +110,14 @@ class Parser:
                     monitor_pos = pos
 
         if init_pos == 0:
-            print("SYNTAX[Incomplete File]: Missing start mark")
+            self.scanner.error.error_code = self.scanner.error.MISS_START_MARK
+            err = self.scanner.print_error_message(self.symbol, self.scanner.error.SYNTAX)
+            print(err)
             error = True
         if connect_pos is None:
-            print("SYNTAX[Incomplete File]: Missing start mark")
+            self.scanner.error.error_code = self.scanner.error.MISS_START_MARK
+            err = self.scanner.print_error_message(self.symbol, self.scanner.error.SYNTAX)
+            print(err)
             error = True
         if monitor_pos is None:
             print("SYNTAX[Incomplete File]: Missing start mark")
@@ -151,12 +155,9 @@ class Parser:
 
     def parse_network(self):
         """Parse the circuit definition file."""
-        # For now just return True, so that userint and gui can run in the
-        # skeleton code. When complete, should return False when there are
-        # errors in the circuit definition file.
-        # return True
+
         if not self.check_structure():
-            return
+            return False
         self.count = 0
         self.expect_type = self.scanner.INIT
         self.symbol = self.scanner.get_symbol()
@@ -169,8 +170,9 @@ class Parser:
         self.connection_holder =  self.init_connection_holder()
 
         if self.symbol.type != self.expect_type:  # Check for INIT
-            print("SYNTAX[Incomplete File]: Missing start mark")
-
+            self.scanner.error.error_code = self.scanner.error.MISS_START_MARK
+            err = self.scanner.print_error_message(self.symbol, self.scanner.error.SYNTAX)
+            print(err)
         self.expect_type = self.scanner.SEMICOLON
         self.new_line = False
 
