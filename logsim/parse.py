@@ -79,6 +79,15 @@ class Parser:
         self.new_line = False
         self.expect_type = self.scanner.SEMICOLON
 
+    def handle_error(self, error_code, error_type, front=False):
+        self.scanner.error.error_code = error_code
+        err = self.scanner.print_error_message(self.symbol, error_type, front=front)
+        print(err)
+
+    def restart_and_get_symbol(self):
+        self.scanner.restart()
+        self.symbol = self.scanner.get_symbol()
+
     def check_structure(self):
         self.symbol = self.scanner.get_symbol()
         self.expect_type = self.scanner.INIT
@@ -110,32 +119,49 @@ class Parser:
                     monitor_pos = pos
 
         if init_pos == 0:
-            self.scanner.error.error_code = self.scanner.error.MISS_START_MARK
-            err = self.scanner.print_error_message(self.symbol, self.scanner.error.SYNTAX)
-            print(err)
+            self.restart_and_get_symbol()
+            self.handle_error(self.scanner.error.MISS_START_MARK,
+                              self.scanner.error.SYNTAX)
             error = True
         if connect_pos is None:
-            self.scanner.error.error_code = self.scanner.error.MISS_START_MARK
-            err = self.scanner.print_error_message(self.symbol, self.scanner.error.SYNTAX)
-            print(err)
+            self.restart_and_get_symbol()
+            while (self.symbol.type != self.scanner.MONITOR 
+                    and self.symbol.type != self.scanner.EOF):
+                self.symbol = self.scanner.get_symbol()
+            self.handle_error(self.scanner.error.MISS_START_MARK,
+                              self.scanner.error.SYNTAX, front=True)
             error = True
         if monitor_pos is None:
-            print("SYNTAX[Incomplete File]: Missing start mark")
+            self.restart_and_get_symbol()
+            while self.symbol.type != self.scanner.EOF:
+                self.symbol = self.scanner.get_symbol()
+            self.handle_error(self.scanner.error.MISS_START_MARK,
+                              self.scanner.error.SYNTAX)
             error = True
 
         if connect_pos is not None:
             if connect_pos - init_pos < 3:
-                print("SYNTAX[Incomplete File]: Missing sentences") # missing init statements
+                self.restart_and_get_symbol()
+                self.handle_error(self.scanner.error.MISS_DESCRIPTION,
+                                  self.scanner.error.SYNTAX)
                 error = True
         if connect_pos is not None and monitor_pos is not None:
             if monitor_pos - connect_pos < 3:
-                print("SYNTAX[Incomplete File]: Missing sentences") # missing connection statements
+                self.restart_and_get_symbol()
+                while self.symbol.type != self.scanner.CONNECT:
+                    self.symbol = self.scanner.get_symbol()
+                self.handle_error(self.scanner.error.MISS_DESCRIPTION,
+                                  self.scanner.error.SYNTAX)
                 error = True
         if monitor_pos is not None:
             if pos - monitor_pos < 3:
-                print("SYNTAX[Incomplete File]: Missing sentences") # missing monitor statements
+                self.restart_and_get_symbol()
+                while self.symbol.type != self.scanner.MONITOR:
+                    self.symbol = self.scanner.get_symbol()
+                self.handle_error(self.scanner.error.MISS_DESCRIPTION,
+                                  self.scanner.error.SYNTAX)
                 error = True
-        self.scanner.restart()
+        self.restart_and_get_symbol()
         if error:
             return False
         return True
@@ -159,8 +185,7 @@ class Parser:
         if not self.check_structure():
             return False
         self.count = 0
-        self.expect_type = self.scanner.INIT
-        self.symbol = self.scanner.get_symbol()
+        self.expect_type = self.scanner.SEMICOLON
         self.count += 1
         self.sentence_type = None
         self.phase = 1
@@ -168,12 +193,6 @@ class Parser:
 
         self.device_holder = self.init_device_holder()
         self.connection_holder =  self.init_connection_holder()
-
-        if self.symbol.type != self.expect_type:  # Check for INIT
-            self.scanner.error.error_code = self.scanner.error.MISS_START_MARK
-            err = self.scanner.print_error_message(self.symbol, self.scanner.error.SYNTAX)
-            print(err)
-        self.expect_type = self.scanner.SEMICOLON
         self.new_line = False
 
         while True:
@@ -185,24 +204,44 @@ class Parser:
                     print("DONE WITH MONITOR")
                 else:
                     if self.phase == 3:
-                        print("SYNTAX[No Termination]: Missing Termination Mark")
-                    else:
-                        print("SYNTAX[Incomplete]: File is incompleted")
+                        self.handle_error(self.scanner.error.MISS_TERMINATION,
+                                          self.scanner.error.SYNTAX)
+                    # else:
+                    #     print("SYNTAX[Incomplete]: File is incompleted") # I think this is redundant
                 break
             # print(self.count)
             self.count += 1
             if self.symbol.type == self.scanner.ERROR:
-                # print(self.symbol.id)
-                print("SYNTAX[Keyword Not Found]: Scanner can not process invalid keyword")
-                # print("Next sentence, wrong keyword")
+                if self.phase == 1:
+                    if self.expect_type == self.scanner.DEVICE_NAME:
+                        self.handle_error(self.scanner.error.INIT_WRONG_NAME,
+                                  self.scanner.error.SYNTAX)
+                    else:
+                        self.handle_error(self.scanner.error.INIT_WRONG_NAME,
+                                  self.scanner.error.SYNTAX)
+                else:
+                    self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
+                                    self.scanner.error.SYNTAX)
                 self.go_to_next_sentece()
                 self.device_holder = self.init_device_holder()
-                self.connection_holder =  self.init_connection_holder()
+                self.connection_holder = self.init_connection_holder()
                 continue
 
             if self.expect_type == self.scanner.SEMICOLON:
                 if self.symbol.type != self.scanner.SEMICOLON:
-                    print("SYNTAX[No Termination]: Missing termination mark")
+                    self.handle_error(self.scanner.error.MISS_TERMINATION,
+                                          self.scanner.error.SYNTAX,
+                                          front=True)
+                    while self.symbol.type != self.scanner.SEMICOLON:
+                        if self.phase == 1:
+                            if self.symbol.type == self.scanner.CONNECT:
+                                self.increment_phase()
+                                break
+                        elif self.phase == 2:
+                            if self.symbol.type == self.scanner.MONITOR:
+                                self.increment_phase()
+                                break
+                        self.symbol = self.scanner.get_symbol()
                     self.go_to_next_sentece()
                 else:
                     if self.phase == 1 and self.device_holder["device_id"] is not None:
@@ -211,7 +250,9 @@ class Parser:
                                                  , self.device_holder["device_property"])
                         self.device_holder = self.init_device_holder()
                         print(err)
-                    elif self.phase == 2 and self.connection_holder["first_device_id"] is not None and self.connection_holder["second_device_id"]:
+                    elif (self.phase == 2 
+                          and self.connection_holder["first_device_id"] is not None
+                          and self.connection_holder["second_device_id"]):
                         err = self.network.make_connection(self.connection_holder["first_device_id"]
                                                            , self.connection_holder["first_port_id"]
                                                            , self.connection_holder["second_device_id"]
@@ -228,12 +269,15 @@ class Parser:
                             print("DONE WITH INIT")
                             self.increment_phase()
                             continue
-                        elif self.expect_type == self.scanner.NUMBER:
-                            print("SYNTAX[Invalid Initialisation]: Invalid setting should init with numbers")
+                        elif self.expect_type == self.scanner.DEVICE_NAME:
+                            self.handle_error(self.scanner.error.INIT_WRONG_NAME,
+                                              self.scanner.error.SYNTAX)
+                            self.expect_type = self.scanner.DEVICE_NAME
                             self.go_to_next_sentece()
                             continue
                         else:
-                            print("SYNTAX[Invalid Initialisation]: Missing keywords")
+                            self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
+                                              self.scanner.error.SYNTAX)
                             self.go_to_next_sentece()
                             continue
                     if self.phase == 2:
@@ -252,14 +296,24 @@ class Parser:
                             self.go_to_next_sentece()
                             continue
                 else:
-                    if self.phase == 3:
+                    if self.phase == 1:
+                        if self.expect_type == self.scanner.NUMBER:
+                            self.handle_error(self.scanner.error.INIT_WRONG_SET,
+                                              self.scanner.error.SYNTAX)
+                            self.go_to_next_sentece()
+                            continue
+                        else:
+                            self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
+                                              self.scanner.error.SYNTAX,
+                                              front=True)
+                            self.go_to_next_sentece()
+                            continue
+                    elif self.phase == 3:
                         if self.expect_type == self.scanner.DEVICE_OUT:
                             if self.symbol.type == self.scanner.SEMICOLON:
                                 self.expect_type = self.scanner.EOF
                                 continue
                             elif self.symbol.type != self.scanner.DEVICE_NAME:
-                                # print(self.expect_type)
-                                # print(self.scanner.DEVICE_OUT)
                                 print("SYNTAX[Invalid Monitor]: Missing keywords expected a device output")
                                 continue
                     else:
@@ -327,7 +381,8 @@ class Parser:
                     elif self.symbol.type == self.scanner.NUMBER:
                         if self.sentence_type == "SWITCH":
                             if self.names.get_name_string(self.symbol.id) not in {'0','1'}:
-                                print("SYNTAX[Invalid Initialisation]: Invalid setting")
+                                self.handle_error(self.scanner.error.INIT_WRONG_SET,
+                                                  self.scanner.error.SYNTAX)
                             else:
                                 self.device_holder["device_property"] = int(self.names.get_name_string(self.symbol.id))
                             self.expect_type = self.scanner.SEMICOLON
