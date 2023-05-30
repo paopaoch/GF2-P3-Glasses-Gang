@@ -79,9 +79,12 @@ class Parser:
         self.new_line = False
         self.expect_type = self.scanner.SEMICOLON
 
-    def handle_error(self, error_code, error_type, front=False):
+    def handle_error(self, error_code, error_type, front=False, start_of_sen=False):
         self.scanner.error.error_code = error_code
-        err = self.scanner.print_error_message(self.symbol, error_type, front=front)
+        err = self.scanner.print_error_message(self.symbol, 
+                                               error_type, 
+                                               front=front, 
+                                               start_of_sen=start_of_sen)
         print(err)
 
     def restart_and_get_symbol(self):
@@ -98,7 +101,6 @@ class Parser:
         monitor_pos = None
         error = False
         if self.symbol.type != self.expect_type:  # Check for INIT
-            # print("SYNTAX[Incomplete File]: Missing start mark")
             self.scanner.restart()
             error = True
         else:
@@ -121,7 +123,7 @@ class Parser:
         if init_pos == 0:
             self.restart_and_get_symbol()
             self.handle_error(self.scanner.error.MISS_START_MARK,
-                              self.scanner.error.SYNTAX)
+                              self.scanner.error.SYNTAX, start_of_sen=True)
             error = True
         if connect_pos is None:
             self.restart_and_get_symbol()
@@ -230,8 +232,7 @@ class Parser:
             if self.expect_type == self.scanner.SEMICOLON:
                 if self.symbol.type != self.scanner.SEMICOLON:
                     self.handle_error(self.scanner.error.MISS_TERMINATION,
-                                          self.scanner.error.SYNTAX,
-                                          front=True)
+                                          self.scanner.error.SYNTAX)
                     while self.symbol.type != self.scanner.SEMICOLON:
                         if self.phase == 1:
                             if self.symbol.type == self.scanner.CONNECT:
@@ -286,11 +287,13 @@ class Parser:
                             self.increment_phase()
                             continue
                     
-                        if self.expect_type == self.scanner.DEVICE_OUT:
+                        elif self.expect_type == self.scanner.DEVICE_OUT:
                             if self.symbol.type != self.scanner.DEVICE_NAME:
-                                print("SYNTAX[Invalid Connection]: Missing keywords expected a device output")
+                                self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
+                                                  self.scanner.error.SYNTAX)
                                 self.go_to_next_sentece()
                                 continue
+                        
                         else:
                             print("SYNTAX[Invalid Connection]: Missing keywords")
                             self.go_to_next_sentece()
@@ -308,6 +311,20 @@ class Parser:
                                               front=True)
                             self.go_to_next_sentece()
                             continue
+
+                    elif self.phase == 2:
+                        if self.expect_type == self.scanner.DEVICE_IN:
+                            self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
+                                          self.scanner.error.SYNTAX)
+                            self.expect_type = self.scanner.DEVICE_NAME
+                            self.go_to_next_sentece()
+                        else:
+                            self.handle_error(self.scanner.error.CONNECT_MISS_KEYWORD,
+                                            self.scanner.error.SYNTAX,
+                                            front=True)
+                            self.expect_type = self.scanner.DEVICE_NAME
+                            self.go_to_next_sentece()
+                        continue
                     elif self.phase == 3:
                         if self.expect_type == self.scanner.DEVICE_OUT:
                             if self.symbol.type == self.scanner.SEMICOLON:
@@ -326,16 +343,9 @@ class Parser:
             # Check INIT
             if self.phase == 1:
                 if self.new_line:
-                    if self.symbol.type != self.scanner.DEVICE_NAME:
-                        print("SYNTAX[Invalid Initialisation]: Invalid device name")
-                        self.expect_type = self.scanner.DEVICE_NAME
-                        # print("Next sentence new line expect device name")
-                        self.go_to_next_sentece()
-                        continue
-                    else:
-                        self.device_holder["device_id"] = self.symbol.id
-                        self.expect_type = self.scanner.INIT_IS
-                        self.new_line = False
+                    self.device_holder["device_id"] = self.symbol.id
+                    self.expect_type = self.scanner.INIT_IS
+                    self.new_line = False
   
                 else:
                     if self.symbol.type == self.scanner.INIT_IS:
@@ -398,24 +408,16 @@ class Parser:
             # Check for CONNECT
             elif self.phase == 2:
                 if self.new_line:
-                    if (self.symbol.type != self.scanner.DEVICE_NAME 
-                        and self.symbol.type != self.scanner.DEVICE_OUT):
-                        print("SYNTAX[Invalid Connection]: Invalid device I/O")
-                        self.expect_type = self.scanner.DEVICE_NAME
-                        # print("Next sentence new line expect device name")
-                        self.go_to_next_sentece()
-                        continue
+                    if self.symbol.type == self.scanner.DEVICE_OUT:
+                        output_name = self.names.get_name_string(self.symbol.id)
+                        gate_name, output = output_name.split(".")
+                        # print(gate_name, output)
+                        self.connection_holder["first_device_id"] = self.names.query(gate_name)
+                        self.connection_holder["first_port_id"] = self.names.query(output)
                     else:
-                        if self.symbol.type == self.scanner.DEVICE_OUT:
-                            output_name = self.names.get_name_string(self.symbol.id)
-                            gate_name, output = output_name.split(".")
-                            # print(gate_name, output)
-                            self.connection_holder["first_device_id"] = self.names.query(gate_name)
-                            self.connection_holder["first_port_id"] = self.names.query(output)
-                        else:
-                            self.connection_holder["first_device_id"] = self.symbol.id
-                        self.expect_type = self.scanner.CONNECTION
-                        self.new_line = False
+                        self.connection_holder["first_device_id"] = self.symbol.id
+                    self.expect_type = self.scanner.CONNECTION
+                    self.new_line = False
 
                 else:
                     if self.symbol.type == self.scanner.CONNECTION:

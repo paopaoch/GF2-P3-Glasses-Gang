@@ -139,6 +139,7 @@ class Scanner:
     def restart(self):
         """Go back to the start of the file."""
         self.file.seek(0)
+        self.last_line_pos = 0
 
     def get_name(self):
         """Return alphabetic string may with '_', update current_char."""
@@ -282,7 +283,9 @@ class Scanner:
             error_mes += '\n' + self.error.error_message(error_type, optional_mess)
         else:
             pointer_mes = self.get_pointer(symbol, front, start_of_sen)
-            error_mes = self.error.error_message(error_type, optional_mess)
+            # error_mes = self.error.error_message(error_type, optional_mess)
+            error_mes += '\n' + pointer_mes
+            error_mes += '\n' + self.error.error_message(error_type, optional_mess)
         return error_mes
 
     def get_symbol(self):
