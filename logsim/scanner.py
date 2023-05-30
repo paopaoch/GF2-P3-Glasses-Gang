@@ -33,7 +33,7 @@ class Symbol:
         self.id = None
         # Position of the last char of the symbol
         self.pos = None
-        # Position of the first char of the sentence that symbol is in
+        # Position of the first char of the line that symbol is in
         self.line_pos = None
 
 
@@ -129,7 +129,7 @@ class Scanner:
         # Character at current reading position
         self.current_char = None
         
-        # Position of start char of the sentence is reading
+        # Position of start char of the line is reading
         self.last_line_pos = 0
 
     def read_file(self):
@@ -163,7 +163,10 @@ class Scanner:
     def skip_spaces_and_linebreaks(self):
         """Skip spaces and linebreaks, update current_char."""
         while self.current_char.isspace() or self.current_char == '\n':
+            if self.current_char == '\n':
+                self.last_line_pos = self.file.tell()
             self.current_char = self.read_file()
+
     
     def skip_comment(self):
         """Skip comment if valid comment, otherwise report error."""
@@ -219,31 +222,32 @@ class Scanner:
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
-        # extract the sentence the symbol located
-        start_pos = f.seek(symbol.line_pos)
-        sentence = f.read(symbol.pos-start_pos)
-        # Remove spaces at the two sides
-        sentence = sentence.strip()
-        # Remove any newline within a sentence
-        sentence = ' '.join(sentence.split('\n'))
-        # Remove comments
-        comment_regex = "\/\*.*?\*\/"
-        sentence = re.sub(comment_regex, '', sentence)
+            
+        # extract the line the symbol located
+        f.seek(symbol.line_pos)
+        sentence = ""
+        symbol_pos = symbol.pos - symbol.line_pos
+        cur_char = f.read(1)
+        while cur_char != '\n':
+            sentence += cur_char
+            cur_char = f.read(1)
+            if cur_char == '':
+                break
+
         # Create the pointer message
-        if start_of_sen:
+        if start_of_sen or sentence == '':
             pointer_mes = sentence + '\n' + '^'
             return pointer_mes
-        symbol_len = 1
-        if not front or sentence[-1] == ";":
-            pointer = " " * (len(sentence) - 1) + '^'
+            
+        if not front or symbol.type == self.SEMICOLON:
+            pointer = " " * (symbol_pos - 1)  + '^'
             pointer_mes = sentence + '\n' + pointer
         else:
-            for i in range(len(sentence)-1, 0, -1):
-                if sentence[i] != ' ':
-                    symbol_len += 1
-                else:
-                    break
-            pointer = " " * (len(sentence) - symbol_len) + '^'
+            symbol_len = 0
+            f.seek(symbol.line_pos)
+            strings = f.read(symbol_pos)
+            symbol_len = len(strings.split(' ')[-1])
+            pointer = " " * (symbol_pos - symbol_len) + '^'
             pointer_mes = sentence + '\n' + pointer
         return pointer_mes
 
@@ -302,7 +306,6 @@ class Scanner:
             symbol_get.type = self.SEMICOLON
             symbol_get.pos = self.file.tell()
             symbol_get.line_pos = self.last_line_pos
-            self.last_line_pos = self.file.tell()
             return symbol_get
 
         while not (self.current_char.isspace() or self.current_char == '\n'):
@@ -313,9 +316,11 @@ class Scanner:
                 num = self.get_number()
                 symbol_string += num
             elif self.current_char == ';':
+                symbol_get.pos = self.file.tell() - 1
                 self.file.seek(self.file.tell() - 1)
                 break
             elif self.current_char == '':
+                symbol_get.pos = self.file.tell()
                 self.file.seek(self.file.tell())
                 break
             elif self.current_char == '/':
@@ -372,8 +377,8 @@ class Scanner:
             [symbol_get.id] = self.names.lookup([symbol_string])
         else:
             symbol_get.type = self.ERROR
-
-        symbol_get.pos = self.file.tell()
+        if symbol_get.pos is None:
+            symbol_get.pos = self.file.tell() - 1
         symbol_get.line_pos = self.last_line_pos
         return symbol_get
         
