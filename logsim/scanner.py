@@ -383,5 +383,7 @@ class Scanner:
         if symbol_get.pos is None:
             symbol_get.pos = self.file.tell() - 1
         symbol_get.line_pos = self.last_line_pos
+        if self.current_char == '\n':
+            self.last_line_pos = self.file.tell()
         return symbol_get
         
