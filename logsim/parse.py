@@ -219,11 +219,16 @@ class Parser:
                         self.handle_error(self.scanner.error.INIT_WRONG_NAME,
                                   self.scanner.error.SYNTAX)
                     else:
-                        self.handle_error(self.scanner.error.INIT_WRONG_NAME,
+                        self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
                                   self.scanner.error.SYNTAX)
+                elif self.phase == 3:
+                    if self.expect_type == self.scanner.DEVICE_OUT:
+                        self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
+                                          self.scanner.error.SYNTAX)
+                        break
                 else:
                     self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
-                                    self.scanner.error.SYNTAX)
+                                      self.scanner.error.SYNTAX)
                 self.go_to_next_sentece()
                 self.device_holder = self.init_device_holder()
                 self.connection_holder = self.init_connection_holder()
@@ -315,7 +320,7 @@ class Parser:
                     elif self.phase == 2:
                         if self.expect_type == self.scanner.DEVICE_IN:
                             self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
-                                          self.scanner.error.SYNTAX)
+                                            self.scanner.error.SYNTAX)
                             self.expect_type = self.scanner.DEVICE_NAME
                             self.go_to_next_sentece()
                         else:
@@ -331,15 +336,9 @@ class Parser:
                                 self.expect_type = self.scanner.EOF
                                 continue
                             elif self.symbol.type != self.scanner.DEVICE_NAME:
-                                print("SYNTAX[Invalid Monitor]: Missing keywords expected a device output")
+                                self.handle_error(self.scanner.error.MONITOR_WRONG_POINT,
+                                                  self.scanner.error.SYNTAX)
                                 continue
-                    else:
-                        print("SYNTAX[Invalid Keyword]: Missing keywords")
-                        # print("expected", self.names.get_name_string(self.symbol.id))
-                        # print("got", self.symbol.type)
-                        self.go_to_next_sentece()
-                        continue
-
             # Check INIT
             if self.phase == 1:
                 if self.new_line:
