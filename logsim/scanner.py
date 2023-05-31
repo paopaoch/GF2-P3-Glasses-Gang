@@ -73,16 +73,16 @@ class Scanner:
     skip_comment(self): Skip comments if comment is in valid form, or
                         report syntax error if invalid comment detected.
 
-    get_pointer(self, symbol, front=False, start_of_sen=False): Return 
-                        pointer message which includes the sentence where 
-                        the symbol located,and a pointer points to the 
+    get_pointer(self, symbol, front=False, start_of_sen=False, behind=False):
+                        Return pointer message which includes the sentence 
+                        where the symbol located,and a pointer points to the 
                         desired position.
 
     get_line_position(self, symbol): Return the line number of the 
                                      symbol located in the file.
 
     print_error_message(self, symbol, pointer=True, front=False, 
-                            start_of_sen=False, optional_mess=""):
+                        start_of_sen=False, behind=False, optional_mess=""):
                         Return the complete error message which includes the
                         line number, pointer message, and error message.
 
@@ -213,12 +213,14 @@ class Scanner:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
 
-    def get_pointer(self, symbol, front=False, start_of_sen=False, behind=False):
+    def get_pointer(self, symbol, front=False, start_of_sen=False, 
+                    behind=False):
         """Return the pointer message.
 
         Pointer message includes the sentence where the symbol located, 
         and a pointer points to the symbol, can eithrt point to the end 
-        of the symbol or front of the symbol or start of the line.
+        of the symbol or front of the symbol or start of the line, or 
+        the symbol before.
         """
         try:
             f = open(self.path, "r")
@@ -278,7 +280,8 @@ class Scanner:
         return line_number
 
     def print_error_message(self, symbol, error_type, front=False, 
-                            start_of_sen=False, optional_mess="", behind=False):
+                            start_of_sen=False, behind=False,
+                            optional_mess=""):
         """Return the complete error message.
 
         Complete error message includes the line number,

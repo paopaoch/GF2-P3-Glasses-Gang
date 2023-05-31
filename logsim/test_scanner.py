@@ -119,7 +119,7 @@ def test_get_pointer_front(scanner_example_3):
         scanner_example_3.get_symbol()
     sym = scanner_example_3.get_symbol()   # sym = "DTYPE" missing "is"
     pointer_msg = scanner_example_3.get_pointer(sym, front=True)
-    assert pointer_msg == "D2 DTYPE;" + '\n' + "   ^"
+    assert pointer_msg == "D2 DTYPE;" + '\n' + "  ^"
 
 
 def test_get_pointer_start(scanner_example_3):
@@ -127,13 +127,27 @@ def test_get_pointer_start(scanner_example_3):
     
     The pointer message returned should be the whole line where
     the symbol is located, with the pointer points to the start 
-    of the whole sentence
+    of the whole sentence.
     """
     scanner_example_3.get_symbol()
     scanner_example_3.get_symbol()
     sym = scanner_example_3.get_symbol()
     pointer_msg = scanner_example_3.get_pointer(sym, start_of_sen=True)
     assert pointer_msg == "INIT; d1 is DTYPE;" + '\n' + "^"
+
+
+def test_get_pointer_behind(scanner_example_3):
+    """Test if get_pointer(behind=True) return a correct pointer.
+    
+    The pointer message returned should be the whole line where
+    the symbol is located, with the pointer points to the symbol
+    before.
+    """
+    scanner_example_3.get_symbol()
+    sym = scanner_example_3.get_symbol()    #sym is semicolon
+    pointer_msg = scanner_example_3.get_pointer(sym, behind=True)
+    # pointer points to INIT
+    assert pointer_msg == "INIT; d1 is DTYPE;" + '\n' + "   ^"
 
 
 def test_print_error_message(scanner_example_3):
