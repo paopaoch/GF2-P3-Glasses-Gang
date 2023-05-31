@@ -17,7 +17,7 @@ def parse_check_next_sentence():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_next_sentence.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
 
 
@@ -29,7 +29,7 @@ def parse_check_structure_correct():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_structure_correct.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
 
 
@@ -41,7 +41,7 @@ def parse_check_structure_invalid():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_structure_invalid.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
 
 
@@ -53,7 +53,7 @@ def parse_check_semicolon():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_semicolon.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner) 
 
 
@@ -65,7 +65,7 @@ def parse_check_keywords():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_keywords.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner) 
 
 
@@ -77,7 +77,7 @@ def parse_check_init():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_init.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner) 
 
 
@@ -199,10 +199,12 @@ def test_parse_keywords_connect(parse_check_keywords):
 def test_parse_init(parse_check_init):
     scanner = parse_check_init.scanner
     parse_check_init.device_holder = parse_check_init.init_device_holder()
+    parse_check_init.phase = 1
     for i in range(6):
         scanner.get_symbol()
     parse_check_init.new_line = True
-    # parse the line 2 symbol by symbol
+
+    # parse line 2 symbol by symbol
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
     assert err == None, expect_type == scanner.INIT_IS
@@ -221,8 +223,22 @@ def test_parse_init(parse_check_init):
 
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
-    assert err == scanner.error, expect_type == scanner.INIT_SWITCH
+    assert err == scanner.error.INIT_WRONG_SET
 
+    # parse line 3 symbol by symbol
+    parse_check_init.new_line = True
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err == None
+
+    # parse line 4 symbol by symbol
+    for i in range(3):
+        scanner.get_symbol()
+    parse_check_init.new_line = True
+    parse_check_init.symbol = scanner.get_symbol()
+    assert parse_check_init.symbol.type == 0
+    err, expect_type = parse_check_init.parse_init()
+    assert err == scanner.error.INIT_WRONG_NAME
 
 '''
 def test_parse_connect(parse_check_connect):

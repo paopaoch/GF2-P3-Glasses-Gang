@@ -4,6 +4,7 @@ import pytest
 from names import Names
 from devices import Devices
 from network import Network
+from monitors import Monitors
 from scanner import Scanner, Symbol
 
 
@@ -13,8 +14,9 @@ def scanner_example_1():
     names_1 = Names()
     devices_1 = Devices(names_1)
     network_1 = Network(names_1, devices_1)
+    monitors_1 = Monitors(names_1, devices_1, network_1)
     filename_1 = 'scanner_test_files/scanner_example_file_1.txt'
-    return Scanner(filename_1, names_1, devices_1, network_1)
+    return Scanner(filename_1, names_1, devices_1, network_1, monitors_1)
 
 
 @pytest.fixture
@@ -23,8 +25,9 @@ def scanner_example_2():
     names_2 = Names()
     devices_2 = Devices(names_2)
     network_2 = Network(names_2, devices_2)
+    monitors_2 = Monitors(names_2, devices_2, network_2)
     filename_2 = 'scanner_test_files/scanner_example_file_2.txt'
-    return Scanner(filename_2, names_2, devices_2, network_2)
+    return Scanner(filename_2, names_2, devices_2, network_2, monitors_2)
 
 
 @pytest.fixture
@@ -33,8 +36,9 @@ def scanner_example_3():
     names_3 = Names()
     devices_3 = Devices(names_3)
     network_3 = Network(names_3, devices_3)
+    monitors_3 = Monitors(names_3, devices_3, network_3)
     filename_3 = 'scanner_test_files/scanner_example_file_3.txt'
-    return Scanner(filename_3, names_3, devices_3, network_3)
+    return Scanner(filename_3, names_3, devices_3, network_3, monitors_3)
 
 
 def test_get_name(scanner_example_1):
