@@ -225,20 +225,22 @@ def test_parse_init(parse_check_init):
     err, expect_type = parse_check_init.parse_init()
     assert err == scanner.error.INIT_WRONG_SET
 
-    # parse line 3 symbol by symbol
+    # parse line 3 no error
     parse_check_init.new_line = True
     parse_check_init.symbol = scanner.get_symbol()
+    sym = parse_check_init.symbol
     err, expect_type = parse_check_init.parse_init()
     assert err == None
 
-    # parse line 4 symbol by symbol
+    # parse line 4 raise error for DEVICE_PRESENT
     for i in range(3):
         scanner.get_symbol()
     parse_check_init.new_line = True
+    parse_check_init.devices.make_device(sym.id, 
+                                parse_check_init.devices.D_TYPE)
     parse_check_init.symbol = scanner.get_symbol()
-    assert parse_check_init.symbol.type == 0
     err, expect_type = parse_check_init.parse_init()
-    assert err == scanner.error.INIT_WRONG_NAME
+    assert err == parse_check_init.devices.DEVICE_PRESENT
 
 '''
 def test_parse_connect(parse_check_connect):
