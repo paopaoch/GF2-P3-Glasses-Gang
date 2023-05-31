@@ -50,8 +50,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                                            operations.
 
     reset_view(self): Return to the initial view point
-    
-    capture_image(self): Capture the OpenGL canvas content as 
+
+    capture_image(self): Capture the OpenGL canvas content as
                             an image
 
     save_image(self, file_path): Save the image on the computer
@@ -102,7 +102,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def render(self, text, cycles=0, gui_monitors={}):
         """Handle all drawing operations."""
-        
+
         if cycles > 0:
             self.cycles_completed = cycles
             self.gui_monitors = gui_monitors
@@ -120,7 +120,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
         # Clear everything
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        
+
         self.render_text(text, 10, 10)
 
         if self.cycles_completed > 0:
@@ -144,9 +144,12 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             GL.glEnd()
             # Draw arrowhead
             GL.glBegin(GL.GL_TRIANGLES)
-            GL.glVertex2f(x_end - 10, y_val - 5)  # Bottom-left point of arrowhead
-            GL.glVertex2f(x_end, y_val)           # Tip of arrowhead
-            GL.glVertex2f(x_end - 10, y_val + 5)  # Bottom-right point of arrowhead
+            # Bottom-left point of arrowhead
+            GL.glVertex2f(x_end - 10, y_val - 5)
+            # Tip of arrowhead
+            GL.glVertex2f(x_end, y_val)
+            # Bottom-right point of arrowhead
+            GL.glVertex2f(x_end - 10, y_val + 5)
             GL.glEnd()
 
             # label the axis
@@ -192,7 +195,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             # Configure the viewport, modelview and projection matrices
             self.init_gl()
             self.init = True
-
         self.render("")
 
     def on_size(self, event):
@@ -277,7 +279,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         width, height = self.GetClientSize()
         # Synchronize OpenGL rendering
         GL.glFinish()
-        pixels = GL.glReadPixels(0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE)
+        pixels = GL.glReadPixels(0, 0, width, height, GL.GL_RGB,
+                                 GL.GL_UNSIGNED_BYTE)
         image = wx.Image(width, height, pixels)
         image = image.Mirror(False)  # Flip horizontally
         image = image.Mirror(True)  # Flip vertically
@@ -318,28 +321,29 @@ class Gui(wx.Frame):
     on_clear_button(self, event): Event handler for when the user clicks the
                                     clear button
 
-    on_quit_button(self, event): Event handler for when the user clicks the quit
-                                    button.
+    on_quit_button(self, event): Event handler for when the user clicks the
+                                    quit button.
 
     on_continue_button(self, event): Event handler for when the user clicks the
                                     continue button
 
-    switch_change(self, switch_id): Event handler for when the user set switch to
-                                    the other
+    switch_change(self, switch_id): Event handler for when the user set switc
+                                    to the other
 
     on_add_monitor_button(self, event): Event handler for when the user clicks
                                         the add monitor button
 
-    on_zap_monitor_button(self, monitor_loc): Event handler for when the user clicks
-                                                the remove button
+    on_zap_monitor_button(self, monitor_loc): Event handler for when the user
+                                                clicks the remove button
 
-    on_help_button(self, event): Event handler for when the user clicks the help
-                                 button
-                                 
-    on_reset_view(self, event): Event handler for when the user clicks the reset view 
-                                button
+    on_help_button(self, event): Event handler for when the user clicks the
+                                    help button
 
-    on_save_image(self, event): Event handler for when the user clicks the save button    
+    on_reset_view(self, event): Event handler for when the user clicks the
+                                reset view button
+
+    on_save_image(self, event): Event handler for when the user clicks the
+                                save button
     """
 
     def __init__(self, title, path, names, devices, network, monitors):
@@ -370,7 +374,7 @@ class Gui(wx.Frame):
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
-        
+
         # Configure sizers for layout
         self.main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.side_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -383,9 +387,9 @@ class Gui(wx.Frame):
         self.clear_button = wx.Button(self, wx.ID_ANY, _(u"Clear"))
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
         self.text_switch = wx.StaticText(self, wx.ID_ANY, _(u"Switch:"),
-                                            style=wx.TE_PROCESS_ENTER)
+                                         style=wx.TE_PROCESS_ENTER)
         self.text_monitor = wx.StaticText(self, wx.ID_ANY, _(u"Monitor: "),
-                                            style=wx.TE_PROCESS_ENTER)
+                                          style=wx.TE_PROCESS_ENTER)
         self.reset_view_button = wx.Button(self, wx.ID_ANY, _(u"Reset View"))
         self.save_button = wx.Button(self, wx.ID_ANY, _(u"Save Image"))
 
@@ -419,18 +423,20 @@ class Gui(wx.Frame):
 
         # sizer children for sizer_switch
         self.sizer_text_switch.Add(self.text_switch, 0, wx.ALL, 5)
-        self.sizer_text_switch.Add(self.sub_sizer_sw_state, 0, wx.ALIGN_CENTER|wx.ALL, 5)
-        self.text_sw = wx.StaticText(self, wx.ID_ANY, 
-                                     _(u"Switch name"), style=wx.TE_PROCESS_ENTER)
-        self.text_state = wx.StaticText(self, wx.ID_ANY, 
-                                     _(u"Current state"), style=wx.TE_PROCESS_ENTER)
-        self.sub_sizer_sw_state.Add(self.text_sw, 1, wx.ALIGN_LEFT|wx.ALL, 5)
-        self.sub_sizer_sw_state.Add(self.text_state, 1, wx.ALIGN_LEFT|wx.ALL, 5)
+        self.sizer_text_switch.Add(self.sub_sizer_sw_state, 0,
+                                   wx.ALIGN_CENTER | wx.ALL, 5)
+        self.text_sw = wx.StaticText(self, wx.ID_ANY, _(u"Switch name"),
+                                     style=wx.TE_PROCESS_ENTER)
+        self.text_state = wx.StaticText(self, wx.ID_ANY, _(u"Current state"),
+                                        style=wx.TE_PROCESS_ENTER)
+        self.sub_sizer_sw_state.Add(self.text_sw, 1, wx.ALIGN_LEFT | wx.ALL, 5)
+        self.sub_sizer_sw_state.Add(self.text_state, 1,
+                                    wx.ALIGN_LEFT | wx.ALL, 5)
 
         self.scrolled_switch = wx.ScrolledWindow(self, style=wx.VSCROLL)
         self.scrolled_switch.SetBackgroundColour(wx.Colour(200, 200, 200))
         self.scrolled_switch.SetSizer(self.sizer_switch)
-        self.scrolled_switch.SetScrollRate(0, 20)  # Adjust the scrolling speed
+        self.scrolled_switch.SetScrollRate(0, 20)
         self.scrolled_switch.SetAutoLayout(True)
         # toggle switch
         self.sizers = {}  # Dictionary to store the sizers
@@ -439,66 +445,80 @@ class Gui(wx.Frame):
             sizer_name = f"sizer{switch_id}"
             # Create the horizontal sizer
             self.sub_sizer_switch = wx.BoxSizer(wx.HORIZONTAL)
-            self.sizers[sizer_name] = self.sub_sizer_switch  # Add sizer to the dictionary
+            self.sizers[sizer_name] = self.sub_sizer_switch
 
-            self.exist_text_switch = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
-                                                    switch_string, style=wx.TE_PROCESS_ENTER)
+            self.exist_text_switch = wx.StaticText(self.scrolled_switch,
+                                                   wx.ID_ANY, switch_string,
+                                                   style=wx.TE_PROCESS_ENTER)
             switch_state = self.devices.get_device(switch_id).switch_state
             if switch_state == 1:
-                self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
-                                                    _(u"ON"), style=wx.TE_PROCESS_ENTER)
-                self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
-                self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
+                self.swt_st = wx.StaticText(self.scrolled_switch,
+                                            wx.ID_ANY, _(u"ON"),
+                                            style=wx.TE_PROCESS_ENTER)
+                self.swt_st.SetForegroundColour(wx.Colour(0, 100, 100))
+                self.tog_btn = wx.ToggleButton(self.scrolled_switch,
+                                               label=_(u"Toggle Switch"))
                 # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
             elif switch_state == 0:
-                self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
-                                                    _(u"OFF"), style=wx.TE_PROCESS_ENTER)
-                self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
-                self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
-                self.toggle_btn.SetValue(True)
-                self.toggle_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
+                self.swt_st = wx.StaticText(self.scrolled_switch,
+                                            wx.ID_ANY, _(u"OFF"),
+                                            style=wx.TE_PROCESS_ENTER)
+                self.swt_st.SetForegroundColour(wx.Colour(150, 150, 150))
+                self.tog_btn = wx.ToggleButton(self.scrolled_switch,
+                                               label=_(u"Toggle Switch"))
+                self.tog_btn.SetValue(True)
+                self.tog_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
 
             self.sizer_switch.Add(self.sub_sizer_switch, 1, wx.ALL, 5)
-            self.sub_sizer_switch.Add(self.exist_text_switch, 1, wx.ALIGN_CENTER|wx.ALL, 5)
-            self.sub_sizer_switch.Add(self.exist_switch_state, 1, wx.ALIGN_CENTER|wx.ALL, 5)
-            self.sub_sizer_switch.Add(self.toggle_btn, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+            self.sub_sizer_switch.Add(self.exist_text_switch, 1,
+                                      wx.ALIGN_CENTER | wx.ALL, 5)
+            self.sub_sizer_switch.Add(self.swt_st, 1,
+                                      wx.ALIGN_CENTER | wx.ALL, 5)
+            self.sub_sizer_switch.Add(self.tog_btn, 1,
+                                      wx.ALIGN_CENTER | wx.ALL, 5)
 
         for sizer_name, sizer in self.sizers.items():
-            self.toggle_btn = sizer.GetItem(2).GetWindow()  # Get the toggle button in the sizer
-            self.toggle_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
-            self.toggle_btn.SetId(wx.NewId())  # Assign a unique ID to the toggle button
+            self.tog_btn = sizer.GetItem(2).GetWindow()
+            self.tog_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
+            self.tog_btn.SetId(wx.NewId())
 
         # monitor scrollable panel -> choose option -> add
         # sizer children for sizer_monitor
-        # monitor text/button -> remove
         self.sizer_text_monitor.Add(self.text_monitor, 1, wx.ALL, 5)
 
         self.scrolled_monitor = wx.ScrolledWindow(self, style=wx.VSCROLL)
         self.scrolled_monitor.SetSizer(self.sizer_monitor)
-        self.scrolled_monitor.SetScrollRate(0, 20)  # Adjust the scrolling speed
+        self.scrolled_monitor.SetScrollRate(0, 20)
         self.scrolled_monitor.SetAutoLayout(True)
         self.scrolled_monitor.SetBackgroundColour(wx.Colour(200, 200, 200))
-        self.monitor_combo = wx.ComboBox(self.scrolled_monitor, wx.ID_ANY, 
-                                         choices=self.not_monitored_signal, 
+        self.monitor_combo = wx.ComboBox(self.scrolled_monitor, wx.ID_ANY,
+                                         choices=self.not_monitored_signal,
                                          style=wx.CB_READONLY)
-        self.monitor_add_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
-                                            _(u"Add"))  
-        self.sizer_monitor.Add(self.sub_sizer_monitor, 1, wx.ALIGN_LEFT|wx.ALL, 5)   
-        self.sub_sizer_monitor.Add(self.monitor_combo, 1, wx.ALIGN_CENTER|wx.ALL, 5)
-        self.sub_sizer_monitor.Add(self.monitor_add_button, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+        self.monitor_add_button = wx.Button(self.scrolled_monitor,
+                                            wx.ID_ANY, _(u"Add"))
+        self.sizer_monitor.Add(self.sub_sizer_monitor, 1,
+                               wx.ALIGN_LEFT | wx.ALL, 5)
+        self.sub_sizer_monitor.Add(self.monitor_combo, 1,
+                                   wx.ALIGN_CENTER | wx.ALL, 5)
+        self.sub_sizer_monitor.Add(self.monitor_add_button, 1,
+                                   wx.ALIGN_CENTER | wx.ALL, 5)
         self.monitored_signal = self.monitors.get_signal_names()[0]
         for monitor in self.monitored_signal:
             self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
             self.sizer_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
-            self.exist_text_monitor = wx.StaticText(self.scrolled_monitor, wx.ID_ANY,
-                                                    monitor, style=wx.TE_PROCESS_ENTER)
-            self.remove_monitor_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
-                                                    _(u"Remove"))
-            self.remove_monitor_button.SetBackgroundColour(wx.Colour(80, 150, 150))
-            self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
-            self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
-            self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
-            
+            self.ext_monitor = wx.StaticText(self.scrolled_monitor,
+                                             wx.ID_ANY, monitor,
+                                             style=wx.TE_PROCESS_ENTER)
+            self.zap_monitor_btn = wx.Button(self.scrolled_monitor,
+                                             wx.ID_ANY, _(u"Remove"))
+            self.zap_monitor_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
+            self.zap_monitor_btn.Bind(wx.EVT_BUTTON,
+                                      self.on_zap_monitor_button(monitor))
+            self.sub_sizer_text_monitor.Add(self.ext_monitor, 1,
+                                            wx.ALL, 5)
+            self.sub_sizer_text_monitor.Add(self.zap_monitor_btn, 1,
+                                            wx.ALL, 5)
+
         # place side_sizer items
         self.side_sizer.Add(self.sizer_cycle, 0, wx.ALL, 5)
         self.side_sizer.Add(self.sizer_run, 0, wx.ALL, 5)
@@ -508,7 +528,7 @@ class Gui(wx.Frame):
         self.side_sizer.Add(self.scrolled_monitor, 3, wx.EXPAND | wx.ALL, 5)
         self.side_sizer.Add(self.sizer_tool, 0, wx.ALL, 5)
         # self.side_sizer.Add(self.text_box, 1, wx.EXPAND | wx.ALL, 5)
-        
+
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
         self.spin.Bind(wx.EVT_SPINCTRL, self.on_spin)
@@ -535,14 +555,14 @@ class Gui(wx.Frame):
                           "About Logsim", wx.ICON_INFORMATION | wx.OK)
         if Id == wx.ID_HELP_COMMANDS:
             wx.MessageBox(_("User Commands\n"
-                            "\nRun              - run the simulation for N cycles\n"
-                            "\nContinue         - continue simulation for N cycles\n"
-                            "\nToggle Switch    - set switch X to another (0 or 1)\n"
-                            "\nAdd              - set a monitor on signal X\n"
-                            "\nRemove           - zap the monior on signal X\n"
+                            "\nRun              - run the simulation\n"
+                            "\nContinue         - continue simulation\n"
+                            "\nToggle Switch    - change the switch state\n"
+                            "\nAdd              - set a monitor on signal\n"
+                            "\nRemove           - zap the monior on signal\n"
                             "\nHelp             - help (this command)\n"
                             "\nQuit             - quit the simulation"),
-                            _("Help"), wx.OK | wx.ICON_INFORMATION)
+                          _("Help"), wx.OK | wx.ICON_INFORMATION)
 
     def on_spin(self, event):
         """Handle the event when the user changes the spin control value."""
@@ -593,11 +613,12 @@ class Gui(wx.Frame):
 
     def switch_change(self, event):
         """Event handler for when the user set switch to the other."""
-        self.toggle_btn = event.GetEventObject()
+        self.tog_btn = event.GetEventObject()
         sizer_name = None
         sizer_ = None
         for name, sizer in self.sizers.items():
-            if any(item.GetWindow() == self.toggle_btn for item in sizer.GetChildren()):
+            if any(item.GetWindow() == self.tog_btn for item
+                   in sizer.GetChildren()):
                 sizer_name = name
                 sizer_ = sizer
                 break
@@ -605,19 +626,17 @@ class Gui(wx.Frame):
             static_text = sizer_.GetItem(0).GetWindow()
             switch_id = self.names.query(static_text.GetLabel())
             if switch_id is not None:
-                self.exist_switch_state = sizer_.GetItem(1).GetWindow()
-                print(self.toggle_btn.GetValue())
-                if self.toggle_btn.GetValue():
-                    self.exist_switch_state.SetLabel(_(u"OFF"))
-                    self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
+                self.swt_st = sizer_.GetItem(1).GetWindow()
+                if self.tog_btn.GetValue():
+                    self.swt_st.SetLabel(_(u"OFF"))
+                    self.swt_st.SetForegroundColour(wx.Colour(150, 150, 150))
                     new_signal = 0
-                    self.toggle_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
+                    self.tog_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
                 else:
-                    self.exist_switch_state.SetLabel(_(u"ON"))
-                    self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
+                    self.swt_st.SetLabel(_(u"ON"))
+                    self.swt_st.SetForegroundColour(wx.Colour(0, 100, 100))
                     new_signal = 1
-                    self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
-                print(self.devices.set_switch(switch_id, new_signal))
+                    self.tog_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
                 self.devices.set_switch(switch_id, new_signal)
                 self.gui_monitors = self.convert_gui_monitors()
                 text = "switch input is flipped."
@@ -634,15 +653,21 @@ class Gui(wx.Frame):
             # sizer changes
             if monitor_error == self.monitors.NO_ERROR:
                 self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
-                self.sizer_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
-                self.exist_text_monitor = wx.StaticText(self.scrolled_monitor, wx.ID_ANY,
-                                                        monitor, style=wx.TE_PROCESS_ENTER)
-                self.remove_monitor_button = wx.Button(self.scrolled_monitor, wx.ID_ANY,
-                                                        _(u"Remove"))
-                self.remove_monitor_button.SetBackgroundColour(wx.Colour(80, 150, 150))
-                self.remove_monitor_button.Bind(wx.EVT_BUTTON, self.on_zap_monitor_button(monitor))
-                self.sub_sizer_text_monitor.Add(self.exist_text_monitor, 1, wx.ALL, 5)
-                self.sub_sizer_text_monitor.Add(self.remove_monitor_button, 1, wx.ALL, 5)
+                self.sizer_monitor.Add(self.sub_sizer_text_monitor, 1,
+                                       wx.ALL, 5)
+                self.ext_monitor = wx.StaticText(self.scrolled_monitor,
+                                                 wx.ID_ANY, monitor,
+                                                 style=wx.TE_PROCESS_ENTER)
+                self.zap_monitor_btn = wx.Button(self.scrolled_monitor,
+                                                 wx.ID_ANY, _(u"Remove"))
+                self.zap_monitor_btn.SetBackgroundColour(wx.Colour(80,
+                                                                   150, 150))
+                self.zap_monitor_btn.Bind(wx.EVT_BUTTON,
+                                          self.on_zap_monitor_button(monitor))
+                self.sub_sizer_text_monitor.Add(self.ext_monitor,
+                                                1, wx.ALL, 5)
+                self.sub_sizer_text_monitor.Add(self.zap_monitor_btn,
+                                                1, wx.ALL, 5)
                 self.monitor_combo.SetItems(self.not_monitored_signal)
                 text = "Successfully made monitor."
                 self.canvas.render(text)
@@ -674,11 +699,12 @@ class Gui(wx.Frame):
           to {monitor_string: [signal_list]}"""
         gui_dict = {}
         for device_id, output_id in self.monitors.monitors_dictionary:
-            monitor_string = self.devices.get_signal_name(device_id, output_id)
-            signal_list = self.monitors.monitors_dictionary[(device_id, output_id)]
+            monitor_string = self.devices.get_signal_name(device_id,
+                                                          output_id)
+            signal_list = self.monitors.monitors_dictionary[(device_id,
+                                                             output_id)]
             gui_dict[monitor_string] = signal_list
         return gui_dict
-
 
     def on_reset_view(self, event):
         """Reset the view to the origin"""
@@ -688,7 +714,8 @@ class Gui(wx.Frame):
 
     def on_save_image(self, event):
         """Save the image on the computer"""
-        dlg = wx.FileDialog(self, "Save Image", wildcard="PNG files (*.png)|*.png",
+        dlg = wx.FileDialog(self, "Save Image",
+                            wildcard="PNG files (*.png)|*.png",
                             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             file_path = dlg.GetPath()
