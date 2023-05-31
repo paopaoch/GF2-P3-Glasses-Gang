@@ -49,6 +49,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
     render_text(self, text, x_pos, y_pos): Handles text drawing
                                            operations.
 
+    reset_view(self): Return to the initial view point
+    
     capture_image(self): Capture the OpenGL canvas content as 
                             an image
 
@@ -98,12 +100,13 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
-    def render(self, text, cycles=0, gui_monitors={}): # gui_monitors = {monitor_string: signal_list}
+    def render(self, text, cycles=0, gui_monitors={}):
         """Handle all drawing operations."""
-
+        
         if cycles > 0:
             self.cycles_completed = cycles
             self.gui_monitors = gui_monitors
+            # gui_monitors = {monitor_string: signal_list}
 
         self.SetCurrent(self.context)
         if not self.init:
@@ -262,7 +265,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                 GLUT.glutBitmapCharacter(font, ord(character))
 
     def reset_view(self):
-        """Return to the origin"""
+        """Return to the initial view point"""
         self.zoom = 1
         self.pan_x = 0
         self.pan_y = 0
@@ -312,6 +315,9 @@ class Gui(wx.Frame):
     on_run_button(self, event): Event handler for when the user clicks the run
                                 button.
 
+    on_clear_button(self, event): Event handler for when the user clicks the
+                                    clear button
+
     on_quit_button(self, event): Event handler for when the user clicks the quit
                                     button.
 
@@ -329,8 +335,6 @@ class Gui(wx.Frame):
 
     on_help_button(self, event): Event handler for when the user clicks the help
                                  button
-
-    on_text_box(self, event): Event handler for when the user enters text.
                                  
     on_reset_view(self, event): Event handler for when the user clicks the reset view 
                                 button
@@ -366,7 +370,7 @@ class Gui(wx.Frame):
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
-
+        
         # Configure sizers for layout
         self.main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.side_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -376,6 +380,7 @@ class Gui(wx.Frame):
         self.spin = wx.SpinCtrl(self, wx.ID_ANY, "10", min=1)
         self.run_button = wx.Button(self, wx.ID_ANY, _(u"Run"))
         self.continue_button = wx.Button(self, wx.ID_ANY, _(u"Continue"))
+        self.clear_button = wx.Button(self, wx.ID_ANY, _(u"Clear"))
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
         self.text_switch = wx.StaticText(self, wx.ID_ANY, _(u"Switch:"),
                                             style=wx.TE_PROCESS_ENTER)
@@ -383,8 +388,6 @@ class Gui(wx.Frame):
                                             style=wx.TE_PROCESS_ENTER)
         self.reset_view_button = wx.Button(self, wx.ID_ANY, _(u"Reset View"))
         self.save_button = wx.Button(self, wx.ID_ANY, _(u"Save Image"))
-        # self.text_box = wx.TextCtrl(self, wx.ID_ANY, "",
-        #                             style=wx.TE_PROCESS_ENTER)
 
         # configuration of sizer chirdren for side sizer
         self.sizer_cycle = wx.BoxSizer(wx.VERTICAL)
@@ -407,6 +410,7 @@ class Gui(wx.Frame):
         # sizer children for sizer_run
         self.sizer_run.Add(self.run_button, 1, wx.ALL, 5)
         self.sizer_run.Add(self.continue_button, 1, wx.ALL, 5)
+        self.sizer_run.Add(self.clear_button, 1, wx.ALL, 5)
         self.sizer_run.Add(self.quit_button, 1, wx.ALL, 5)
 
         # sizer children for sizer_tool
@@ -454,7 +458,6 @@ class Gui(wx.Frame):
                 self.toggle_btn.SetValue(True)
                 self.toggle_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
 
-            print(self.toggle_btn.GetValue())
             self.sizer_switch.Add(self.sub_sizer_switch, 1, wx.ALL, 5)
             self.sub_sizer_switch.Add(self.exist_text_switch, 1, wx.ALIGN_CENTER|wx.ALL, 5)
             self.sub_sizer_switch.Add(self.exist_switch_state, 1, wx.ALIGN_CENTER|wx.ALL, 5)
@@ -464,9 +467,7 @@ class Gui(wx.Frame):
             self.toggle_btn = sizer.GetItem(2).GetWindow()  # Get the toggle button in the sizer
             self.toggle_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
             self.toggle_btn.SetId(wx.NewId())  # Assign a unique ID to the toggle button
-            print(self.toggle_btn)
 
-        print(self.sizers)
         # monitor scrollable panel -> choose option -> add
         # sizer children for sizer_monitor
         # monitor text/button -> remove
@@ -513,6 +514,7 @@ class Gui(wx.Frame):
         self.spin.Bind(wx.EVT_SPINCTRL, self.on_spin)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
+        self.clear_button.Bind(wx.EVT_BUTTON, self.on_clear_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         # self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
@@ -576,6 +578,13 @@ class Gui(wx.Frame):
             self.gui_monitors = self.convert_gui_monitors()
             self.canvas.render("", self.cycles_completed, self.gui_monitors)
 
+    def on_clear_button(self, event):
+        """Event handler for when the user clicks the clear button"""
+        # Clear everything
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        GL.glFlush()
+        self.canvas.SwapBuffers()
+
     def on_quit_button(self, event):
         """Event handler for when the user clicks the quit button."""
         text = "Quit button pressed."
@@ -592,10 +601,8 @@ class Gui(wx.Frame):
                 sizer_name = name
                 sizer_ = sizer
                 break
-        print(sizer_name)
         if sizer_name is not None:
             static_text = sizer_.GetItem(0).GetWindow()
-            print(static_text.GetLabel())
             switch_id = self.names.query(static_text.GetLabel())
             if switch_id is not None:
                 self.exist_switch_state = sizer_.GetItem(1).GetWindow()
@@ -604,10 +611,10 @@ class Gui(wx.Frame):
                     self.exist_switch_state.SetLabel(_(u"OFF"))
                     self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
                     new_signal = 0
-                    self.toggle_btn.SetBackgroundColour(wx.Colour(150, 150, 150))
+                    self.toggle_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
                 else:
                     self.exist_switch_state.SetLabel(_(u"ON"))
-                    self.exist_switch_state.SetForegroundColour(wx.Colour(80, 150, 150))
+                    self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
                     new_signal = 1
                     self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
                 print(self.devices.set_switch(switch_id, new_signal))
@@ -671,12 +678,7 @@ class Gui(wx.Frame):
             signal_list = self.monitors.monitors_dictionary[(device_id, output_id)]
             gui_dict[monitor_string] = signal_list
         return gui_dict
-    
-    # def on_text_box(self, event):
-    #     """Handle the event when the user enters text."""
-    #     text_box_value = self.text_box.GetValue()
-    #     text = "".join(["New text box value: ", text_box_value])
-    #     self.canvas.render(text)
+
 
     def on_reset_view(self, event):
         """Reset the view to the origin"""
