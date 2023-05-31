@@ -449,7 +449,7 @@ class Gui(wx.Frame):
                                                     _(u"ON"), style=wx.TE_PROCESS_ENTER)
                 self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
-                # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
+                self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
             elif switch_state == 0:
                 self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
                                                     _(u"OFF"), style=wx.TE_PROCESS_ENTER)
