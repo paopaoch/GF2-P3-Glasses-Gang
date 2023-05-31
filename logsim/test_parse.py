@@ -219,6 +219,9 @@ def test_parse_init(parse_check_init):
     err, expect_type = parse_check_init.parse_init()
     assert err == None, expect_type == scanner.NUMBER
 
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err == scanner.error, expect_type == scanner.INIT_SWITCH
 
 
 '''
