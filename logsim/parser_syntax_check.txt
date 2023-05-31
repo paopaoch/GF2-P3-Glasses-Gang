@@ -1,0 +1,18 @@
+INIT; D1 is DTYPE;
+CK1 is CLOCK with_simulation_cycles 6;
+AND1 is AND with 2 inputs;
+NOR1 is NOR with 2 inputs;
+SW1 is SWITCH initially_at 0;
+SW2 is SWITCH initially_at 0;
+SW3 is SWITCH initially_at 0;
+CONNECT;
+CK1 connect_to D1.CLK;
+CK1 connect_to AND1.I2;
+SW1 connect_to D1.SET;
+SW2 connect_to D1.DATA;
+SW3 connect_to D1.CLEAR;
+D1.Q connect_to NOR1.I1;
+D1.QBAR connect_to AND1.I1;
+AND1 connect_to NOR1.I2;
+MONITOR;
+Initial_monitor_at D1.Q D1.QBAR NOR1;

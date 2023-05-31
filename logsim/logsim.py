@@ -20,7 +20,7 @@ from devices import Devices
 from network import Network
 from monitors import Monitors
 from scanner import Scanner
-from parse_fake import Parser
+from parse import Parser
 from userint import UserInterface
 from gui import Gui
 
@@ -57,7 +57,7 @@ def main(arg_list):
             print(usage_message)
             sys.exit()
         elif option == "-c":  # use the command line user interface
-            scanner = Scanner(path, names)
+            scanner = Scanner(path, names, devices, network, monitors)
             parser = Parser(names, devices, network, monitors, scanner)
             if parser.parse_network():
                 # Initialise an instance of the userint.UserInterface() class
@@ -72,7 +72,7 @@ def main(arg_list):
             sys.exit()
 
         [path] = arguments
-        scanner = Scanner(path, names,devices, network)
+        scanner = Scanner(path, names, devices, network, monitors)
         parser = Parser(names, devices, network, monitors, scanner)
         if parser.parse_network():
             # Initialise an instance of the gui.Gui() class

@@ -555,13 +555,13 @@ class Gui(wx.Frame):
                           "About Logsim", wx.ICON_INFORMATION | wx.OK)
         if Id == wx.ID_HELP_COMMANDS:
             wx.MessageBox(_("User Commands\n"
-                            "\nRun              - run the simulation\n"
-                            "\nContinue         - continue simulation\n"
-                            "\nToggle Switch    - change the switch state\n"
-                            "\nAdd              - set a monitor on signal\n"
-                            "\nRemove           - zap the monior on signal\n"
-                            "\nHelp             - help (this command)\n"
-                            "\nQuit             - quit the simulation"),
+                            "\nRun             -> run the simulation\n"
+                            "\nContinue        -> continue simulation\n"
+                            "\nToggle Switch   -> change the switch state\n"
+                            "\nAdd             -> set a monitor on signal\n"
+                            "\nRemove          -> zap the monior on signal\n"
+                            "\nHelp            -> help (this command)\n"
+                            "\nQuit            -> quit the simulation"),
                           _("Help"), wx.OK | wx.ICON_INFORMATION)
 
     def on_spin(self, event):
