@@ -248,7 +248,10 @@ class Scanner:
             f.seek(symbol.line_pos)
             strings = f.read(symbol_pos)
             symbol_len = len(strings.split(' ')[-1])
-            pointer = " " * (symbol_pos - symbol_len) + '^'
+            if symbol_pos - symbol_len >= 1:
+                pointer = " " * (symbol_pos - symbol_len - 1) + '^'
+            else:
+                pointer = " " * (symbol_pos - symbol_len) + '^'
             pointer_mes = sentence + '\n' + pointer
         return pointer_mes
 

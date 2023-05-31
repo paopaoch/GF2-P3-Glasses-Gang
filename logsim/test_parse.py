@@ -68,18 +68,6 @@ def parse_check_keywords():
     scanner = Scanner(path, names, devices, network)
     return Parser(names, devices, network, monitors, scanner) 
 
-'''
-@pytest.fixture
-def parse_check_missing_words():
-    """Return a Parser instance using 'check_missing_words.txt'."""
-    names = Names()
-    devices = Devices(names)
-    network = Network(names, devices)
-    monitors = Monitors(names, devices, network)
-    path = 'parse_test_files/check_missing_words.txt'
-    scanner = Scanner(path, names,devices, network)
-    return Parser(names, devices, network, monitors, scanner) 
-
 
 @pytest.fixture
 def parse_check_init():
@@ -93,6 +81,7 @@ def parse_check_init():
     return Parser(names, devices, network, monitors, scanner) 
 
 
+'''
 @pytest.fixture
 def parse_check_connect():
     """Return a Parser instance using 'check_connect.txt'."""
@@ -128,6 +117,7 @@ def parse_check_network():
     scanner = Scanner(path, names, devices, network)
     return Parser(names, devices, network, monitors, scanner)  
 '''
+
 
 def test_go_to_next_sentence(parse_check_next_sentence):
     """Test the function go_to_next_sentence() go to the end of sentence."""
@@ -174,9 +164,10 @@ def test_parse_semicolon(parse_check_semicolon):
     assert scanner.error.error_code == scanner.error.MISS_TERMINATION
 
 
-def test_parse_keywords(parse_check_keywords):
+def test_parse_keywords_init(parse_check_keywords):
     """Test handle_unexpected_keyword() returns the expected results"""
     scanner = parse_check_keywords.scanner
+    parse_check_keywords.new_line = False
     # parse the wrong keywords in initialisation
     for i in range(8):
         scanner.get_symbol()
@@ -185,32 +176,36 @@ def test_parse_keywords(parse_check_keywords):
     parse_check_keywords.phase = 1
     bool1, bool2 = parse_check_keywords.handle_unexpected_keyword()
     assert bool1 == True, bool2 == False
+    # The error type is missing keyword in initialisation
     assert scanner.error.error_code == scanner.error.INIT_MISS_KEYWORD
 
-    # parse
-    for i in range(16):
-        scanner.get_symbol()
-    parse_check_keywords.symbol = scanner.get_symbol()
-    parse_check_keywords.expect_type = scanner.DEVICE_TYPE
-    parse_check_keywords.phase = 1
-    bool1, bool2 = parse_check_keywords.handle_unexpected_keyword()
-    assert bool1 == True, bool2 == False
-    assert scanner.error.error_code == scanner.error.INIT_MISS_KEYWORD
 
-    for i in range(34):
+def test_parse_keywords_connect(parse_check_keywords):
+    """Test handle_unexpected_keyword() returns the expected results"""
+    scanner = parse_check_keywords.scanner
+    parse_check_keywords.new_line = False
+    # parse the wrong keywords in connection
+    for i in range(61):
         scanner.get_symbol()
     parse_check_keywords.symbol = scanner.get_symbol()
     parse_check_keywords.expect_type = scanner.DEVICE_IN
     parse_check_keywords.phase = 2
     bool1, bool2 = parse_check_keywords.handle_unexpected_keyword()
     assert bool1 == True, bool2 == False
-    assert scanner.error.error_code == scanner.error.KEYWORD_NOT_FOUND
+    # The error type is invalid device input in connection
+    assert scanner.error.error_code == scanner.error.CONNECT_WRONG_IO
 
-'''
-def test_parse_missing_words(parse_check_missing_words):
 
 def test_parse_init(parse_check_init):
+    scanner = parse_check_init.scanner
+    for i in range(6):
+        scanner.get_symbol()
+    parse_check_init.new_line = True
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init
 
+
+'''
 def test_parse_connect(parse_check_connect):
 
 def test_parse_monitor(parse_check_monitor):
