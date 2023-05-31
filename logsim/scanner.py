@@ -359,7 +359,7 @@ class Scanner:
             symbol_get.type = self.INIT_SWITCH
         elif symbol_string == "with_simulation_cycles":
             symbol_get.type = self.INIT_CLK
-        elif symbol_string == "is_connected_to":
+        elif symbol_string == "connect_to":
             symbol_get.type = self.CONNECTION
         elif symbol_string == "Initial_monitor_at":
             symbol_get.type = self.INIT_MONITOR

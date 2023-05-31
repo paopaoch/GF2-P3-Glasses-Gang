@@ -1,8 +1,8 @@
 CONNECT;
-CK2 is_connected_to AND1.I1;   /* undefined device */
-SW1 is_connected_to AND1.I3;   /* undefined input */
-AND1 is_connected_to D1.DATA;
-CK1 is_connected_to D1.SET;    /* should connect to CLK */
-SW2 is_connected_to D1.CLEAR;
-SW3 is_connected_to D1.CLEAR;  /* duplicate connection */
-                               /* dtype missing inputs */
+CK2 connect_to AND1.I1;   /* undefined device */
+SW1 connect_to AND1.I3;   /* undefined input */
+AND1 connect_to D1.DATA;
+CK1 connect_to D1.SET;    /* should connect to CLK */
+SW2 connect_to D1.CLEAR;
+SW3 connect_to D1.CLEAR;  /* duplicate connection */
+                        /* dtype missing inputs */
