@@ -155,13 +155,14 @@ class Parser:
         self.expect_type = self.scanner.SEMICOLON
 
     def handle_error(self, error_code, error_type, 
-                     front=False, start_of_sen=False):
+                     front=False, start_of_sen=False, behind=False):
         """Function to show the error"""
         self.scanner.error.error_code = error_code
-        print(self.scanner.print_error_message(self.symbol, 
+        print(self.scanner.print_error_message(self.symbol,
                                                error_type, 
                                                front=front, 
-                                               start_of_sen=start_of_sen))
+                                               start_of_sen=start_of_sen,
+                                               behind=behind))
 
     def restart_and_get_symbol(self):
         """take the cursor to the start of the file
@@ -273,13 +274,12 @@ class Parser:
                 self.symbol = self.scanner.get_symbol()
                 if self.phase == 1:
                     if self.symbol.type == self.scanner.CONNECT:
-                        self.increment_phase()
                         break
                 elif self.phase == 2:
                     if self.symbol.type == self.scanner.MONITOR:
-                        self.increment_phase()
                         break
                 # self.symbol = self.scanner.get_symbol() # Dont think we need this
+            self.increment_phase()
             self.go_to_next_sentece()
             return self.scanner.error.MISS_TERMINATION
         else:
@@ -305,7 +305,9 @@ class Parser:
                 # print(err)
                 if err != self.network.NO_ERROR:
                     self.handle_error(err,
-                                      self.scanner.error.SEMANTIC)
+                                      self.scanner.error.SEMANTIC,
+                                      behind=True)
+                    print("hi")
             self.set_new_line_word()
             return err
 
@@ -365,6 +367,7 @@ class Parser:
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                 else:
+                    # print(self.symbol.type, self.expect_type)
                     self.handle_error(
                         self.scanner.error.CONNECT_MISS_KEYWORD,
                         self.scanner.error.SYNTAX,
@@ -494,12 +497,28 @@ class Parser:
             if self.symbol.type == self.scanner.DEVICE_OUT:
                 output_name = self.names.get_name_string(self.symbol.id)
                 gate_name, output = output_name.split(".")
-                if self.names.query(gate_name) not in self.error_devices:
-                    self.connection_holder["first_device_id"] = self.names.query(gate_name)
+                device_id = self.names.query(gate_name)
+                if self.devices.get_device(device_id) is not None:
+                    self.connection_holder["first_device_id"] = device_id
                     self.connection_holder["first_port_id"] = self.names.query(output)
+                else:
+                    if device_id not in self.error_devices:
+                        self.handle_error(self.network.DEVICE_ABSENT,
+                                        self.scanner.error.SEMANTIC)
+                    self.expect_type = self.scanner.DEVICE_OUT
+                    self.go_to_next_sentece()
+                    
+                    return self.network.DEVICE_ABSENT, self.expect_type
             else:
-                if self.symbol.id not in self.error_devices:
+                if self.devices.get_device(self.symbol.id) is not None:
                     self.connection_holder["first_device_id"] = self.symbol.id
+                else:
+                    if self.symbol.id not in self.error_devices:
+                        self.handle_error(self.network.DEVICE_ABSENT,
+                                            self.scanner.error.SEMANTIC)
+                    self.expect_type = self.scanner.DEVICE_OUT
+                    self.go_to_next_sentece()
+                    return self.network.DEVICE_ABSENT, self.expect_type
             self.expect_type = self.scanner.CONNECTION
             self.new_line = False
 
@@ -523,7 +542,8 @@ class Parser:
         elif self.symbol.type == self.scanner.DEVICE_OUT:
             output_name = self.names.get_name_string(self.symbol.id)
             gate_name, output = output_name.split(".")
-            err = self.monitors.make_monitor(self.names.query(gate_name), self.names.query(output))
+            err = self.monitors.make_monitor(self.names.query(gate_name)
+                                             , self.names.query(output))
             # print(err)
         elif self.symbol.type == self.scanner.DEVICE_NAME:
             err = self.monitors.make_monitor(self.symbol.id, None)

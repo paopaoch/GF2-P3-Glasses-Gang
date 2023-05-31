@@ -98,7 +98,6 @@ class Error:
                 error_mes = f"SEMANTIC[INIT]: Qualfier given but not expected {optional_mess}" # Check
             elif self.error_code == self.devices.DEVICE_PRESENT:
                 error_mes = f"SEMANTIC[INIT]: Device is being initialised twice {optional_mess}"
-                print("hi")
 
             elif self.error_code == self.network.INPUT_TO_INPUT:
                 error_mes = f"SEMANTIC[CONNECT]: Input is connected to an input {optional_mess}"

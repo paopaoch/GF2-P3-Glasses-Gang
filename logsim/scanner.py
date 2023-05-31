@@ -213,7 +213,7 @@ class Scanner:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
 
-    def get_pointer(self, symbol, front=False, start_of_sen=False):
+    def get_pointer(self, symbol, front=False, start_of_sen=False, behind=False):
         """Return the pointer message.
 
         Pointer message includes the sentence where the symbol located, 
@@ -244,6 +244,8 @@ class Scanner:
 
         if not front or symbol.type == self.SEMICOLON:
             pointer = " " * (symbol_pos - 1) + '^'
+            if behind and len(pointer) > 1:
+                pointer = pointer[1:]
             pointer_mes = sentence + '\n' + pointer
         else:
             symbol_len = 0
@@ -254,6 +256,8 @@ class Scanner:
                 pointer = " " * (symbol_pos - symbol_len - 1) + '^'
             else:
                 pointer = " " * (symbol_pos - symbol_len) + '^'
+            if behind and len(pointer) > 1:
+                pointer = pointer[1:]
             pointer_mes = sentence + '\n' + pointer
         return pointer_mes
 
@@ -274,7 +278,7 @@ class Scanner:
         return line_number
 
     def print_error_message(self, symbol, error_type, front=False, 
-                            start_of_sen=False, optional_mess=""):
+                            start_of_sen=False, optional_mess="", behind=False):
         """Return the complete error message.
 
         Complete error message includes the line number,
@@ -283,12 +287,12 @@ class Scanner:
         line_number = self.get_line_position(symbol)
         error_mes = "Error in line: " + str(line_number)
         if not start_of_sen:
-            pointer_mes = self.get_pointer(symbol, front, start_of_sen)
+            pointer_mes = self.get_pointer(symbol, front, start_of_sen, behind)
             error_mes += '\n' + pointer_mes
             error_mes += '\n' + self.error.error_message(error_type,
                                                          optional_mess)
         else:
-            pointer_mes = self.get_pointer(symbol, front, start_of_sen)
+            pointer_mes = self.get_pointer(symbol, front, start_of_sen, behind)
             # error_mes = self.error.error_message(error_type, optional_mess)
             error_mes += '\n' + pointer_mes
             error_mes += '\n' + self.error.error_message(error_type, 
