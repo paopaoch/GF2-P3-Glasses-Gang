@@ -198,11 +198,27 @@ def test_parse_keywords_connect(parse_check_keywords):
 
 def test_parse_init(parse_check_init):
     scanner = parse_check_init.scanner
+    parse_check_init.device_holder = parse_check_init.init_device_holder()
     for i in range(6):
         scanner.get_symbol()
     parse_check_init.new_line = True
+    # parse the line 2 symbol by symbol
     parse_check_init.symbol = scanner.get_symbol()
-    err, expect_type = parse_check_init
+    err, expect_type = parse_check_init.parse_init()
+    assert err == None, expect_type == scanner.INIT_IS
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err == None, expect_type == scanner.DEVICE_TYPE
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err == None, expect_type == scanner.INIT_SWITCH
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err == None, expect_type == scanner.NUMBER
+
 
 
 '''
