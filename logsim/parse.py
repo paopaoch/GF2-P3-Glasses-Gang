@@ -310,7 +310,7 @@ class Parser:
             return err
 
     def handle_unexpected_keyword(self):
-        if self.new_line and self.phase != 3:
+        if self.new_line:
             if self.phase == 1:
                 if self.symbol.type == self.scanner.CONNECT:
                     print("DONE WITH INIT")
@@ -339,11 +339,11 @@ class Parser:
                                             self.scanner.error.SYNTAX)
                         self.go_to_next_sentece()
                         return True, False
-                
-                else:
-                    print("SYNTAX[Invalid Connection]: Missing keywords")
-                    self.go_to_next_sentece()
-                    return True, False
+            else:
+                print("SYNTAX[Invalid Monitor]: Missing keywords")
+                self.go_to_next_sentece()
+                return True, False
+
         else:
             if self.phase == 1:
                 if self.expect_type == self.scanner.NUMBER:
@@ -494,10 +494,12 @@ class Parser:
             if self.symbol.type == self.scanner.DEVICE_OUT:
                 output_name = self.names.get_name_string(self.symbol.id)
                 gate_name, output = output_name.split(".")
-                self.connection_holder["first_device_id"] = self.names.query(gate_name)
-                self.connection_holder["first_port_id"] = self.names.query(output)
+                if self.names.query(gate_name) not in self.error_devices:
+                    self.connection_holder["first_device_id"] = self.names.query(gate_name)
+                    self.connection_holder["first_port_id"] = self.names.query(output)
             else:
-                self.connection_holder["first_device_id"] = self.symbol.id
+                if self.symbol.id not in self.error_devices:
+                    self.connection_holder["first_device_id"] = self.symbol.id
             self.expect_type = self.scanner.CONNECTION
             self.new_line = False
 
@@ -564,6 +566,10 @@ class Parser:
                     if self.expect_type == self.scanner.DEVICE_OUT:
                         self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
                                           self.scanner.error.SYNTAX)
+                        break
+                    else:
+                        self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
+                                      self.scanner.error.SYNTAX)
                         break
                 else:
                     self.handle_error(self.scanner.error.KEYWORD_NOT_FOUND,
