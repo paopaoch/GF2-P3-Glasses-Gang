@@ -123,6 +123,8 @@ class Parser:
         self.new_line = True
         self.expect_type = None
         self.sentence_type = None
+        self.error_devices = []  # tracks any devices with errors
+        self.current_device = None
 
     def set_new_line_word(self):
         """Set the expected type of symbol of a 
@@ -142,8 +144,6 @@ class Parser:
         while (self.symbol.type != self.scanner.SEMICOLON
                and self.symbol.type != self.scanner.EOF):
             self.symbol = self.scanner.get_symbol()
-            # print(self.count)
-            self.count += 1
         self.set_new_line_word()
         return self.symbol.type
 
@@ -362,13 +362,14 @@ class Parser:
                 if self.expect_type == self.scanner.DEVICE_IN:
                     self.handle_error(self.scanner.error.CONNECT_WRONG_IO,
                                     self.scanner.error.SYNTAX)
-                    self.expect_type = self.scanner.DEVICE_NAME
+                    self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                 else:
-                    self.handle_error(self.scanner.error.CONNECT_MISS_KEYWORD,
-                                    self.scanner.error.SYNTAX,
-                                    front=True)
-                    self.expect_type = self.scanner.DEVICE_NAME
+                    self.handle_error(
+                        self.scanner.error.CONNECT_MISS_KEYWORD,
+                        self.scanner.error.SYNTAX,
+                        front=True)
+                    self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                 return True, False
             elif self.phase == 3:
@@ -377,17 +378,29 @@ class Parser:
                         self.expect_type = self.scanner.EOF
                         return True, False
                     elif self.symbol.type != self.scanner.DEVICE_NAME:
-                        self.handle_error(self.scanner.error.MONITOR_WRONG_POINT,
-                                            self.scanner.error.SYNTAX)
+                        self.handle_error(
+                            self.scanner.error.MONITOR_WRONG_POINT,
+                            self.scanner.error.SYNTAX)
                         return False, True
         return False, False
 
     def parse_init(self):
         err = None
         if self.new_line:
-            self.device_holder["device_id"] = self.symbol.id
-            self.expect_type = self.scanner.INIT_IS
-            self.new_line = False
+            if self.devices.get_device(self.symbol.id) is None:
+                self.device_holder["device_id"] = self.symbol.id
+                self.expect_type = self.scanner.INIT_IS
+                self.new_line = False
+                self.current_device = self.symbol.id
+            else:
+                if self.symbol.id not in self.error_devices:
+                    self.error_devices.append(self.current_device)
+                self.handle_error(self.devices.DEVICE_PRESENT,
+                                self.scanner.error.SYNTAX)
+                self.expect_type = self.scanner.DEVICE_NAME
+                self.go_to_next_sentece()
+                return (self.devices.DEVICE_PRESENT,
+                        self.expect_type)
 
         else:
             if self.symbol.type == self.scanner.INIT_IS:
@@ -435,18 +448,39 @@ class Parser:
                         not in {'0','1'}):
                         self.handle_error(self.scanner.error.INIT_WRONG_SET,
                                             self.scanner.error.SYNTAX)
+                        self.error_devices.append(self.current_device)
+                        self.expect_type = self.scanner.DEVICE_NAME
+                        self.go_to_next_sentece()
                         return (self.scanner.error.INIT_WRONG_SET,
                                 self.expect_type)
                     else:
                         self.device_holder["device_property"] = int(
                             self.names.get_name_string(self.symbol.id))
                     self.expect_type = self.scanner.SEMICOLON
+
                 elif self.sentence_type in {"NAND", "AND", "NOR", "OR"}:
-                    # Check for semantic 16 here
+                    if (int(self.names.get_name_string(self.symbol.id)) 
+                        not in range(1, 17)):
+                        self.handle_error(self.devices.INVALID_QUALIFIER,
+                                        self.scanner.error.SEMANTIC)
+                        self.expect_type = self.scanner.DEVICE_NAME
+                        self.go_to_next_sentece()
+                        return (self.devices.INVALID_QUALIFIER,
+                                self.expect_type)
                     self.device_holder["device_property"] = int(
                         self.names.get_name_string(self.symbol.id))
                     self.expect_type = self.scanner.INIT_GATE
+
                 elif self.sentence_type == "CLOCK":
+                    if (int(self.names.get_name_string(self.symbol.id)) 
+                        <= 0):
+                        self.handle_error(self.devices.INVALID_QUALIFIER,
+                                        self.scanner.error.SEMANTIC)
+                        self.expect_type = self.scanner.DEVICE_NAME
+                        self.error_devices.append(self.current_device)
+                        self.go_to_next_sentece()
+                        return (self.devices.INVALID_QUALIFIER,
+                                self.expect_type)
                     self.device_holder["device_property"] = int(
                         self.names.get_name_string(self.symbol.id))
                     self.expect_type = self.scanner.SEMICOLON
@@ -455,6 +489,7 @@ class Parser:
         return err, self.expect_type
 
     def parse_connect(self):
+        err = None
         if self.new_line:
             if self.symbol.type == self.scanner.DEVICE_OUT:
                 output_name = self.names.get_name_string(self.symbol.id)
@@ -476,8 +511,10 @@ class Parser:
                 self.connection_holder["second_port_id"] = self.names.query(input)
                 self.expect_type = self.scanner.SEMICOLON
 
+        return err, self.expect_type
 
     def parse_monitor(self):
+        err = None
         if self.symbol.type == self.scanner.INIT_MONITOR:
             self.expect_type = self.scanner.DEVICE_OUT
             self.new_line = False
@@ -485,19 +522,18 @@ class Parser:
             output_name = self.names.get_name_string(self.symbol.id)
             gate_name, output = output_name.split(".")
             err = self.monitors.make_monitor(self.names.query(gate_name), self.names.query(output))
-            print(err)
+            # print(err)
         elif self.symbol.type == self.scanner.DEVICE_NAME:
             err = self.monitors.make_monitor(self.symbol.id, None)
-            print(err)
+            # print(err)
+        return err, self.expect_type
 
     def parse_network(self):
         """Parse the circuit definition file."""
 
         if not self.check_structure():
             return False
-        self.count = 0
         self.expect_type = self.scanner.SEMICOLON
-        self.count += 1
         self.sentence_type = None
         self.phase = 1
         self.device_name = False
@@ -516,8 +552,6 @@ class Parser:
                         self.handle_error(self.scanner.error.MISS_TERMINATION,
                                           self.scanner.error.SYNTAX)
                 break
-            # print(self.count)
-            self.count += 1
             if self.symbol.type == self.scanner.ERROR:
                 if self.phase == 1:
                     if self.expect_type == self.scanner.DEVICE_NAME:
