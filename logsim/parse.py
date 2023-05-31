@@ -396,7 +396,7 @@ class Parser:
                 if self.symbol.id not in self.error_devices:
                     self.error_devices.append(self.current_device)
                 self.handle_error(self.devices.DEVICE_PRESENT,
-                                self.scanner.error.SYNTAX)
+                                self.scanner.error.SEMANTIC)
                 self.expect_type = self.scanner.DEVICE_NAME
                 self.go_to_next_sentece()
                 return (self.devices.DEVICE_PRESENT,
