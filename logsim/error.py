@@ -106,7 +106,7 @@ class Error:
                 error_mes = f"SEMANTIC[CONNECT]: Output is connected to an output {optional_mess}"
             elif self.error_code == self.network.INPUT_CONNECTED:
                 error_mes = f"SEMANTIC[CONNECT]: Input is already connected {optional_mess}"
-                
+
             elif self.error_code == self.network.PORT_ABSENT:
                 error_mes = f"SEMANTIC[REFERENCE]: Referencing to an nonexisting port {optional_mess}"
             elif self.error_code == self.network.DEVICE_ABSENT:

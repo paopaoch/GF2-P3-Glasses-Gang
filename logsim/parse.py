@@ -82,11 +82,10 @@ class Parser:
     def handle_error(self, error_code, error_type, 
                      front=False, start_of_sen=False):
         self.scanner.error.error_code = error_code
-        err = self.scanner.print_error_message(self.symbol, 
+        self.scanner.print_error_message(self.symbol, 
                                                error_type, 
                                                front=front, 
                                                start_of_sen=start_of_sen)
-        print(err)
 
     def restart_and_get_symbol(self):
         self.scanner.restart()
@@ -205,6 +204,10 @@ class Parser:
                                         self.device_holder["device_property"])
                 self.device_holder = self.init_device_holder()
                 print(err)
+                if err != self.devices.NO_ERROR:
+                    self.handle_error(err,
+                                      self.scanner.error.SEMANTIC)
+
             elif (self.phase == 2 
                     and self.connection_holder["first_device_id"] is not None
                     and self.connection_holder["second_device_id"]):
