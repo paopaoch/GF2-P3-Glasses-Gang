@@ -14,6 +14,7 @@ import sys
 import re
 from error import Error
 
+
 class Symbol:
 
     """Encapsulate a symbol and store its properties.
@@ -72,16 +73,18 @@ class Scanner:
     skip_comment(self): Skip comments if comment is in valid form, or
                         report syntax error if invalid comment detected.
 
-    get_pointer(self, symbol, path, front=False): Return pointer message 
-                        which includes the sentence where the symbol located,
-                        and a pointer points to the desired position.
+    get_pointer(self, symbol, front=False, start_of_sen=False): Return 
+                        pointer message which includes the sentence where 
+                        the symbol located,and a pointer points to the 
+                        desired position.
 
-    get_line_position(self, symbol, path): Return the line number of the 
-                                           symbol located in the file.
+    get_line_position(self, symbol): Return the line number of the 
+                                     symbol located in the file.
 
-    print_error_message(self, symbol, path, pointer=True, front=False):
-                    Return the complete error message which includes the
-                    line number, pointer message(optional), and error message.
+    print_error_message(self, symbol, pointer=True, front=False, 
+                            start_of_sen=False, optional_mess=""):
+                        Return the complete error message which includes the
+                        line number, pointer message, and error message.
 
     get_symbol(self): Translates the next sequence of characters into a 
                       symbol and returns the symbol.
@@ -113,7 +116,7 @@ class Scanner:
                                  self.INIT_CLK, self.CONNECTION, 
                                  self.INIT_MONITOR, self.SEMICOLON, 
                                  self.EOF] = range(18)
-        
+
         # Add keywords to names
         self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR', 
                                  'SWITCH', 'DTYPE', 'CLOCK']
@@ -125,10 +128,10 @@ class Scanner:
         self.names.lookup(self.device_type_list)
         self.names.lookup(self.device_input_pin_list)
         self.names.lookup(self.device_output_pin_list)
-        
+
         # Character at current reading position
         self.current_char = None
-        
+
         # Position of start char of the line is reading
         self.last_line_pos = 0
 
@@ -168,7 +171,6 @@ class Scanner:
                 self.last_line_pos = self.file.tell()
             self.current_char = self.read_file()
 
-    
     def skip_comment(self):
         """Skip comment if valid comment, otherwise report error."""
         if not self.current_char == '*':
@@ -182,7 +184,7 @@ class Scanner:
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
             return
-        
+
         end_left = self.current_char
         self.current_char = self.read_file()
         end_right = self.current_char
@@ -193,7 +195,7 @@ class Scanner:
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
             return
-        
+
         while (not (end_left == '*' and end_right == '/')
                 and (not self.current_char == '')):
             self.current_char = self.read_file()
@@ -210,20 +212,20 @@ class Scanner:
         else:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
-    
+
     def get_pointer(self, symbol, front=False, start_of_sen=False):
         """Return the pointer message.
-        
+
         Pointer message includes the sentence where the symbol located, 
         and a pointer points to the symbol, can eithrt point to the end 
-        of the symbol or start of the symbol.
+        of the symbol or front of the symbol or start of the line.
         """
         try:
             f = open(self.path, "r")
         except IOError:
             print("Error: can\'t find file or read data")
             sys.exit()
-            
+
         # extract the line the symbol located
         f.seek(symbol.line_pos)
         sentence = ""
@@ -239,9 +241,9 @@ class Scanner:
         if start_of_sen or sentence == '':
             pointer_mes = sentence + '\n' + '^'
             return pointer_mes
-            
+
         if not front or symbol.type == self.SEMICOLON:
-            pointer = " " * (symbol_pos - 1)  + '^'
+            pointer = " " * (symbol_pos - 1) + '^'
             pointer_mes = sentence + '\n' + pointer
         else:
             symbol_len = 0
@@ -270,11 +272,11 @@ class Scanner:
                 line_number += 1
             cur_char = f.read(1)
         return line_number
-    
+
     def print_error_message(self, symbol, error_type, front=False, 
                             start_of_sen=False, optional_mess=""):
         """Return the complete error message.
-        
+
         Complete error message includes the line number,
         pointer message, and error message.
         """
@@ -283,12 +285,14 @@ class Scanner:
         if not start_of_sen:
             pointer_mes = self.get_pointer(symbol, front, start_of_sen)
             error_mes += '\n' + pointer_mes
-            error_mes += '\n' + self.error.error_message(error_type, optional_mess)
+            error_mes += '\n' + self.error.error_message(error_type,
+                                                         optional_mess)
         else:
             pointer_mes = self.get_pointer(symbol, front, start_of_sen)
             # error_mes = self.error.error_message(error_type, optional_mess)
             error_mes += '\n' + pointer_mes
-            error_mes += '\n' + self.error.error_message(error_type, optional_mess)
+            error_mes += '\n' + self.error.error_message(error_type, 
+                                                         optional_mess)
         return error_mes
 
     def get_symbol(self):
@@ -389,4 +393,3 @@ class Scanner:
         if self.current_char == '\n':
             self.last_line_pos = self.file.tell()
         return symbol_get
-        
