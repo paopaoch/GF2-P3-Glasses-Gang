@@ -81,7 +81,6 @@ def parse_check_init():
     return Parser(names, devices, network, monitors, scanner) 
 
 
-'''
 @pytest.fixture
 def parse_check_connect():
     """Return a Parser instance using 'check_connect.txt'."""
@@ -90,7 +89,7 @@ def parse_check_connect():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_connect.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner) 
 
 
@@ -102,7 +101,7 @@ def parse_check_monitor():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_monitor.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
 
 
@@ -114,9 +113,8 @@ def parse_check_network():
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_network.txt'
-    scanner = Scanner(path, names, devices, network)
+    scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)  
-'''
 
 
 def test_go_to_next_sentence(parse_check_next_sentence):
@@ -136,13 +134,13 @@ def test_go_to_next_sentence(parse_check_next_sentence):
 def test_parse_structure_correct(parse_check_structure_correct):
     """Test check_structure() returns True when it's valid structure."""
     res = parse_check_structure_correct.check_structure()
-    assert res == True
+    assert res
 
 
 def test_parse_structure_invalid(parse_check_structure_invalid):
     """Test check_structure() returns False when it's invalid structure"""
     res = parse_check_structure_invalid.check_structure()
-    assert res == False
+    assert not res
     scanner = parse_check_structure_invalid.scanner
     # The error is missing start mark
     assert scanner.error.error_code == scanner.error.MISS_START_MARK
@@ -152,7 +150,7 @@ def test_parse_semicolon(parse_check_semicolon):
     """Test parse_semicolon() returns the expected results."""
     # If missing semicolon for start marks, it will not raise structure error
     res = parse_check_semicolon.check_structure()
-    assert res == True
+    assert res
 
     # parsing missing semicolon
     scanner = parse_check_semicolon.scanner
@@ -175,7 +173,7 @@ def test_parse_keywords_init(parse_check_keywords):
     parse_check_keywords.expect_type = scanner.DEVICE_TYPE
     parse_check_keywords.phase = 1
     bool1, bool2 = parse_check_keywords.handle_unexpected_keyword()
-    assert bool1 == True, bool2 == False
+    assert bool1, not bool2
     # The error type is missing keyword in initialisation
     assert scanner.error.error_code == scanner.error.INIT_MISS_KEYWORD
 
@@ -191,7 +189,7 @@ def test_parse_keywords_connect(parse_check_keywords):
     parse_check_keywords.expect_type = scanner.DEVICE_IN
     parse_check_keywords.phase = 2
     bool1, bool2 = parse_check_keywords.handle_unexpected_keyword()
-    assert bool1 == True, bool2 == False
+    assert bool1, not bool2
     # The error type is invalid device input in connection
     assert scanner.error.error_code == scanner.error.CONNECT_WRONG_IO
 
@@ -207,19 +205,19 @@ def test_parse_init(parse_check_init):
     # parse line 2 symbol by symbol
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
-    assert err == None, expect_type == scanner.INIT_IS
+    assert err is None, expect_type == scanner.INIT_IS
 
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
-    assert err == None, expect_type == scanner.DEVICE_TYPE
+    assert err is None, expect_type == scanner.DEVICE_TYPE
 
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
-    assert err == None, expect_type == scanner.INIT_SWITCH
+    assert err is None, expect_type == scanner.INIT_SWITCH
 
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
-    assert err == None, expect_type == scanner.NUMBER
+    assert err is None, expect_type == scanner.NUMBER
 
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
@@ -230,21 +228,40 @@ def test_parse_init(parse_check_init):
     parse_check_init.symbol = scanner.get_symbol()
     sym = parse_check_init.symbol
     err, expect_type = parse_check_init.parse_init()
-    assert err == None
+    assert err is None
 
     # parse line 4 raise error for DEVICE_PRESENT
     for i in range(3):
         scanner.get_symbol()
     parse_check_init.new_line = True
     parse_check_init.devices.make_device(sym.id, 
-                                parse_check_init.devices.D_TYPE)
+                                    parse_check_init.devices.D_TYPE)
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
     assert err == parse_check_init.devices.DEVICE_PRESENT
 
-'''
+
 def test_parse_connect(parse_check_connect):
+    pass
+
 
 def test_parse_monitor(parse_check_monitor):
+    pass
 
-def test_parse_network(parse_check_network):'''
+
+def test_parse_network(parse_check_network):
+    """Test parse_network() correctly build circuits"""
+    # parser return True for correct description file
+    res = parse_check_network.parse_network()
+    assert res is True
+
+    # check for devices
+    devices = parse_check_network.devices
+    assert len(devices.find_devices(devices.SWITCH)) == 3
+    assert len(devices.find_devices(devices.D_TYPE)) == 1
+    assert len(devices.find_devices(devices.AND)) == 1
+    assert len(devices.find_devices(devices.CLOCK)) == 1
+
+    # check for network
+    network = parse_check_network.network
+    assert network.check_network()
