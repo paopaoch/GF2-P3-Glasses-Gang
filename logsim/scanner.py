@@ -90,7 +90,7 @@ class Scanner:
                       symbol and returns the symbol.
     """
 
-    def __init__(self, path, names, devices, network):
+    def __init__(self, path, names, devices, network, monitors):
         """Open specified file and initialise reserved words and IDs."""
         # Open the file
         self.path = path
@@ -104,7 +104,7 @@ class Scanner:
         self.names = names
 
         # Create Error instance
-        self.error = Error(self.names, devices, network)
+        self.error = Error(self.names, devices, network, monitors)
 
         # Assign symbol types
         self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT, 

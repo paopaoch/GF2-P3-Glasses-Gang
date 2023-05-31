@@ -25,11 +25,12 @@ class Error:
     No public methods.
     """
 
-    def __init__(self, names, devices, network):
+    def __init__(self, names, devices, network, monitors):
         """Initialise error properties."""
         self.names = names
         self.devices = devices
         self.network = network
+        self.monitors = monitors
         self.error_type_list = [self.SYNTAX, self.SEMANTIC] = range(2)
         self.error_code = None
         self.syntax_error_list = [self.INIT_MISS_KEYWORD, 
@@ -111,6 +112,10 @@ class Error:
             elif self.error_code == self.network.DEVICE_ABSENT:
                 error_mes = f"SEMANTIC[REFERENCE]: Referencing a nonexisting device {optional_mess}"
         
+            elif self.error_code == self.monitors.NOT_OUTPUT:
+                error_mes = f"SEMANTIC[REFERENCE]: Referencing to an nonexisting port {optional_mess}"
+            elif self.error_code == self.monitors.MONITOR_PRESENT:
+                error_mes = f"SEMANTIC[REFERENCE]: Referencing monitor port more than once {optional_mess}"
         self.add_error(error_type)
         return error_mes
         

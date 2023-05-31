@@ -307,7 +307,6 @@ class Parser:
                     self.handle_error(err,
                                       self.scanner.error.SEMANTIC,
                                       behind=True)
-                    print("hi")
             self.set_new_line_word()
             return err
 
@@ -542,13 +541,16 @@ class Parser:
         elif self.symbol.type == self.scanner.DEVICE_OUT:
             output_name = self.names.get_name_string(self.symbol.id)
             gate_name, output = output_name.split(".")
-            err = self.monitors.make_monitor(self.names.query(gate_name)
-                                             , self.names.query(output))
+            err = self.monitors.make_monitor(self.names.query(gate_name), 
+                                             self.names.query(output))
             # print(err)
         elif self.symbol.type == self.scanner.DEVICE_NAME:
             err = self.monitors.make_monitor(self.symbol.id, None)
             # print(err)
-        return err, self.expect_type
+        if err != self.monitors.NO_ERROR and err is not None:
+            self.handle_error(err, self.scanner.error.SEMANTIC)
+            return err, self.expect_type
+        return None, self.expect_type
 
     def parse_network(self):
         """Parse the circuit definition file."""
