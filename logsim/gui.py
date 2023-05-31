@@ -425,7 +425,7 @@ class Gui(wx.Frame):
         self.text_state = wx.StaticText(self, wx.ID_ANY, 
                                      _(u"Current state"), style=wx.TE_PROCESS_ENTER)
         self.sub_sizer_sw_state.Add(self.text_sw, 1, wx.ALIGN_LEFT|wx.ALL, 5)
-        self.sub_sizer_sw_state.Add(self.text_state, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+        self.sub_sizer_sw_state.Add(self.text_state, 1, wx.ALIGN_LEFT|wx.ALL, 5)
 
         self.scrolled_switch = wx.ScrolledWindow(self, style=wx.VSCROLL)
         self.scrolled_switch.SetBackgroundColour(wx.Colour(200, 200, 200))
@@ -449,7 +449,7 @@ class Gui(wx.Frame):
                                                     _(u"ON"), style=wx.TE_PROCESS_ENTER)
                 self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
                 self.toggle_btn = wx.ToggleButton(self.scrolled_switch, label=_(u"Toggle Switch"))
-                self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
+                # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
             elif switch_state == 0:
                 self.exist_switch_state = wx.StaticText(self.scrolled_switch, wx.ID_ANY, 
                                                     _(u"OFF"), style=wx.TE_PROCESS_ENTER)
@@ -606,6 +606,7 @@ class Gui(wx.Frame):
             switch_id = self.names.query(static_text.GetLabel())
             if switch_id is not None:
                 self.exist_switch_state = sizer_.GetItem(1).GetWindow()
+                print(self.toggle_btn.GetValue())
                 if self.toggle_btn.GetValue():
                     self.exist_switch_state.SetLabel(_(u"OFF"))
                     self.exist_switch_state.SetForegroundColour(wx.Colour(150, 150, 150))
@@ -616,6 +617,7 @@ class Gui(wx.Frame):
                     self.exist_switch_state.SetForegroundColour(wx.Colour(0, 100, 100))
                     new_signal = 1
                     self.toggle_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
+                print(self.devices.set_switch(switch_id, new_signal))
                 self.devices.set_switch(switch_id, new_signal)
                 self.gui_monitors = self.convert_gui_monitors()
                 text = "switch input is flipped."
