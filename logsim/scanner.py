@@ -101,7 +101,7 @@ class Scanner:
         self.names = names
 
         # Create Error instance
-        self.error = Error(self.names, network, devices)
+        self.error = Error(self.names, devices, network)
 
         # Assign symbol types
         self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT, 
