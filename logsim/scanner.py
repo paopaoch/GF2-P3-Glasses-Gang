@@ -135,6 +135,9 @@ class Scanner:
         # Position of start char of the line is reading
         self.last_line_pos = 0
 
+        # Whether comment error is raised
+        self.invalid_comment = False
+
     def read_file(self):
         """Read file for the next character."""
         return self.file.read(1)
@@ -178,22 +181,24 @@ class Scanner:
         sentence = "/*"
         self.current_char = self.read_file()
         sentence += self.current_char
-        if self.current_char == '':
+        if self.current_char == '' and self.invalid_comment is False:
             self.error.error_code = self.error.INVALID_COMMENT
             sentence += '\n' + " " * len(sentence) + '^'
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
+            self.invalid_comment = True
             return
 
         end_left = self.current_char
         self.current_char = self.read_file()
         end_right = self.current_char
         sentence += self.current_char
-        if self.current_char == '':
+        if self.current_char == '' and self.invalid_comment is False:
             self.error.error_code = self.error.INVALID_COMMENT
             sentence += '\n' + " " * len(sentence) + '^'
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
+            self.invalid_comment = True
             return
 
         while (not (end_left == '*' and end_right == '/')
@@ -202,13 +207,15 @@ class Scanner:
             sentence += self.current_char
             end_left = end_right
             end_right = self.current_char
-        if not (end_left == '*' and end_right == '/'):
+        if (not (end_left == '*' and end_right == '/') 
+                            and self.invalid_comment is False):
             self.error.error_code = self.error.INVALID_COMMENT
             sentence = " ".join(sentence.split('\n'))
             sentence = sentence[:3] + " ... " + sentence[-3:]
             sentence += '\n' + " " * 11 + '^'
             print(sentence)
             print(self.error.error_message(self.error.SYNTAX))
+            self.invalid_comment = True
         else:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()

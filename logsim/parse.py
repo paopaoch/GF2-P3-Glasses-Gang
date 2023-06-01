@@ -223,6 +223,7 @@ class Parser:
                 self.symbol = self.scanner.get_symbol()
             self.handle_error(self.scanner.error.MISS_START_MARK,
                               self.scanner.error.SYNTAX,
+                              start_of_sen=True,
                               optional_mess="CONNECT")
             error = True
 
@@ -415,6 +416,8 @@ class Parser:
                             self.scanner.error.MONITOR_WRONG_POINT,
                             self.scanner.error.SYNTAX)
                         return False, True
+                    else:
+                        pass
         return False, False
 
     def parse_init(self):
@@ -707,7 +710,7 @@ if __name__ == "__main__":
     devices = Devices(names)
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
-    scanner = Scanner('parse_test_files/check_network_unused.txt', names, devices, network, monitors)
+    scanner = Scanner('parser_test_file.txt', names, devices, network, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
     test_parser.parse_network()
