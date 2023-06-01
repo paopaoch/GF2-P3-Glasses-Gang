@@ -254,34 +254,38 @@ def test_parse_connect(parse_check_connect):
     assert err == parse_check_connect.network.DEVICE_ABSENT
 
     # test for dtype.CLK
-    parse_check_connect.names.lookup("D1")
+    parse_check_connect.names.lookup(["D1"])
     sym_id = parse_check_connect.names.query("D1")
     parse_check_connect.devices.make_device(sym_id,
                                         parse_check_connect.devices.D_TYPE)
-    parse_check_connect.names.lookup("SW1")
+    parse_check_connect.names.lookup(["SW1"])
     sym_id = parse_check_connect.names.query("SW1")
     parse_check_connect.devices.make_device(sym_id,
-                                        parse_check_connect.devices.CLOCK)
-    parse_check_connect.names.lookup("SW2")
+                                        parse_check_connect.devices.SWITCH, 1)
+    parse_check_connect.names.lookup(["SW2"])
     sym_id = parse_check_connect.names.query("SW2")
     parse_check_connect.devices.make_device(sym_id,
-                                        parse_check_connect.devices.SWITCH)
-    parse_check_connect.names.lookup("SW3")
+                                        parse_check_connect.devices.SWITCH, 0)
+    parse_check_connect.names.lookup(["SW3"])
     sym_id = parse_check_connect.names.query("SW3")
     parse_check_connect.devices.make_device(sym_id,
-                                        parse_check_connect.devices.SWITCH)                 
+                                        parse_check_connect.devices.SWITCH, 0)                 
     sym = scanner.get_symbol()
     parse_check_connect.new_line = True
 
+    # Test when clk input to dtype is not clock
     parse_check_connect.symbol = sym
     parse_check_connect.parse_connect()
     parse_check_connect.symbol = scanner.get_symbol()
     parse_check_connect.parse_connect()
     parse_check_connect.symbol = scanner.get_symbol()
-    parse_check_connect.parse_connect()
+    err, expected_type = parse_check_connect.parse_connect()
+    assert err == parse_check_connect.scanner.error.NOT_CLOCK_TO_CLK
+
+    # test when that it does not raise an error with duplication
     parse_check_connect.symbol = scanner.get_symbol()
     err, expected_type = parse_check_connect.parse_connect()
-    assert err == parse_check_connect.network.PORT_ABSENT
+    assert err == None
 
 def test_parse_monitor(parse_check_monitor):
     """Test parse_monitor() parsing the monitor section"""
@@ -291,14 +295,15 @@ def test_parse_monitor(parse_check_monitor):
     sym_id = parse_check_monitor.names.query("AND1")
     parse_check_monitor.devices.make_device(sym_id,
                                         parse_check_monitor.devices.AND, 2)
-    parse_check_monitor.new_line = True
+    parse_check_monitor.new_line = False
     # test for invalid monitor point
-    for i in range(2):
-        scanner.get_symbol()
-    parse_check_monitor.symbol = scanner.get_symbol()
-    parse_check_monitor.parse_monitor()
+    for i in range(1):
+        parse_check_monitor.symbol = scanner.get_symbol()
     parse_check_monitor.symbol = scanner.get_symbol()
     err, expected_type = parse_check_monitor.parse_monitor()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    parse_check_monitor.parse_monitor()
+    print(err)
     assert err == scanner.error.MONITOR_WRONG_POINT
 
     # test for duplicate monitor point

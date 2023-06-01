@@ -542,12 +542,12 @@ class Parser:
                             self.connection_holder["first_device_id"])
                         if (first_device.device_kind
                             != self.devices.CLOCK):
-                            self.handle_error(self.scanner.error.NOT_CLOCK_TO_CLK,
+                            err = self.scanner.error.NOT_CLOCK_TO_CLK
+                            self.handle_error(err,
                                             self.scanner.error.SEMANTIC)
-
+                            self.connection_holder = self.init_connection_holder()
                 self.connection_holder["second_device_id"] = self.names.query(gate_name)
                 self.connection_holder["second_port_id"] = self.names.query(input)
-                
 
         return err, self.expect_type
 
@@ -592,7 +592,7 @@ class Parser:
         self.new_line = False
 
         while True:
-            print(self.phase)
+            # print(self.phase)
             self.symbol = self.scanner.get_symbol()
             if self.symbol.type == self.scanner.EOF:
                 if self.expect_type == self.scanner.EOF:
@@ -681,7 +681,10 @@ if __name__ == "__main__":
     scanner = Scanner('parser_test_file.txt', names, devices, network, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
-
+    test_parser.names.lookup("TEST1")
+    sym_id = test_parser.names.query("TEST1")
+    test_parser.devices.make_device(sym_id,
+                                        test_parser.devices.D_TYPE)
     test_parser.parse_network()
-
+    print(test_parser.devices.devices_list[0].device_kind)
 

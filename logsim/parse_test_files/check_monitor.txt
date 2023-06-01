@@ -1,3 +1,3 @@
 MONITOR;  /* "AND1.I1" invalid , duplicate points*/
 Initial_monitor_at AND1.I1 D1.Q;
-Initial_monitor_at AND1 AND1;
+Initial_monitor_at 0 AND1;
