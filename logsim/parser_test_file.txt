@@ -13,5 +13,4 @@ SW2 connect_to D1.SET;
 SW3 connect_to D1.CLEAR;
 D1.Q connect_to AND1.I3;
 MONITOR;
-Initial_monitor_at D1.QBAR D1.Q AND1;
-Initial_monitor_at SW1;
+Initial_monitor_at D1.QBAR D1.Q AND1.I1;
