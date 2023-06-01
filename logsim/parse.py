@@ -407,17 +407,14 @@ class Parser:
                 return True, False
             elif self.phase == 3:
                 if self.expect_type == self.scanner.DEVICE_OUT:
-                    if self.symbol.type == self.scanner.SEMICOLON:
-                        self.expect_type = self.scanner.EOF
-                        self.new_line = True
-                        return True, False
-                    elif self.symbol.type != self.scanner.DEVICE_NAME:
-                        self.handle_error(
-                            self.scanner.error.MONITOR_WRONG_POINT,
-                            self.scanner.error.SYNTAX)
-                        return False, True
+                    if self.symbol.type == self.scanner.DEVICE_NAME:
+                        return False, False
                     else:
-                        pass
+                        self.handle_error(
+                            self.scanner.error.MONITOR_MISS_KEYWORD,
+                            self.scanner.error.SYNTAX,
+                            front=True)
+                        return False, True
         return False, False
 
     def parse_init(self):
@@ -630,6 +627,10 @@ class Parser:
                     pass
                 else:
                     if self.phase == 3 and self.eof_reached:
+                        self.handle_error(self.scanner.error.MISS_TERMINATION,
+                                          self.scanner.error.SYNTAX)
+                    elif (self.phase == 3 and 
+                          self.expect_type == self.scanner.DEVICE_OUT):
                         self.handle_error(self.scanner.error.MISS_TERMINATION,
                                           self.scanner.error.SYNTAX)
                 break
