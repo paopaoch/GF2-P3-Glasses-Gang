@@ -1,0 +1,2 @@
+MONITOR;  /* duplicate monitor points */
+Initial_monitor_at D1.Q D1.Q;
