@@ -3,7 +3,7 @@ SW1 is SWITCH initially_at 0;
 SW2 is SWITCH initially_at 1; 
 SW3 is SWITCH initially_at 0;
 CK1 is CLOCK with_simulation_cycles 20;
-AND1  AND with 3 inputs;
+AND1 is AND with 3 inputs;
 CONNECT;
 CK1 connect_to AND1.I1;
 SW1 connect_to AND1.I2;
