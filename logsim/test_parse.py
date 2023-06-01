@@ -195,6 +195,7 @@ def test_parse_keywords_connect(parse_check_keywords):
 
 
 def test_parse_init(parse_check_init):
+    """Test parse_init() parsing the initialisation section."""
     scanner = parse_check_init.scanner
     parse_check_init.device_holder = parse_check_init.init_device_holder()
     parse_check_init.phase = 1
@@ -242,8 +243,24 @@ def test_parse_init(parse_check_init):
 
 
 def test_parse_connect(parse_check_connect):
-    pass
+    """Test parse_connect() parsing the connection section."""
+    # test for device undefined
+    scanner = parse_check_connect.scanner
+    parse_check_connect.device_holder = parse_check_connect.init_device_holder()
+    parse_check_connect.phase = 2
+    parse_check_connect.new_line = True
+    parse_check_connect.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_connect.parse_connect()
+    assert err == parse_check_connect.network.DEVICE_ABSENT
 
+    # test for device input undefined
+    sym = scanner.get_symbol()
+    parse_check_connect.new_line = True
+    parse_check_connect.devices.make_device(sym.id,
+                                        parse_check_connect.devices.SWITCH)
+    parse_check_connect.symbol = sym
+    err, expected_type = parse_check_connect.parse_connect()
+    assert err == None
 
 def test_parse_monitor(parse_check_monitor):
     pass
