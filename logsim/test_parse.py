@@ -302,7 +302,7 @@ def test_parse_monitor(parse_check_monitor):
     """Test parse_monitor() parsing the monitor section"""
     scanner = parse_check_monitor.scanner
     parse_check_monitor.phase = 3
-    parse_check_monitor.names.lookup("AND1")
+    parse_check_monitor.names.lookup(["AND1"])
     sym_id = parse_check_monitor.names.query("AND1")
     parse_check_monitor.devices.make_device(sym_id,
                                         parse_check_monitor.devices.AND, 2)
@@ -316,16 +316,11 @@ def test_parse_monitor(parse_check_monitor):
     err, expected_type = parse_check_monitor.parse_monitor()
     assert err == parse_check_monitor.network.DEVICE_ABSENT
 
-    # test for duplicate monitor point
-    parse_check_monitor.symbol = scanner.get_symbol()
-    parse_check_monitor.parse_monitor()
-    parse_check_monitor.symbol = scanner.get_symbol()
-    parse_check_monitor.parse_monitor()
     parse_check_monitor.symbol = scanner.get_symbol()
     err, expected_type = parse_check_monitor.parse_monitor()
-    assert err == parse_check_monitor.network.DEVICE_ABSENT
+    assert err == None
 
-def test_parse_monitor(parse_check_monitor_dup):
+def test_parse_monitor_dup(parse_check_monitor_dup):
     """Test parse_monitor() parsing the monitor section"""
     scanner = parse_check_monitor_dup.scanner
     parse_check_monitor_dup.phase = 3
