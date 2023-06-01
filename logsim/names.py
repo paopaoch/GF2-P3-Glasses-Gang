@@ -42,18 +42,16 @@ class Names:
         """Initialise names list."""
         self.error_code_count = 0  # how many error codes have been declared
         self.names = []
-        
 
     def unique_error_codes(self, num_error_codes):
         """Return a list of unique integer error codes."""
         if not isinstance(num_error_codes, int):
             raise TypeError("Expected num_error_codes to be an integer.")
         elif num_error_codes < 0:
-            raise ValueError("Expected num_error_codes to be positive.")    
+            raise ValueError("Expected num_error_codes to be positive.")
         self.error_code_count += num_error_codes
         return range(self.error_code_count - num_error_codes,
                      self.error_code_count)
-
 
     def query(self, name_string):
         """Return the corresponding name ID for name_string.
@@ -67,7 +65,6 @@ class Names:
         else:
             return None
 
-
     def lookup(self, name_string_list):
         """Return a list of name IDs for each name string in name_string_list.
 
@@ -75,7 +72,7 @@ class Names:
         """
         if not isinstance(name_string_list, list):
             return TypeError("Input must be a list")
-        
+
         id_list = []
         for name_string in name_string_list:
             if not isinstance(name_string, str):
@@ -87,7 +84,6 @@ class Names:
                 else:
                     id_list.append(self.names.index(name_string))
         return id_list
-        
 
     def get_name_string(self, name_id):
         """Return the corresponding name string for name_id.
@@ -96,9 +92,9 @@ class Names:
         """
         if not isinstance(name_id, int):
             raise TypeError("Name ID must be an integer")
-        
+
         if name_id < 0:
-            raise ValueError("Name ID must be postitive")       
+            raise ValueError("Name ID must be postitive")
         try:
             return self.names[name_id]
         except IndexError:
