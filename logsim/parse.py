@@ -156,14 +156,16 @@ class Parser:
         self.expect_type = self.scanner.SEMICOLON
 
     def handle_error(self, error_code, error_type, 
-                     front=False, start_of_sen=False, behind=False):
+                     front=False, start_of_sen=False, 
+                     behind=False, optional_mess=""):
         """Function to show the error"""
         self.scanner.error.error_code = error_code
         print(self.scanner.print_error_message(self.symbol,
                                                error_type, 
                                                front=front, 
                                                start_of_sen=start_of_sen,
-                                               behind=behind))
+                                               behind=behind,
+                                               optional_mess=optional_mess))
 
     def restart_and_get_symbol(self):
         """take the cursor to the start of the file
@@ -182,7 +184,7 @@ class Parser:
         pos = 1
         init_pos = 0
         connect_pos = None
-        monitor_pos = None
+        monitor_pos = 0
         error = False
         if self.symbol.type != self.expect_type:  # Check for INIT
             self.scanner.restart()
@@ -205,48 +207,63 @@ class Parser:
                     monitor_pos = pos
             pos += 1
 
+        # check for INIT
         if init_pos == 0:
             self.restart_and_get_symbol()
             self.handle_error(self.scanner.error.MISS_START_MARK,
-                              self.scanner.error.SYNTAX, start_of_sen=True)
+                              self.scanner.error.SYNTAX, 
+                              start_of_sen=True,
+                              optional_mess="INIT")
             error = True
+        # check for CONNECT
         if connect_pos is None:
             self.restart_and_get_symbol()
             while (self.symbol.type != self.scanner.MONITOR 
                     and self.symbol.type != self.scanner.EOF):
                 self.symbol = self.scanner.get_symbol()
             self.handle_error(self.scanner.error.MISS_START_MARK,
-                              self.scanner.error.SYNTAX)
-            error = True
-        if monitor_pos is None:
-            self.restart_and_get_symbol()
-            while self.symbol.type != self.scanner.EOF:
-                self.symbol = self.scanner.get_symbol()
-            self.handle_error(self.scanner.error.MISS_START_MARK,
-                              self.scanner.error.SYNTAX)
+                              self.scanner.error.SYNTAX,
+                              optional_mess="CONNECT")
             error = True
 
+        # check for MONITOR - Deprecated
+        # if monitor_pos is None:
+        #     self.restart_and_get_symbol()
+        #     while self.symbol.type != self.scanner.EOF:
+        #         self.symbol = self.scanner.get_symbol()
+        #     self.handle_error(self.scanner.error.MISS_START_MARK,
+        #                       self.scanner.error.SYNTAX)
+        #     error = True
+
+        # Check for INIT sentence
         if connect_pos is not None:
             if connect_pos - init_pos < 2:
                 self.restart_and_get_symbol()
                 self.handle_error(self.scanner.error.MISS_DESCRIPTION,
-                                  self.scanner.error.SYNTAX)
+                                  self.scanner.error.SYNTAX,
+                                  optional_mess="for INIT")
                 error = True
-        if connect_pos is not None and monitor_pos is not None:
+        
+        # Check for CONNECT sentence
+        if connect_pos is not None:
             if monitor_pos - connect_pos < 3:
                 self.restart_and_get_symbol()
                 while self.symbol.type != self.scanner.CONNECT:
                     self.symbol = self.scanner.get_symbol()
                 self.handle_error(self.scanner.error.MISS_DESCRIPTION,
-                                  self.scanner.error.SYNTAX)
+                                  self.scanner.error.SYNTAX,
+                                  optional_mess="for CONNECT")
                 error = True
-        if monitor_pos is not None:
+
+        # Check for monitoring sentence
+        if monitor_pos != 0:
             if pos - monitor_pos < 4:
                 self.restart_and_get_symbol()
                 while self.symbol.type != self.scanner.MONITOR:
                     self.symbol = self.scanner.get_symbol()
                 self.handle_error(self.scanner.error.MISS_DESCRIPTION,
-                                  self.scanner.error.SYNTAX)
+                                  self.scanner.error.SYNTAX,
+                                  optional_mess="for MONITOR")
                 error = True
         self.restart_and_get_symbol()
         if error:
@@ -347,9 +364,14 @@ class Parser:
                         self.go_to_next_sentece()
                         return True, False
             else:
-                self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
+                if self.expect_type == self.scanner.EOF:
+                    optional_mess = "EOF"
+                else:
+                    optional_mess = ""
+                self.handle_error(self.scanner.error.MONITOR_MISS_KEYWORD,
                                         self.scanner.error.SYNTAX,
-                                        front=True)
+                                        front=True,
+                                        optional_mess=optional_mess)
                 self.go_to_next_sentece()
                 return True, False
 
@@ -386,6 +408,7 @@ class Parser:
                 if self.expect_type == self.scanner.DEVICE_OUT:
                     if self.symbol.type == self.scanner.SEMICOLON:
                         self.expect_type = self.scanner.EOF
+                        self.new_line = True
                         return True, False
                     elif self.symbol.type != self.scanner.DEVICE_NAME:
                         self.handle_error(
