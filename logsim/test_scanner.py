@@ -82,7 +82,7 @@ def test_report_invalid_comment(scanner_example_2):
     scanner_example_2.get_symbol()
     scanner_example_2.get_symbol()
     scanner_example_2.get_symbol()
-    assert (scanner_example_2.error.error_code 
+    assert (scanner_example_2.error.error_code
             == scanner_example_2.error.INVALID_COMMENT)
 
 
@@ -100,9 +100,9 @@ def test_get_line_position(scanner_example_1):
 
 def test_get_pointer(scanner_example_3):
     """Test if get_pointer() return a correct pointer.
-    
+
     The pointer message returned should be the whole line where
-    the symbol is located, with the pointer points to the end 
+    the symbol is located, with the pointer points to the end
     character of that symbol.
     """
     scanner_example_3.get_symbol()
@@ -114,9 +114,9 @@ def test_get_pointer(scanner_example_3):
 
 def test_get_pointer_front(scanner_example_3):
     """Test if get_pointer(front=True) return a correct pointer.
-    
+
     The pointer message returned should be the whole line where
-    the symbol is located, with the pointer points to the start 
+    the symbol is located, with the pointer points to the start
     character of that symbol.
     """
     for i in range(7):
@@ -128,9 +128,9 @@ def test_get_pointer_front(scanner_example_3):
 
 def test_get_pointer_start(scanner_example_3):
     """Test if get_pointer(start_of_sen=True) return a correct pointer.
-    
+
     The pointer message returned should be the whole line where
-    the symbol is located, with the pointer points to the start 
+    the symbol is located, with the pointer points to the start
     of the whole sentence.
     """
     scanner_example_3.get_symbol()
@@ -142,13 +142,13 @@ def test_get_pointer_start(scanner_example_3):
 
 def test_get_pointer_behind(scanner_example_3):
     """Test if get_pointer(behind=True) return a correct pointer.
-    
+
     The pointer message returned should be the whole line where
     the symbol is located, with the pointer points to the symbol
     before.
     """
     scanner_example_3.get_symbol()
-    sym = scanner_example_3.get_symbol()    #sym is semicolon
+    sym = scanner_example_3.get_symbol()    # sym is semicolon
     pointer_msg = scanner_example_3.get_pointer(sym, behind=True)
     # pointer points to INIT
     assert pointer_msg == "INIT; d1 is DTYPE;" + '\n' + "   ^"
@@ -156,7 +156,7 @@ def test_get_pointer_behind(scanner_example_3):
 
 def test_print_error_message(scanner_example_3):
     """Test if print_error_message return a correct message.
-    
+
     The error message returned should include the line number,
     the line sentence, the pointer points to correct position,
     and a specific error sentence.
@@ -168,9 +168,8 @@ def test_print_error_message(scanner_example_3):
     error = scanner_example_3.error
     error.error_code = error.INIT_WRONG_NAME
     msg = scanner_example_3.print_error_message(sym, error_type)
-    
-    assert msg == ("Error in line: 1" 
-                    + '\n' + "INIT; d1 is DTYPE;" 
-                    + '\n' + "       ^" + '\n' 
-                    + "SYNTAX[Invalid Initialisation]: Invalid device name ")
 
+    assert msg == ("Error in line: 1"
+                    + '\n' + "INIT; d1 is DTYPE;"
+                    + '\n' + "       ^" + '\n'
+                    + "SYNTAX[Invalid Initialisation]: Invalid device name ")

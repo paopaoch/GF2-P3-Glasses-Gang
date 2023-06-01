@@ -53,6 +53,7 @@ class Scanner:
     names: instance of the names.Names() class.
     devices: instance of the devices.Devices() class.
     network: instance of the network.Network() class.
+    monitors: instance of the monitors.Monitors() class.
 
     Public methods
     -------------
@@ -62,7 +63,7 @@ class Scanner:
 
     get_name(self): Return the alphabetic string may with "_", update
                     the current character to the next non-alphabetic
-                    character. 
+                    character.
 
     get_number(self): Return the numerical string, update the current
                       character to the next non-numerical character.
@@ -74,19 +75,19 @@ class Scanner:
                         report syntax error if invalid comment detected.
 
     get_pointer(self, symbol, front=False, start_of_sen=False, behind=False):
-                        Return pointer message which includes the sentence 
-                        where the symbol located,and a pointer points to the 
+                        Return pointer message which includes the sentence
+                        where the symbol located,and a pointer points to the
                         desired position.
 
-    get_line_position(self, symbol): Return the line number of the 
+    get_line_position(self, symbol): Return the line number of the
                                      symbol located in the file.
 
-    print_error_message(self, symbol, pointer=True, front=False, 
+    print_error_message(self, symbol, pointer=True, front=False,
                         start_of_sen=False, behind=False, optional_mess=""):
                         Return the complete error message which includes the
                         line number, pointer message, and error message.
 
-    get_symbol(self): Translates the next sequence of characters into a 
+    get_symbol(self): Translates the next sequence of characters into a
                       symbol and returns the symbol.
     """
 
@@ -97,7 +98,8 @@ class Scanner:
         try:
             self.file = open(path, "r")
         except IOError:
-            print("Error: can\'t find file, Please check the file path and run again.")
+            print("Error: can\'t find file")
+            print("Please check the file path and run again.")
             sys.exit()
 
         # Set Name instance
@@ -107,22 +109,22 @@ class Scanner:
         self.error = Error(self.names, devices, network, monitors)
 
         # Assign symbol types
-        self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT, 
-                                 self.MONITOR, self.DEVICE_TYPE, 
-                                 self.NUMBER, self.DEVICE_NAME, 
-                                 self.DEVICE_IN, self.DEVICE_OUT, 
-                                 self.INIT_IS, self.INIT_WITH, 
-                                 self.INIT_GATE, self.INIT_SWITCH, 
-                                 self.INIT_CLK, self.CONNECTION, 
-                                 self.INIT_MONITOR, self.SEMICOLON, 
+        self.symbol_type_list = [self.ERROR, self.INIT, self.CONNECT,
+                                 self.MONITOR, self.DEVICE_TYPE,
+                                 self.NUMBER, self.DEVICE_NAME,
+                                 self.DEVICE_IN, self.DEVICE_OUT,
+                                 self.INIT_IS, self.INIT_WITH,
+                                 self.INIT_GATE, self.INIT_SWITCH,
+                                 self.INIT_CLK, self.CONNECTION,
+                                 self.INIT_MONITOR, self.SEMICOLON,
                                  self.EOF] = range(18)
 
         # Add keywords to names
-        self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR', 
+        self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR',
                                  'SWITCH', 'DTYPE', 'CLOCK']
-        self.device_input_pin_list = ['I1', 'I2', 'I3', 'I4', 'I5', 
-                                      'I6', 'I7', 'I8', 'I9', 'I10', 
-                                      'I11', 'I12', 'I13', 'I14', 'I15', 
+        self.device_input_pin_list = ['I1', 'I2', 'I3', 'I4', 'I5',
+                                      'I6', 'I7', 'I8', 'I9', 'I10',
+                                      'I11', 'I12', 'I13', 'I14', 'I15',
                                       'I16', 'DATA', 'CLK', 'SET', 'CLEAR']
         self.device_output_pin_list = ['Q', 'QBAR']
         self.names.lookup(self.device_type_list)
@@ -207,8 +209,8 @@ class Scanner:
             sentence += self.current_char
             end_left = end_right
             end_right = self.current_char
-        if (not (end_left == '*' and end_right == '/') 
-                            and self.invalid_comment is False):
+        if (not (end_left == '*' and end_right == '/')
+                and self.invalid_comment is False):
             self.error.error_code = self.error.INVALID_COMMENT
             sentence = " ".join(sentence.split('\n'))
             sentence = sentence[:3] + " ... " + sentence[-3:]
@@ -220,13 +222,13 @@ class Scanner:
             self.current_char = self.read_file()
         self.skip_spaces_and_linebreaks()
 
-    def get_pointer(self, symbol, front=False, start_of_sen=False, 
+    def get_pointer(self, symbol, front=False, start_of_sen=False,
                     behind=False):
         """Return the pointer message.
 
-        Pointer message includes the sentence where the symbol located, 
-        and a pointer points to the symbol, can eithrt point to the end 
-        of the symbol or front of the symbol or start of the line, or 
+        Pointer message includes the sentence where the symbol located,
+        and a pointer points to the symbol, can eithrt point to the end
+        of the symbol or front of the symbol or start of the line, or
         the symbol before.
         """
         try:
@@ -292,7 +294,7 @@ class Scanner:
             cur_char = f.read(1)
         return line_number
 
-    def print_error_message(self, symbol, error_type, front=False, 
+    def print_error_message(self, symbol, error_type, front=False,
                             start_of_sen=False, behind=False,
                             optional_mess=""):
         """Return the complete error message.
@@ -311,7 +313,7 @@ class Scanner:
             pointer_mes = self.get_pointer(symbol, front, start_of_sen, behind)
             # error_mes = self.error.error_message(error_type, optional_mess)
             error_mes += '\n' + pointer_mes
-            error_mes += '\n' + self.error.error_message(error_type, 
+            error_mes += '\n' + self.error.error_message(error_type,
                                                          optional_mess)
         return error_mes
 
@@ -322,11 +324,11 @@ class Scanner:
         symbol_get = Symbol()
         symbol_string = ""
         # Regex format for device name
-        name_rule = re.compile("\A[A-Z]+\d+$")
+        name_rule = re.compile(r'\A[A-Z]+\d+$')
         # Regex format for device input
-        in_rule = re.compile("\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$")
+        in_rule = re.compile(r'\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$')
         # Regex format for device output
-        out_rule = re.compile("\A[A-Z]+\d+(.(Q|QBAR))?$")
+        out_rule = re.compile(r'\A[A-Z]+\d+(.(Q|QBAR))?$')
         if self.current_char == '':
             symbol_get.type = self.EOF
             symbol_get.pos = self.file.tell()
@@ -392,16 +394,16 @@ class Scanner:
             symbol_get.type = self.INIT_MONITOR
         elif name_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_NAME
-            [symbol_get.id] = self.names.lookup([symbol_string])  
+            [symbol_get.id] = self.names.lookup([symbol_string])
         elif symbol_string.isdigit():
-            symbol_get.type = self.NUMBER 
-            [symbol_get.id] = self.names.lookup([symbol_string])          
+            symbol_get.type = self.NUMBER
+            [symbol_get.id] = self.names.lookup([symbol_string])
         elif in_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_IN
-            [symbol_get.id] = self.names.lookup([symbol_string])   
+            [symbol_get.id] = self.names.lookup([symbol_string])
         elif symbol_string in self.device_type_list:
             symbol_get.type = self.DEVICE_TYPE
-            [symbol_get.id] = self.names.lookup([symbol_string])  
+            [symbol_get.id] = self.names.lookup([symbol_string])
         elif out_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_OUT
             [symbol_get.id] = self.names.lookup([symbol_string])

@@ -2,6 +2,7 @@ import pytest
 
 from names import Names
 
+
 @pytest.fixture
 def default_name():
     """Return a new names instance."""
@@ -40,7 +41,7 @@ def test_initialisation(default_name, error_names, used_names):
     assert default_name.error_code_count == 0
     # Error codes = 3.
     assert error_names.error_code_count == 3
-    
+
 
 def test_unique_error_codes_exceptions(default_name):
     """Test if unique_error_codes raises expected exceptions."""
@@ -86,8 +87,7 @@ def test_query(default_name, used_names, name_string, name_id):
 
 @pytest.mark.parametrize(
     "name_id, names_list",
-     [([0, 1, 2], ["A1", "B12", "C7"])],
-)
+    [([0, 1, 2], ["A1", "B12", "C7"])])
 def test_lookup(used_names, name_id, names_list):
     """Test if lookup returns a list of name_id"""
     # look up present names
@@ -115,4 +115,3 @@ def test_get_name_string(used_names, default_name, name_id, expected_string):
     assert used_names.get_name_string(name_id) == expected_string
     # Name is absent
     assert default_name.get_name_string(name_id) is None
-    
