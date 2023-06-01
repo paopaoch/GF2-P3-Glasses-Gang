@@ -33,20 +33,27 @@ class Error:
         self.monitors = monitors
         self.error_type_list = [self.SYNTAX, self.SEMANTIC] = range(2)
         self.error_code = None
-        self.syntax_error_list = [self.INIT_MISS_KEYWORD, 
-                                  self.INIT_WRONG_NAME,
-                                  self.INIT_WRONG_SET, 
-                                  self.CONNECT_MISS_KEYWORD,
-                                  self.CONNECT_WRONG_IO,
-                                  self.MONITOR_MISS_KEYWORD,
-                                  self.MONITOR_WRONG_POINT,
-                                  self.MISS_DESCRIPTION,
-                                  self.MISS_START_MARK,
-                                  self.MISS_TERMINATION,
-                                  self.KEYWORD_NOT_FOUND,
-                                  self.INVALID_COMMENT] = self.names.unique_error_codes(12)
+        self.syntax_error_list = [
+            self.INIT_MISS_KEYWORD, 
+            self.INIT_WRONG_NAME,
+            self.INIT_WRONG_SET, 
+            self.CONNECT_MISS_KEYWORD,
+            self.CONNECT_WRONG_IO,
+            self.MONITOR_MISS_KEYWORD,
+            self.MONITOR_WRONG_POINT,
+            self.MISS_DESCRIPTION,
+            self.MISS_START_MARK,
+            self.MISS_TERMINATION,
+            self.KEYWORD_NOT_FOUND,
+            self.INVALID_COMMENT
+        ] = self.names.unique_error_codes(12)
     
-        #self.semantic_error_list = [] = self.names.unique_error_codes()
+        self.extra_sematic_error_list=[
+            self.NOT_CLOCK_TO_CLK,
+            self.OSCILLATE,
+            self.UNUSED_INPUTS
+        ] = self.names.unique_error_codes(3)
+
         self.syntax_error_count = 0
         self.semantic_error_count = 0
 
@@ -116,6 +123,14 @@ class Error:
                 error_mes = f"SEMANTIC[REFERENCE]: Referencing to an nonexisting port {optional_mess}"
             elif self.error_code == self.monitors.MONITOR_PRESENT:
                 error_mes = f"SEMANTIC[REFERENCE]: Referencing monitor port more than once {optional_mess}"
+        
+            elif self.error_code == self.NOT_CLOCK_TO_CLK:
+                error_mes = f"SEMANTIC[CONNECT]: The input CLK of a dtype is not connected to CLOCK {optional_mess}"
+            elif self.error_code == self.OSCILLATE:
+                error_mes = f"SEMANTIC[CONNECT]: There is a loop in the circuit. The circuit oscillates {optional_mess}"
+            elif self.error_code == self.UNUSED_INPUTS:
+                error_mes = f"SEMANTIC[CONNECT]: There are unused inputs {optional_mess}"
+        
         self.add_error(error_type)
         return error_mes
         

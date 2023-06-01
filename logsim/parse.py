@@ -186,12 +186,12 @@ class Parser:
             self.scanner.restart()
             error = True
         else:
-            init_pos = 1
+            init_pos = pos
 
         # Loop through file for crude checking of file structure
         while self.symbol.type != self.scanner.EOF:
             self.symbol = self.scanner.get_symbol()
-            pos += 1
+            
             if self.symbol.type == self.scanner.CONNECT:
                 if self.phase == 1:
                     self.phase = 2
@@ -201,6 +201,7 @@ class Parser:
                 if self.phase in [1,2]:
                     self.phase = 3
                     monitor_pos = pos
+            pos += 1
 
         if init_pos == 0:
             self.restart_and_get_symbol()
@@ -213,7 +214,7 @@ class Parser:
                     and self.symbol.type != self.scanner.EOF):
                 self.symbol = self.scanner.get_symbol()
             self.handle_error(self.scanner.error.MISS_START_MARK,
-                              self.scanner.error.SYNTAX, front=True)
+                              self.scanner.error.SYNTAX)
             error = True
         if monitor_pos is None:
             self.restart_and_get_symbol()
@@ -224,7 +225,7 @@ class Parser:
             error = True
 
         if connect_pos is not None:
-            if connect_pos - init_pos < 3:
+            if connect_pos - init_pos < 2:
                 self.restart_and_get_symbol()
                 self.handle_error(self.scanner.error.MISS_DESCRIPTION,
                                   self.scanner.error.SYNTAX)
@@ -238,7 +239,7 @@ class Parser:
                                   self.scanner.error.SYNTAX)
                 error = True
         if monitor_pos is not None:
-            if pos - monitor_pos < 3:
+            if pos - monitor_pos < 4:
                 self.restart_and_get_symbol()
                 while self.symbol.type != self.scanner.MONITOR:
                     self.symbol = self.scanner.get_symbol()
@@ -271,15 +272,16 @@ class Parser:
                                     self.scanner.error.SYNTAX,
                                     front=True)
             while self.symbol.type != self.scanner.SEMICOLON:
-                self.symbol = self.scanner.get_symbol()
                 if self.phase == 1:
                     if self.symbol.type == self.scanner.CONNECT:
+                        self.increment_phase()
+                        print("phase incr")
                         break
                 elif self.phase == 2:
                     if self.symbol.type == self.scanner.MONITOR:
-                        break
-                # self.symbol = self.scanner.get_symbol() # Dont think we need this
-            self.increment_phase()
+                        self.increment_phase()
+                        break    
+                self.symbol = self.scanner.get_symbol()
             self.go_to_next_sentece()
             return self.scanner.error.MISS_TERMINATION
         else:
@@ -302,7 +304,6 @@ class Parser:
                     ,self.connection_holder["second_device_id"]
                     ,self.connection_holder["second_port_id"])
                 self.connection_holder = self.init_connection_holder()
-                # print(err)
                 if err != self.network.NO_ERROR:
                     self.handle_error(err,
                                       self.scanner.error.SEMANTIC,
@@ -314,7 +315,6 @@ class Parser:
         if self.new_line:
             if self.phase == 1:
                 if self.symbol.type == self.scanner.CONNECT:
-                    print("DONE WITH INIT")
                     self.increment_phase()
                     return True, False
                 elif self.expect_type == self.scanner.DEVICE_NAME:
@@ -330,7 +330,6 @@ class Parser:
                     return True, False
             if self.phase == 2:
                 if self.symbol.type == self.scanner.MONITOR:
-                    print("DONE WITH CONNECT")
                     self.increment_phase()
                     return True, False
             
@@ -341,7 +340,10 @@ class Parser:
                         self.go_to_next_sentece()
                         return True, False
             else:
-                print("SYNTAX[Invalid Monitor]: Missing keywords")
+                self.handle_error(self.scanner.error.INIT_MISS_KEYWORD,
+                                        self.scanner.error.SYNTAX)
+                # self.expect_type = self.scanner.DEVICE_OUT
+                print(self.expect_type, self.symbol.type)
                 self.go_to_next_sentece()
                 return True, False
 
@@ -506,8 +508,8 @@ class Parser:
                                         self.scanner.error.SEMANTIC)
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
-                    
                     return self.network.DEVICE_ABSENT, self.expect_type
+                
             else:
                 if self.devices.get_device(self.symbol.id) is not None:
                     self.connection_holder["first_device_id"] = self.symbol.id
@@ -518,6 +520,7 @@ class Parser:
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                     return self.network.DEVICE_ABSENT, self.expect_type
+                
             self.expect_type = self.scanner.CONNECTION
             self.new_line = False
 
@@ -525,11 +528,25 @@ class Parser:
             if self.symbol.type == self.scanner.CONNECTION:
                 self.expect_type = self.scanner.DEVICE_IN
             if self.symbol.type == self.scanner.DEVICE_IN:
+                self.expect_type = self.scanner.SEMICOLON
                 input_name = self.names.get_name_string(self.symbol.id)
                 gate_name, input = input_name.split(".")
+                # Check clock input to Dtype clock
+                device_id = self.names.query(gate_name)
+                device = self.devices.get_device(device_id)
+                if device is not None:
+                    if (device.device_kind == self.devices.D_TYPE
+                        and input == "CLK"):
+                        first_device = self.devices.get_device(
+                            self.connection_holder["first_device_id"])
+                        if (first_device.device_kind
+                            != self.devices.CLOCK):
+                            self.handle_error(self.scanner.error.NOT_CLOCK_TO_CLK,
+                                            self.scanner.error.SEMANTIC)
+
                 self.connection_holder["second_device_id"] = self.names.query(gate_name)
                 self.connection_holder["second_port_id"] = self.names.query(input)
-                self.expect_type = self.scanner.SEMICOLON
+                
 
         return err, self.expect_type
 
@@ -552,10 +569,17 @@ class Parser:
             return err, self.expect_type
         return None, self.expect_type
 
+    def print_end_message(self):
+        print("Failed to compile definition file")
+        print("Syntax error count:", self.scanner.error.syntax_error_count)
+        print("Semantic error count:", 
+                self.scanner.error.semantic_error_count)
+
     def parse_network(self):
         """Parse the circuit definition file."""
 
         if not self.check_structure():
+            self.print_end_message()
             return False
         self.expect_type = self.scanner.SEMICOLON
         self.sentence_type = None
@@ -570,7 +594,7 @@ class Parser:
             self.symbol = self.scanner.get_symbol()
             if self.symbol.type == self.scanner.EOF:
                 if self.expect_type == self.scanner.EOF:
-                    print("DONE WITH MONITOR")
+                    pass
                 else:
                     if self.phase == 3:
                         self.handle_error(self.scanner.error.MISS_TERMINATION,
@@ -626,15 +650,33 @@ class Parser:
             elif self.phase == 3:
                 self.parse_monitor()
 
-        return True
-
+        if (self.scanner.error.semantic_error_count == 0
+            and self.scanner.error.syntax_error_count == 0):
+            # Check if all inputs are connected
+            if self.network.check_network():
+                # Check if net work oscillate
+                if self.network.execute_network():
+                    return True
+                else:
+                    self.restart_and_get_symbol()
+                    self.handle_error(self.scanner.error.OSCILLATE,
+                                self.scanner.error.SEMANTIC)
+                    return False
+            else:
+                self.restart_and_get_symbol()
+                self.handle_error(self.scanner.error.UNUSED_INPUTS,
+                                self.scanner.error.SEMANTIC)
+                return False
+        else:
+            self.print_end_message()
+            return False
 
 if __name__ == "__main__":
     names = Names()
     devices = Devices(names)
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
-    scanner = Scanner('parser_test_file.txt', names, devices, network)
+    scanner = Scanner('parser_test_file.txt', names, devices, network, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
 
