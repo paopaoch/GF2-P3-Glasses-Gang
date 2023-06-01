@@ -172,7 +172,8 @@ class Parser:
 
     def check_structure(self):
         """Check if for structural errors in the files.
-        this includes missing start mark eg. CONNECT
+        this includes missing start mark and it's
+        coresponding semicolon eg. CONNECT
         and missing sentences in phases"""
         self.symbol = self.scanner.get_symbol()
         self.expect_type = self.scanner.INIT
@@ -591,6 +592,7 @@ class Parser:
         self.new_line = False
 
         while True:
+            print(self.phase)
             self.symbol = self.scanner.get_symbol()
             if self.symbol.type == self.scanner.EOF:
                 if self.expect_type == self.scanner.EOF:
