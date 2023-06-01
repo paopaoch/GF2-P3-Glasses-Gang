@@ -195,6 +195,7 @@ def test_parse_keywords_connect(parse_check_keywords):
 
 
 def test_parse_init(parse_check_init):
+    """Test parse_init() parsing the initialisation section."""
     scanner = parse_check_init.scanner
     parse_check_init.device_holder = parse_check_init.init_device_holder()
     parse_check_init.phase = 1
@@ -242,11 +243,56 @@ def test_parse_init(parse_check_init):
 
 
 def test_parse_connect(parse_check_connect):
-    pass
+    """Test parse_connect() parsing the connection section."""
+    # test for device undefined
+    scanner = parse_check_connect.scanner
+    parse_check_connect.connection_holder = parse_check_connect.init_connection_holder()
+    parse_check_connect.phase = 2
+    parse_check_connect.new_line = True
+    parse_check_connect.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_connect.parse_connect()
+    assert err == parse_check_connect.network.DEVICE_ABSENT
 
+    # test for device input undefined
+    sym = scanner.get_symbol()
+    parse_check_connect.new_line = True
+    parse_check_connect.devices.make_device(sym.id,
+                                        parse_check_connect.devices.SWITCH, 0)
+    parse_check_connect.symbol = sym
+    parse_check_connect.parse_connect()
+    parse_check_connect.symbol = scanner.get_symbol()
+    parse_check_connect.parse_connect()
+    parse_check_connect.symbol = scanner.get_symbol()
+    parse_check_connect.parse_connect()
+    parse_check_connect.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_connect.parse_connect()
+    assert err == parse_check_connect.network.PORT_ABSENT
 
 def test_parse_monitor(parse_check_monitor):
-    pass
+    """Test parse_monitor() parsing the monitor section"""
+    scanner = parse_check_monitor.scanner
+    parse_check_monitor.phase = 3
+    parse_check_monitor.names.lookup("AND1")
+    sym_id = parse_check_monitor.names.query("AND1")
+    parse_check_monitor.devices.make_device(sym_id,
+                                        parse_check_monitor.devices.AND, 2)
+    parse_check_monitor.new_line = True
+    # test for invalid monitor point
+    for i in range(2):
+        scanner.get_symbol()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    parse_check_monitor.parse_monitor()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_monitor.parse_monitor()
+    assert err == scanner.error.MONITOR_WRONG_POINT
+
+    # test for duplicate monitor point
+    parse_check_monitor.symbol = scanner.get_symbol()
+    parse_check_monitor.parse_monitor()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    parse_check_monitor.parse_monitor()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    parse_check_monitor.parse_monitor()
 
 
 def test_parse_network(parse_check_network):
