@@ -1,0 +1,2 @@
+INIT; CLOCK1 is CLOCK with_simulation_cycles 6; XOR1 is XOR; CONNECT;
+CLOCK1 connect_to XOR1.I1;
