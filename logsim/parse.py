@@ -247,14 +247,24 @@ class Parser:
         
         # Check for CONNECT sentence
         if connect_pos is not None:
-            if abs(monitor_pos - connect_pos) < 3:
-                self.restart_and_get_symbol()
-                while self.symbol.type != self.scanner.CONNECT:
-                    self.symbol = self.scanner.get_symbol()
-                self.handle_error(self.scanner.error.MISS_DESCRIPTION,
-                                  self.scanner.error.SYNTAX,
-                                  optional_mess="for CONNECT")
-                error = True
+            if monitor_pos == 0:
+                if pos - connect_pos < 4:
+                    self.restart_and_get_symbol()
+                    while self.symbol.type != self.scanner.CONNECT:
+                        self.symbol = self.scanner.get_symbol()
+                    self.handle_error(self.scanner.error.MISS_DESCRIPTION,
+                                        self.scanner.error.SYNTAX,
+                                        optional_mess="for CONNECT")
+                    error = True
+            else:
+                if monitor_pos - connect_pos < 3:
+                    self.restart_and_get_symbol()
+                    while self.symbol.type != self.scanner.CONNECT:
+                        self.symbol = self.scanner.get_symbol()
+                    self.handle_error(self.scanner.error.MISS_DESCRIPTION,
+                                    self.scanner.error.SYNTAX,
+                                    optional_mess="for CONNECT")
+                    error = True
 
         # Check for monitoring sentence
         if monitor_pos != 0:
@@ -407,6 +417,16 @@ class Parser:
                 return True, False
             elif self.phase == 3:
                 if self.expect_type == self.scanner.DEVICE_OUT:
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        if self.monitors.monitors_dictionary == {}:
+                            self.handle_error(
+                                self.scanner.error.MONITOR_MISS_KEYWORD,
+                                self.scanner.error.SYNTAX,
+                                front=True)
+                            return False, True
+                        else:
+                            self.expect_type = self.scanner.EOF
+                            return True, False
                     if self.symbol.type == self.scanner.DEVICE_NAME:
                         return False, False
                     else:
