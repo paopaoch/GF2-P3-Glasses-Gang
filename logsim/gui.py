@@ -358,14 +358,14 @@ class Gui(wx.Frame):
         # Configure the file menu
         fileMenu = wx.Menu()
         menuBar = wx.MenuBar()
-        fileMenu.Append(wx.ID_ABOUT, "&About")
-        fileMenu.Append(wx.ID_EXIT, "&Exit")
-        menuBar.Append(fileMenu, "&File")
+        fileMenu.Append(wx.ID_ABOUT, _(u"&About"))
+        fileMenu.Append(wx.ID_EXIT, _(u"&Exit"))
+        menuBar.Append(fileMenu, _(u"&File"))
 
         # Configure the Help menu
         help_menu = wx.Menu()
-        help_menu.Append(wx.ID_HELP_COMMANDS, _("&Help Commands"))
-        menuBar.Append(help_menu, _("&Help"))
+        help_menu.Append(wx.ID_HELP_COMMANDS, _(u"&Help Commands"))
+        menuBar.Append(help_menu, _(u"&Help"))
 
         self.SetMenuBar(menuBar)
 
