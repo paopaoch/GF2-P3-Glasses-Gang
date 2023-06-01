@@ -244,7 +244,7 @@ def test_parse_init(parse_check_init):
 
 def test_parse_connect(parse_check_connect):
     """Test parse_connect() parsing the connection section."""
-    # test for device undefined
+    # test for device output undefined
     scanner = parse_check_connect.scanner
     parse_check_connect.connection_holder = parse_check_connect.init_connection_holder()
     parse_check_connect.phase = 2
@@ -253,11 +253,26 @@ def test_parse_connect(parse_check_connect):
     err, expected_type = parse_check_connect.parse_connect()
     assert err == parse_check_connect.network.DEVICE_ABSENT
 
-    # test for device input undefined
+    # test for dtype.CLK
+    parse_check_connect.names.lookup("D1")
+    sym_id = parse_check_connect.names.query("D1")
+    parse_check_connect.devices.make_device(sym_id,
+                                        parse_check_connect.devices.D_TYPE)
+    parse_check_connect.names.lookup("SW1")
+    sym_id = parse_check_connect.names.query("SW1")
+    parse_check_connect.devices.make_device(sym_id,
+                                        parse_check_connect.devices.CLOCK)
+    parse_check_connect.names.lookup("SW2")
+    sym_id = parse_check_connect.names.query("SW2")
+    parse_check_connect.devices.make_device(sym_id,
+                                        parse_check_connect.devices.SWITCH)
+    parse_check_connect.names.lookup("SW3")
+    sym_id = parse_check_connect.names.query("SW3")
+    parse_check_connect.devices.make_device(sym_id,
+                                        parse_check_connect.devices.SWITCH)                 
     sym = scanner.get_symbol()
     parse_check_connect.new_line = True
-    parse_check_connect.devices.make_device(sym.id,
-                                        parse_check_connect.devices.SWITCH, 0)
+
     parse_check_connect.symbol = sym
     parse_check_connect.parse_connect()
     parse_check_connect.symbol = scanner.get_symbol()
