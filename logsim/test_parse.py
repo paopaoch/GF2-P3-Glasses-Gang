@@ -293,6 +293,28 @@ def test_parse_init(parse_check_init):
     err, expect_type = parse_check_init.parse_init()
     assert err == parse_check_init.devices.DEVICE_PRESENT
 
+    # parse raise error INVALID_QUALIFIER for AND gate
+    parse_check_init.new_line = True
+    err, expect_type = parse_check_init.parse_init()
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err is None, expect_type == scanner.INIT_IS
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err is None, expect_type == scanner.DEVICE_TYPE
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err is None, expect_type == scanner.INIT_WITH
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err is None, expect_type == scanner.NUMBER
+
+    parse_check_init.symbol = scanner.get_symbol()
+    err, expect_type = parse_check_init.parse_init()
+    assert err == parse_check_init.devices.INVALID_QUALIFIER
 
 def test_parse_connect(parse_check_connect):
     """Test parse_connect() parsing the connection section."""

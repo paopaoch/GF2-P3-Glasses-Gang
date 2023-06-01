@@ -101,7 +101,7 @@ class Error:
             elif self.error_code == self.devices.NO_QUALIFIER: # Check for the whether the number exists
                 error_mes = f"SEMANTIC[INIT]: No quaifier inputed {optional_mess}"
             elif self.error_code == self.devices.BAD_DEVICE:
-                error_mes = f"SEMANTIC[INIT]: Bad device {optional_mess}" # Dunno what this is
+                error_mes = f"SEMANTIC[INIT]: Bad device {optional_mess}"
             elif self.error_code == self.devices.QUALIFIER_PRESENT:
                 error_mes = f"SEMANTIC[INIT]: Qualfier given but not expected {optional_mess}" # Check
             elif self.error_code == self.devices.DEVICE_PRESENT:
