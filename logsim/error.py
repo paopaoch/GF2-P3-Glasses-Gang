@@ -127,7 +127,7 @@ class Error:
             elif self.error_code == self.NOT_CLOCK_TO_CLK:
                 error_mes = f"SEMANTIC[CONNECT]: The input CLK of a dtype is not connected to CLOCK {optional_mess}"
             elif self.error_code == self.OSCILLATE:
-                error_mes = f"SEMANTIC[CONNECT]: There is a loop in the circuit. The circuit oscillates {optional_mess}"
+                error_mes = f"SEMANTIC[CONNECT]: A loop in the circuit cannot be resolve. The circuit oscillates {optional_mess}"
             elif self.error_code == self.UNUSED_INPUTS:
                 error_mes = f"SEMANTIC[CONNECT]: There are unused inputs {optional_mess}"
         

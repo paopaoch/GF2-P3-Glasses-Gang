@@ -246,7 +246,7 @@ class Parser:
         
         # Check for CONNECT sentence
         if connect_pos is not None:
-            if monitor_pos - connect_pos < 3:
+            if abs(monitor_pos - connect_pos) < 3:
                 self.restart_and_get_symbol()
                 while self.symbol.type != self.scanner.CONNECT:
                     self.symbol = self.scanner.get_symbol()
@@ -707,7 +707,7 @@ if __name__ == "__main__":
     devices = Devices(names)
     network = Network(names, devices)
     monitors = Monitors(names, devices, network)
-    scanner = Scanner('parser_test_file.txt', names, devices, network, monitors)
+    scanner = Scanner('parse_test_files/check_network_oscillate.txt', names, devices, network, monitors)
 
     test_parser = Parser(names, devices, network, monitors, scanner)
     test_parser.parse_network()
