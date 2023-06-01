@@ -44,9 +44,10 @@ def parse_check_structure_invalid_start_mark():
     scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
 
+
 @pytest.fixture
 def parse_check_structure_miss_sentence():
-    """Return a Parser instance using 'check_structure_invalid_sentence.txt'."""
+    """Return a Parser instance using 'check_structure_invalid_sentence.txt'"""
     names = Names()
     devices = Devices(names)
     network = Network(names, devices)
@@ -54,6 +55,7 @@ def parse_check_structure_miss_sentence():
     path = 'parse_test_files/check_structure_invalid_sentence.txt'
     scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
+
 
 @pytest.fixture
 def parse_check_semicolon():
@@ -64,7 +66,7 @@ def parse_check_semicolon():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_semicolon.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner) 
+    return Parser(names, devices, network, monitors, scanner)
 
 
 @pytest.fixture
@@ -76,7 +78,7 @@ def parse_check_keywords():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_keywords.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner) 
+    return Parser(names, devices, network, monitors, scanner)
 
 
 @pytest.fixture
@@ -88,7 +90,7 @@ def parse_check_init():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_init.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner) 
+    return Parser(names, devices, network, monitors, scanner)
 
 
 @pytest.fixture
@@ -100,7 +102,7 @@ def parse_check_connect():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_connect.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner) 
+    return Parser(names, devices, network, monitors, scanner)
 
 
 @pytest.fixture
@@ -113,6 +115,7 @@ def parse_check_monitor():
     path = 'parse_test_files/check_monitor.txt'
     scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
+
 
 @pytest.fixture
 def parse_check_monitor_dup():
@@ -135,7 +138,8 @@ def parse_check_network():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_network.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner)  
+    return Parser(names, devices, network, monitors, scanner)
+
 
 @pytest.fixture
 def parse_check_oscillate():
@@ -146,7 +150,8 @@ def parse_check_oscillate():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_network_oscillate.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner)  
+    return Parser(names, devices, network, monitors, scanner)
+
 
 @pytest.fixture
 def parse_check_unused():
@@ -157,7 +162,7 @@ def parse_check_unused():
     monitors = Monitors(names, devices, network)
     path = 'parse_test_files/check_network_unused.txt'
     scanner = Scanner(path, names, devices, network, monitors)
-    return Parser(names, devices, network, monitors, scanner)  
+    return Parser(names, devices, network, monitors, scanner)
 
 
 def test_go_to_next_sentence(parse_check_next_sentence):
@@ -187,6 +192,7 @@ def test_parse_structure_invalid(parse_check_structure_invalid_start_mark):
     scanner = parse_check_structure_invalid_start_mark.scanner
     # The error is missing start mark
     assert scanner.error.error_code == scanner.error.MISS_START_MARK
+
 
 def test_parse_structure_miss_sentence(parse_check_structure_miss_sentence):
     """Test check_structure() returns False when it's invalid structure"""
@@ -287,8 +293,8 @@ def test_parse_init(parse_check_init):
     for i in range(3):
         scanner.get_symbol()
     parse_check_init.new_line = True
-    parse_check_init.devices.make_device(sym.id, 
-                                    parse_check_init.devices.D_TYPE)
+    parse_check_init.devices.make_device(sym.id,
+                                parse_check_init.devices.D_TYPE)
     parse_check_init.symbol = scanner.get_symbol()
     err, expect_type = parse_check_init.parse_init()
     assert err == parse_check_init.devices.DEVICE_PRESENT
@@ -321,7 +327,7 @@ def test_parse_connect(parse_check_connect):
     parse_check_connect.names.lookup(["SW3"])
     sym_id = parse_check_connect.names.query("SW3")
     parse_check_connect.devices.make_device(sym_id,
-                                        parse_check_connect.devices.SWITCH, 0)                 
+                                        parse_check_connect.devices.SWITCH, 0)
     sym = scanner.get_symbol()
     parse_check_connect.new_line = True
 
@@ -337,7 +343,8 @@ def test_parse_connect(parse_check_connect):
     # test when that it does not raise an error with duplication
     parse_check_connect.symbol = scanner.get_symbol()
     err, expected_type = parse_check_connect.parse_connect()
-    assert err == None
+    assert err is None
+
 
 def test_parse_monitor(parse_check_monitor):
     """Test parse_monitor() parsing the monitor section"""
@@ -346,7 +353,7 @@ def test_parse_monitor(parse_check_monitor):
     parse_check_monitor.names.lookup(["AND1"])
     sym_id = parse_check_monitor.names.query("AND1")
     parse_check_monitor.devices.make_device(sym_id,
-                                        parse_check_monitor.devices.AND, 2)
+                                parse_check_monitor.devices.AND, 2)
     parse_check_monitor.new_line = True
     # test for invalid monitor point
     for i in range(2):
@@ -359,7 +366,8 @@ def test_parse_monitor(parse_check_monitor):
 
     parse_check_monitor.symbol = scanner.get_symbol()
     err, expected_type = parse_check_monitor.parse_monitor()
-    assert err == None
+    assert err is None
+
 
 def test_parse_monitor_dup(parse_check_monitor_dup):
     """Test parse_monitor() parsing the monitor section"""
@@ -368,7 +376,7 @@ def test_parse_monitor_dup(parse_check_monitor_dup):
     parse_check_monitor_dup.names.lookup("D1")
     sym_id = parse_check_monitor_dup.names.query("D1")
     parse_check_monitor_dup.devices.make_device(sym_id,
-                                        parse_check_monitor_dup.devices.D_TYPE)
+                                    parse_check_monitor_dup.devices.D_TYPE)
     parse_check_monitor_dup.new_line = True
     # test for invalid monitor point
     for i in range(2):
@@ -382,6 +390,7 @@ def test_parse_monitor_dup(parse_check_monitor_dup):
     parse_check_monitor_dup.symbol = scanner.get_symbol()
     err, expected_type = parse_check_monitor_dup.parse_monitor()
     assert err == parse_check_monitor_dup.monitors.MONITOR_PRESENT
+
 
 def test_parse_network(parse_check_network):
     """Test parse_network() correctly build circuits"""
@@ -400,6 +409,7 @@ def test_parse_network(parse_check_network):
     network = parse_check_network.network
     assert network.check_network()
 
+
 def test_parse_network_oscillate(parse_check_oscillate):
     """Test parse_network() circuits oscillates"""
     # parser return True for correct description file
@@ -409,6 +419,7 @@ def test_parse_network_oscillate(parse_check_oscillate):
     scanner = parse_check_oscillate.scanner
     # The error is missing start mark
     assert scanner.error.error_code == scanner.error.OSCILLATE
+
 
 def test_parse_network_unused_inputs(parse_check_unused):
     """Test parse_network() circuits oscillates"""
