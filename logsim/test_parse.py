@@ -34,7 +34,7 @@ def parse_check_structure_correct():
 
 
 @pytest.fixture
-def parse_check_structure_invalid():
+def parse_check_structure_invalid_start_mark():
     """Return a Parser instance using 'check_structure_invalid.txt'."""
     names = Names()
     devices = Devices(names)
@@ -44,6 +44,16 @@ def parse_check_structure_invalid():
     scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)
 
+@pytest.fixture
+def parse_check_structure_miss_sentence():
+    """Return a Parser instance using 'check_structure_invalid_sentence.txt'."""
+    names = Names()
+    devices = Devices(names)
+    network = Network(names, devices)
+    monitors = Monitors(names, devices, network)
+    path = 'parse_test_files/check_structure_invalid_sentence.txt'
+    scanner = Scanner(path, names, devices, network, monitors)
+    return Parser(names, devices, network, monitors, scanner)
 
 @pytest.fixture
 def parse_check_semicolon():
@@ -148,13 +158,22 @@ def test_parse_structure_correct(parse_check_structure_correct):
     assert res
 
 
-def test_parse_structure_invalid(parse_check_structure_invalid):
+def test_parse_structure_invalid(parse_check_structure_invalid_start_mark):
     """Test check_structure() returns False when it's invalid structure"""
-    res = parse_check_structure_invalid.check_structure()
+    res = parse_check_structure_invalid_start_mark.check_structure()
     assert not res
-    scanner = parse_check_structure_invalid.scanner
+    scanner = parse_check_structure_invalid_start_mark.scanner
     # The error is missing start mark
     assert scanner.error.error_code == scanner.error.MISS_START_MARK
+
+def test_parse_structure_miss_sentence(parse_check_structure_miss_sentence):
+    """Test check_structure() returns False when it's invalid structure"""
+    res = parse_check_structure_miss_sentence.check_structure()
+    assert not res
+    scanner = parse_check_structure_miss_sentence.scanner
+    # The error is missing sentence
+    print(scanner.error.error_code)
+    assert scanner.error.error_code == scanner.error.MISS_DESCRIPTION
 
 
 def test_parse_semicolon(parse_check_semicolon):
