@@ -97,7 +97,7 @@ class Scanner:
         try:
             self.file = open(path, "r")
         except IOError:
-            print("Error: can\'t find file or read data")
+            print("Error: can\'t find file, Please check the file path and run again.")
             sys.exit()
 
         # Set Name instance
