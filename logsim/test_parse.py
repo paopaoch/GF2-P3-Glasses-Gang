@@ -260,10 +260,26 @@ def test_parse_connect(parse_check_connect):
                                         parse_check_connect.devices.SWITCH)
     parse_check_connect.symbol = sym
     err, expected_type = parse_check_connect.parse_connect()
-    assert err == None
+
 
 def test_parse_monitor(parse_check_monitor):
-    pass
+    """Test parse_monitor() parsing the monitor section"""
+    scanner = parse_check_monitor.scanner
+    parse_check_monitor.phase = 3
+    parse_check_monitor.new_line = True
+    # test for invalid monitor point
+    for i in range(2):
+        scanner.get_symbol()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    parse_check_monitor.parse_monitor()
+    parse_check_monitor.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_monitor.parse_monitor()
+    assert err == scanner.error.MONITOR_WRONG_POINT
+
+    # test for duplicate monitor point
+    parse_check_monitor.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_monitor.parse_monitor()
+    assert err == parse_check_monitor.monitors.MONITOR_PRESENT
 
 
 def test_parse_network(parse_check_network):
