@@ -551,7 +551,8 @@ class Gui(wx.Frame):
         if Id == wx.ID_EXIT:
             self.Close(True)
         if Id == wx.ID_ABOUT:
-            wx.MessageBox("Logic Simulator\nCreated by Mojisola Agboola\n2017",
+            wx.MessageBox("Logic Simulator\nCocreated by Amanda Ge,\n"
+                          "Chulabutra Chuenchoksan, Koko Ishida\n2017",
                           "About Logsim", wx.ICON_INFORMATION | wx.OK)
         if Id == wx.ID_HELP_COMMANDS:
             wx.MessageBox(_("User Commands\n"
