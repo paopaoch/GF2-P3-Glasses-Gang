@@ -232,13 +232,19 @@ class Scanner:
         f.seek(symbol.line_pos)
         sentence = ""
         symbol_pos = symbol.pos - symbol.line_pos
+        space_len = 0
+        last_space_len = 0
         cur_char = f.read(1)
         while cur_char != '\n':
             sentence += cur_char
+            if cur_char == " ":
+                space_len += 1
+            else:
+                last_space_len = space_len
+                space_len = 0
             cur_char = f.read(1)
             if cur_char == '':
                 break
-
         # Create the pointer message
         if start_of_sen or sentence == '':
             pointer_mes = sentence + '\n' + '^'
@@ -247,7 +253,7 @@ class Scanner:
         if not front or symbol.type == self.SEMICOLON:
             pointer = " " * (symbol_pos - 1) + '^'
             if behind and len(pointer) > 1:
-                pointer = pointer[1:]
+                pointer = pointer[last_space_len+1:]
             pointer_mes = sentence + '\n' + pointer
         else:
             symbol_len = 0
@@ -259,7 +265,7 @@ class Scanner:
             else:
                 pointer = " " * (symbol_pos - symbol_len) + '^'
             if behind and len(pointer) > 1:
-                pointer = pointer[1:]
+                pointer = pointer[last_space_len+1:]
             pointer_mes = sentence + '\n' + pointer
         return pointer_mes
 
