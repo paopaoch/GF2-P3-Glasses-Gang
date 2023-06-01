@@ -1,1 +1,0 @@
-INIT; AS2.I2 is_connected_to D1.CLK;
