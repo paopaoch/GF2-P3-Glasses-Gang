@@ -318,9 +318,6 @@ class Gui(wx.Frame):
     on_run_button(self, event): Event handler for when the user clicks the run
                                 button.
 
-    on_clear_button(self, event): Event handler for when the user clicks the
-                                    clear button
-
     on_quit_button(self, event): Event handler for when the user clicks the
                                     quit button.
 
@@ -384,7 +381,7 @@ class Gui(wx.Frame):
         self.spin = wx.SpinCtrl(self, wx.ID_ANY, "10", min=1)
         self.run_button = wx.Button(self, wx.ID_ANY, _(u"Run"))
         self.continue_button = wx.Button(self, wx.ID_ANY, _(u"Continue"))
-        self.clear_button = wx.Button(self, wx.ID_ANY, _(u"Clear"))
+        # self.clear_button = wx.Button(self, wx.ID_ANY, _(u"Clear"))
         self.quit_button = wx.Button(self, wx.ID_ANY, _(u"Quit"))
         self.text_switch = wx.StaticText(self, wx.ID_ANY, _(u"Switch:"),
                                          style=wx.TE_PROCESS_ENTER)
@@ -414,7 +411,7 @@ class Gui(wx.Frame):
         # sizer children for sizer_run
         self.sizer_run.Add(self.run_button, 1, wx.ALL, 5)
         self.sizer_run.Add(self.continue_button, 1, wx.ALL, 5)
-        self.sizer_run.Add(self.clear_button, 1, wx.ALL, 5)
+        # self.sizer_run.Add(self.clear_button, 1, wx.ALL, 5)
         self.sizer_run.Add(self.quit_button, 1, wx.ALL, 5)
 
         # sizer children for sizer_tool
@@ -534,7 +531,7 @@ class Gui(wx.Frame):
         self.spin.Bind(wx.EVT_SPINCTRL, self.on_spin)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
-        self.clear_button.Bind(wx.EVT_BUTTON, self.on_clear_button)
+        # self.clear_button.Bind(wx.EVT_BUTTON, self.on_clear_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         # self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
@@ -599,12 +596,14 @@ class Gui(wx.Frame):
             self.gui_monitors = self.convert_gui_monitors()
             self.canvas.render("", self.cycles_completed, self.gui_monitors)
 
-    def on_clear_button(self, event):
-        """Event handler for when the user clicks the clear button"""
-        # Clear everything
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        GL.glFlush()
-        self.canvas.SwapBuffers()
+    # def on_clear_button(self, event):
+    #     """Event handler for when the user clicks the clear button"""
+    #     # Clear everything
+    #     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    #     GL.glFlush()
+    #     self.canvas.SwapBuffers()
+    #     self.monitors.reset_monitors()
+    #     self.devices.cold_startup()
 
     def on_quit_button(self, event):
         """Event handler for when the user clicks the quit button."""
