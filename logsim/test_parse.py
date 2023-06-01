@@ -148,6 +148,17 @@ def parse_check_oscillate():
     scanner = Scanner(path, names, devices, network, monitors)
     return Parser(names, devices, network, monitors, scanner)  
 
+@pytest.fixture
+def parse_check_unused():
+    """Return a Parser instance using 'check_network_unused.txt'."""
+    names = Names()
+    devices = Devices(names)
+    network = Network(names, devices)
+    monitors = Monitors(names, devices, network)
+    path = 'parse_test_files/check_network_unused.txt'
+    scanner = Scanner(path, names, devices, network, monitors)
+    return Parser(names, devices, network, monitors, scanner)  
+
 
 def test_go_to_next_sentence(parse_check_next_sentence):
     """Test the function go_to_next_sentence() go to the end of sentence."""
@@ -398,3 +409,13 @@ def test_parse_network_oscillate(parse_check_oscillate):
     scanner = parse_check_oscillate.scanner
     # The error is missing start mark
     assert scanner.error.error_code == scanner.error.OSCILLATE
+
+def test_parse_network_unused_inputs(parse_check_unused):
+    """Test parse_network() circuits oscillates"""
+    # parser return True for correct description file
+    res = parse_check_unused.parse_network()
+    assert res is False
+
+    scanner = parse_check_unused.scanner
+    # The error is missing start mark
+    assert scanner.error.error_code == scanner.error.UNUSED_INPUTS
