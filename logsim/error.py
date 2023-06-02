@@ -22,7 +22,8 @@ class Error:
 
     Public methods
     --------------
-    No public methods.
+    error_message(): returns the error message according to the
+                    current error code and type
     """
 
     def __init__(self, names, devices, network, monitors):
@@ -66,6 +67,7 @@ class Error:
             self.semantic_error_count += 1
 
     def error_message(self, error_type, optional_mess=""):
+        """Returns the error message given current the error code and type."""
         if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
         error_mes = ""
@@ -96,14 +98,14 @@ class Error:
                 error_mes = f"SYNTAX[Invalid Comment]: Missing end comment mark '*/' {optional_mess}"
         
         elif error_type == self.SEMANTIC:
-            if self.error_code == self.devices.INVALID_QUALIFIER: # Checks for the number values
+            if self.error_code == self.devices.INVALID_QUALIFIER:
                 error_mes = f"SEMANTIC[INIT]: Device is initialised with wrong qualifier {optional_mess}"
-            elif self.error_code == self.devices.NO_QUALIFIER: # Check for the whether the number exists
+            elif self.error_code == self.devices.NO_QUALIFIER:
                 error_mes = f"SEMANTIC[INIT]: No quaifier inputed {optional_mess}"
             elif self.error_code == self.devices.BAD_DEVICE:
                 error_mes = f"SEMANTIC[INIT]: Bad device {optional_mess}"
             elif self.error_code == self.devices.QUALIFIER_PRESENT:
-                error_mes = f"SEMANTIC[INIT]: Qualfier given but not expected {optional_mess}" # Check
+                error_mes = f"SEMANTIC[INIT]: Qualfier given but not expected {optional_mess}"
             elif self.error_code == self.devices.DEVICE_PRESENT:
                 error_mes = f"SEMANTIC[INIT]: Device is being initialised twice {optional_mess}"
 
@@ -127,7 +129,7 @@ class Error:
             elif self.error_code == self.NOT_CLOCK_TO_CLK:
                 error_mes = f"SEMANTIC[CONNECT]: The input CLK of a dtype is not connected to CLOCK {optional_mess}"
             elif self.error_code == self.OSCILLATE:
-                error_mes = f"SEMANTIC[CONNECT]: A loop in the circuit cannot be resolve. The circuit oscillates {optional_mess}"
+                error_mes = f"SEMANTIC[CONNECT]: The circuit cannot be resolve. Circuit oscillates {optional_mess}"
             elif self.error_code == self.UNUSED_INPUTS:
                 error_mes = f"SEMANTIC[CONNECT]: There are unused inputs {optional_mess}"
         

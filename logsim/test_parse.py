@@ -47,7 +47,7 @@ def parse_check_structure_invalid_start_mark():
 
 @pytest.fixture
 def parse_check_structure_miss_sentence():
-    """Return a Parser instance using 'check_structure_invalid_sentence.txt'"""
+    """Return a Parser instance using check_structure_invalid_sentence.txt'"""
     names = Names()
     devices = Devices(names)
     network = Network(names, devices)
@@ -326,7 +326,8 @@ def test_parse_connect(parse_check_connect):
     """Test parse_connect() parsing the connection section."""
     # test for device output undefined
     scanner = parse_check_connect.scanner
-    parse_check_connect.connection_holder = parse_check_connect.init_connection_holder()
+    parse_check_connect.connection_holder = (parse_check_connect
+                                             .init_connection_holder())
     parse_check_connect.phase = 2
     parse_check_connect.new_line = True
     parse_check_connect.symbol = scanner.get_symbol()
