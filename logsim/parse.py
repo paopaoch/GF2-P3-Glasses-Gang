@@ -621,6 +621,13 @@ class Parser:
                                             self.scanner.error.SEMANTIC)
                             self.connection_holder = (self
                                                 .init_connection_holder())
+                else:
+                    err = self.network.DEVICE_ABSENT
+                    self.handle_error(err,
+                                    self.scanner.error.SEMANTIC)
+                    self.connection_holder = (self
+                                    .init_connection_holder())
+
                 port_id = self.names.query(input)
                 self.connection_holder["second_device_id"] = device_id
                 self.connection_holder["second_port_id"] = port_id
