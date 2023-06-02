@@ -58,6 +58,7 @@ class Error:
         self.syntax_error_count = 0
         self.semantic_error_count = 0
 
+
     def add_error(self, error_type):
         if error_type != self.SYNTAX and error_type !=self.SEMANTIC:
             raise TypeError("there is no error type.")
@@ -65,6 +66,7 @@ class Error:
             self.syntax_error_count += 1
         elif error_type == self.SEMANTIC:
             self.semantic_error_count += 1
+
 
     def error_message(self, error_type, optional_mess=""):
         """Returns the error message given current the error code and type."""

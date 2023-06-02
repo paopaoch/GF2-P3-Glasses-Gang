@@ -127,6 +127,7 @@ class Parser:
         self.error_devices = []  # tracks any devices with errors
         self.current_device = None
 
+
     def set_new_line_word(self):
         """Set the expected type of symbol depending on the phase"""
         if self.phase == 1:
@@ -139,6 +140,7 @@ class Parser:
             raise ValueError("Phase can only be 1, 2, or 3")
         self.new_line = True
 
+
     def go_to_next_sentece(self):
         """Get new symbols until a end of symbol or end of file is reached"""
         while (self.symbol.type != self.scanner.SEMICOLON
@@ -147,10 +149,12 @@ class Parser:
         self.set_new_line_word()
         return self.symbol.type
 
+
     def increment_phase(self):
         self.phase += 1
         self.new_line = False
         self.expect_type = self.scanner.SEMICOLON
+
 
     def handle_error(self, error_code, error_type, 
                      front=False, start_of_sen=False, 
@@ -165,9 +169,11 @@ class Parser:
                                                optional_mess=optional_mess))
         print("\n---------------------------------------------------------\n")
 
+
     def restart_and_get_symbol(self):
         self.scanner.restart()
         self.symbol = self.scanner.get_symbol()
+
 
     def check_structure(self):
         """Check if for structural errors in the files.
@@ -279,11 +285,13 @@ class Parser:
             return False
         return True
 
+
     @staticmethod
     def init_device_holder():
         return {"device_id": None, 
                 "device_kind": None, 
                 "device_property": None}
+
 
     @staticmethod
     def init_connection_holder():
@@ -292,6 +300,7 @@ class Parser:
                 "second_device_id": None,
                 "second_port_id": None}
     
+
     def parse_semicolon(self):
         """Take care of parsing when we expect a semicolon"""
         err = None
@@ -345,6 +354,7 @@ class Parser:
                                       behind=True)
             self.set_new_line_word()
             return err
+
 
     def handle_unexpected_keyword(self):
         """Handles the case when the symbol receive has an unexpected type"""
@@ -416,7 +426,7 @@ class Parser:
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                 return True, False
-            
+
             elif self.phase == 3:
                 if self.expect_type == self.scanner.DEVICE_OUT:
                     if self.symbol.type == self.scanner.SEMICOLON:
@@ -438,6 +448,7 @@ class Parser:
                             front=True)
                         return False, True
         return False, False
+
 
     def parse_init(self):
         """Take care of handling an initialisation sentence
@@ -503,7 +514,7 @@ class Parser:
 
             elif self.symbol.type == self.scanner.INIT_CLK:
                 self.expect_type = self.scanner.NUMBER
-            
+
             elif self.symbol.type == self.scanner.NUMBER:
                 if self.sentence_type == "SWITCH":
                     if (self.names.get_name_string(self.symbol.id) 
@@ -550,6 +561,7 @@ class Parser:
                 self.expect_type = self.scanner.SEMICOLON
         return err, self.expect_type
 
+
     def parse_connect(self):
         """Take care of handling an connection sentence
         
@@ -573,7 +585,7 @@ class Parser:
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                     return self.network.DEVICE_ABSENT, self.expect_type
-                
+
             else:
                 if self.devices.get_device(self.symbol.id) is not None:
                     self.connection_holder["first_device_id"] = self.symbol.id
@@ -584,7 +596,6 @@ class Parser:
                     self.expect_type = self.scanner.DEVICE_OUT
                     self.go_to_next_sentece()
                     return self.network.DEVICE_ABSENT, self.expect_type
-                
             self.expect_type = self.scanner.CONNECTION
             self.new_line = False
 
@@ -615,9 +626,10 @@ class Parser:
                 self.connection_holder["second_port_id"] = port_id
         return err, self.expect_type
 
+
     def parse_monitor(self):
         """Take care of handling a monitor sentence
-        
+
         If type is as expected and in phase 3 and not a semicolon
         then this function is run.
         """
@@ -630,21 +642,21 @@ class Parser:
             gate_name, output = output_name.split(".")
             err = self.monitors.make_monitor(self.names.query(gate_name), 
                                              self.names.query(output))
-            # print(err)
         elif self.symbol.type == self.scanner.DEVICE_NAME:
             err = self.monitors.make_monitor(self.symbol.id, None)
-            # print(err)
-        
+
         if err != self.monitors.NO_ERROR and err is not None:
             self.handle_error(err, self.scanner.error.SEMANTIC)
             return err, self.expect_type
         return None, self.expect_type
+
 
     def print_end_message(self):
         print("Failed to compile definition file")
         print("Syntax error count:", self.scanner.error.syntax_error_count)
         print("Semantic error count:", 
                 self.scanner.error.semantic_error_count)
+
 
     def parse_network(self):
         """Parse the circuit definition file.
@@ -667,7 +679,6 @@ class Parser:
         self.new_line = False
 
         while True:
-            # print(self.phase)
             self.symbol = self.scanner.get_symbol()
 
             # Stopping criterion
@@ -726,7 +737,7 @@ class Parser:
             if self.expect_type == self.scanner.SEMICOLON:
                 self.parse_semicolon()
                 continue
-            
+
             # Deals with an unexpected symbol
             if self.expect_type != self.symbol.type:
                 continue_break = self.handle_unexpected_keyword()
