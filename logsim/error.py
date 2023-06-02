@@ -115,12 +115,12 @@ class Error:
                 error_mes = f"SEMANTIC[CONNECT]: Input is already connected {optional_mess}"
 
             elif self.error_code == self.network.PORT_ABSENT:
-                error_mes = f"SEMANTIC[REFERENCE]: Referencing to an nonexisting port {optional_mess}"
+                error_mes = f"SEMANTIC[REFERENCE]: Referencing a nonexisting port {optional_mess}"
             elif self.error_code == self.network.DEVICE_ABSENT:
                 error_mes = f"SEMANTIC[REFERENCE]: Referencing a nonexisting device {optional_mess}"
         
             elif self.error_code == self.monitors.NOT_OUTPUT:
-                error_mes = f"SEMANTIC[REFERENCE]: Referencing to an nonexisting port {optional_mess}"
+                error_mes = f"SEMANTIC[REFERENCE]: Referencing a nonexisting port {optional_mess}"
             elif self.error_code == self.monitors.MONITOR_PRESENT:
                 error_mes = f"SEMANTIC[REFERENCE]: Referencing monitor port more than once {optional_mess}"
         
