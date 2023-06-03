@@ -9,8 +9,10 @@ MyGLCanvas - handles all canvas drawing operations.
 Gui - configures the main window and all the widgets.
 """
 import wx
+import os
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
+from pathlib import Path
 
 from names import Names
 from devices import Devices
@@ -358,6 +360,7 @@ class Gui(wx.Frame):
         # Configure the file menu
         fileMenu = wx.Menu()
         menuBar = wx.MenuBar()
+        fileMenu.Append(wx.ID_OPEN, _(u"&New File"))
         fileMenu.Append(wx.ID_ABOUT, _(u"&About"))
         fileMenu.Append(wx.ID_EXIT, _(u"&Exit"))
         menuBar.Append(fileMenu, _(u"&File"))
@@ -533,11 +536,9 @@ class Gui(wx.Frame):
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         # self.clear_button.Bind(wx.EVT_BUTTON, self.on_clear_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
-        # self.text_switch.Bind(wx.EVT_TEXT_ENTER, self.switch_change)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.reset_view_button.Bind(wx.EVT_BUTTON, self.on_reset_view)
         self.save_button.Bind(wx.EVT_BUTTON, self.on_save_image)
-        # self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
 
         self.SetSizeHints(1000, 600)
         self.SetSizer(self.main_sizer)
@@ -551,6 +552,8 @@ class Gui(wx.Frame):
             wx.MessageBox("Logic Simulator\nCocreated by Amanda Ge,\n"
                           "Chulabutra Chuenchoksan, Koko Ishida\n2017",
                           "About Logsim", wx.ICON_INFORMATION | wx.OK)
+        if Id == wx.ID_OPEN:
+            self.on_new_file()
         if Id == wx.ID_HELP_COMMANDS:
             wx.MessageBox(_("User Commands\n"
                             "\nRun             -> run the simulation\n"
@@ -721,3 +724,117 @@ class Gui(wx.Frame):
             file_path = dlg.GetPath()
             self.canvas.save_image(file_path)
         dlg.Destroy()
+
+    def on_new_file(self, file=True):
+        wildcard = "Text file (*.txt)|*.txt"
+        dialog = wx.FileDialog(
+            self,
+            message="Choose a file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard=wildcard,
+            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+        )
+        # if dialog.ShowModal() == wx.ID_CANCEL:
+        #        print("The user cancelled") 
+        #        return
+        if dialog.ShowModal() == wx.ID_OK:
+            path = dialog.GetPath()
+            # Process the selected file (e.g., open it, read data, etc.)
+            print("Selected file:", path)
+            if Path(path).suffix == ".txt":
+                # initialise network variables
+                names = Names()
+                devices = Devices(names)
+                network = Network(names, devices)
+                monitors = Monitors(names, devices, network)
+                scanner = Scanner(path, names, devices, network, monitors)
+                parser = Parser(names, devices, network, monitors, scanner)
+                if parser.parse_network():
+                    # set up gui for new circuit
+                    self.names = names
+                    self.devices = devices
+                    self.network = network
+                    self.monitors = monitors
+                    self.scanner = scanner
+                    self.parser = parser
+                    self.open_file()
+                else:
+                    wx.MessageBox(_("Error reading the file!"),
+                                _("Error"), wx.OK | wx.ICON_ERROR)
+            dialog.Destroy()
+
+    def open_file(self):
+        """Initialise GUI for new file"""
+        self.cycles_completed = 0
+        self.monitored_signal = self.monitors.get_signal_names()[0]
+        self.not_monitored_signal = self.monitors.get_signal_names()[1]
+
+        # toggle switch
+        self.sizer_switch.Clear()
+        self.sizers = {}  # Dictionary to store the sizers
+        for switch_id in self.devices.find_devices(self.devices.SWITCH):
+            switch_string = self.names.get_name_string(switch_id)
+            sizer_name = f"sizer{switch_id}"
+            # Create the horizontal sizer
+            self.sub_sizer_switch = wx.BoxSizer(wx.HORIZONTAL)
+            self.sizers[sizer_name] = self.sub_sizer_switch
+
+            self.exist_text_switch = wx.StaticText(self.scrolled_switch,
+                                                   wx.ID_ANY, switch_string,
+                                                   style=wx.TE_PROCESS_ENTER)
+            switch_state = self.devices.get_device(switch_id).switch_state
+            if switch_state == 1:
+                self.swt_st = wx.StaticText(self.scrolled_switch,
+                                            wx.ID_ANY, _(u"ON"),
+                                            style=wx.TE_PROCESS_ENTER)
+                self.swt_st.SetForegroundColour(wx.Colour(0, 100, 100))
+                self.tog_btn = wx.ToggleButton(self.scrolled_switch,
+                                               label=_(u"Toggle Switch"))
+                # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
+            elif switch_state == 0:
+                self.swt_st = wx.StaticText(self.scrolled_switch,
+                                            wx.ID_ANY, _(u"OFF"),
+                                            style=wx.TE_PROCESS_ENTER)
+                self.swt_st.SetForegroundColour(wx.Colour(150, 150, 150))
+                self.tog_btn = wx.ToggleButton(self.scrolled_switch,
+                                               label=_(u"Toggle Switch"))
+                self.tog_btn.SetValue(True)
+                self.tog_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
+            self.sizer_switch.Add(self.sub_sizer_switch, 1, wx.ALL, 5)
+            self.sub_sizer_switch.Add(self.exist_text_switch, 1,
+                                      wx.ALIGN_CENTER | wx.ALL, 5)
+            self.sub_sizer_switch.Add(self.swt_st, 1,
+                                      wx.ALIGN_CENTER | wx.ALL, 5)
+            self.sub_sizer_switch.Add(self.tog_btn, 1,
+                                      wx.ALIGN_CENTER | wx.ALL, 5)
+
+        for sizer_name, sizer in self.sizers.items():
+            self.tog_btn = sizer.GetItem(2).GetWindow()
+            self.tog_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
+            self.tog_btn.SetId(wx.NewId())
+
+        # monitor
+        self.monitor_combo.SetItems(self.not_monitored_signal)
+        for item in self.sizer_monitor.GetChildren():
+            if item.GetSizer() and item.GetSizer() != self.sub_sizer_monitor:
+                item.GetSizer().Clear(True)
+                self.sizer_monitor.Remove(item.GetSizer())
+
+        for monitor in self.monitored_signal:
+            self.sub_sizer_text_monitor = wx.BoxSizer(wx.HORIZONTAL)
+            self.sizer_monitor.Add(self.sub_sizer_text_monitor, 1, wx.ALL, 5)
+            self.ext_monitor = wx.StaticText(self.scrolled_monitor,
+                                             wx.ID_ANY, monitor,
+                                             style=wx.TE_PROCESS_ENTER)
+            self.zap_monitor_btn = wx.Button(self.scrolled_monitor,
+                                             wx.ID_ANY, _(u"Remove"))
+            self.zap_monitor_btn.SetBackgroundColour(wx.Colour(80, 150, 150))
+            self.zap_monitor_btn.Bind(wx.EVT_BUTTON,
+                                      self.on_zap_monitor_button(monitor))
+            self.sub_sizer_text_monitor.Add(self.ext_monitor, 1,
+                                            wx.ALL, 5)
+            self.sub_sizer_text_monitor.Add(self.zap_monitor_btn, 1,
+                                            wx.ALL, 5)
+            
+        self.main_sizer.Layout()
