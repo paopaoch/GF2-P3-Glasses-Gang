@@ -1,0 +1,178 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-06-04 11:18+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:221
+msgid "Mouse button pressed at: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:224
+msgid "Mouse button released at: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:227
+msgid "Mouse left canvas at: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:235
+msgid "Mouse dragged to: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:236
+msgid ". Pan is now: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:245
+msgid "Negative mouse wheel rotation. Zoom is now: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:254
+msgid "Positive mouse wheel rotation. Zoom is now: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:299
+msgid "Image saved successfully: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:370
+msgid "&New File"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:371
+msgid "&About"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:372
+msgid "&Exit"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:373
+msgid "&File"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:377
+msgid "&Help Commands"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:378
+msgid "&Help"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:390
+msgid "Cycles"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:392
+msgid "Run"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:393
+msgid "Continue"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:395
+msgid "Quit"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:396
+msgid "Switch:"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:398
+msgid "Monitor: "
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:400
+msgid "Reset View"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:401
+msgid "Save Image"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:435
+msgid "Switch name"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:437
+msgid "Current state"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:463
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:646
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:797
+msgid "ON"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:467
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:475
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:801
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:809
+msgid "Toggle Switch"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:471
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:641
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:805
+msgid "OFF"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:505
+msgid "Add"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:520
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:672
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:839
+msgid "Remove"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:565
+msgid ""
+"User Commands\n"
+"\n"
+"Run             -> run the simulation\n"
+"\n"
+"Continue        -> continue simulation\n"
+"\n"
+"Toggle Switch   -> change the switch state\n"
+"\n"
+"Add             -> set a monitor on signal\n"
+"\n"
+"Remove          -> zap the monior on signal\n"
+"\n"
+"Help            -> help (this command)\n"
+"\n"
+"Quit            -> quit the simulation"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:573
+msgid "Help"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:740
+msgid "Choose a file"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:771
+msgid "Error reading the file!"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:772
+msgid "Error"
+msgstr ""

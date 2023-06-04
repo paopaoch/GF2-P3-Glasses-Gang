@@ -10,6 +10,7 @@ Gui - configures the main window and all the widgets.
 """
 import wx
 import os
+import builtins
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
 from pathlib import Path
@@ -21,7 +22,8 @@ from monitors import Monitors
 from scanner import Scanner
 from parse import Parser
 
-_ = wx.GetTranslation
+builtins.__dict__['_'] = wx.GetTranslation
+
 
 
 class MyGLCanvas(wxcanvas.GLCanvas):
@@ -216,13 +218,13 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         if event.ButtonDown():
             self.last_mouse_x = event.GetX()
             self.last_mouse_y = event.GetY()
-            text = "".join(["Mouse button pressed at: ", str(event.GetX()),
+            text = "".join([_(u"Mouse button pressed at: "), str(event.GetX()),
                             ", ", str(event.GetY())])
         if event.ButtonUp():
-            text = "".join(["Mouse button released at: ", str(event.GetX()),
+            text = "".join([_(u"Mouse button released at: "), str(event.GetX()),
                             ", ", str(event.GetY())])
         if event.Leaving():
-            text = "".join(["Mouse left canvas at: ", str(event.GetX()),
+            text = "".join([_(u"Mouse left canvas at: "), str(event.GetX()),
                             ", ", str(event.GetY())])
         if event.Dragging():
             self.pan_x += event.GetX() - self.last_mouse_x
@@ -230,8 +232,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.last_mouse_x = event.GetX()
             self.last_mouse_y = event.GetY()
             self.init = False
-            text = "".join(["Mouse dragged to: ", str(event.GetX()),
-                            ", ", str(event.GetY()), ". Pan is now: ",
+            text = "".join([_(u"Mouse dragged to: "), str(event.GetX()),
+                            ", ", str(event.GetY()), _(u". Pan is now: "),
                             str(self.pan_x), ", ", str(self.pan_y)])
         if event.GetWheelRotation() < 0:
             self.zoom *= (1.0 + (
@@ -240,7 +242,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
             self.init = False
-            text = "".join(["Negative mouse wheel rotation. Zoom is now: ",
+            text = "".join([_(u"Negative mouse wheel rotation. Zoom is now: "),
                             str(self.zoom)])
         if event.GetWheelRotation() > 0:
             self.zoom /= (1.0 - (
@@ -249,7 +251,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
             self.init = False
-            text = "".join(["Positive mouse wheel rotation. Zoom is now: ",
+            text = "".join([_(u"Positive mouse wheel rotation. Zoom is now: "),
                             str(self.zoom)])
         if text:
             self.render(text)
@@ -294,7 +296,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         image = self.capture_image()
         if image.SaveFile(file_path, wx.BITMAP_TYPE_PNG):
             print(f"Image saved successfully: {file_path}")
-            text = "".join(["Image saved successfully: ", file_path])
+            text = "".join([_(u"Image saved successfully: "), file_path])
             self.render(text)
         else:
             print("Failed to save the image.")
@@ -343,6 +345,11 @@ class Gui(wx.Frame):
 
     on_save_image(self, event): Event handler for when the user clicks the
                                 save button
+
+    on_new_file(self): Event handler for when the user clicks the new file
+                        button
+
+    open_file(self): Initialise GUI for new file
     """
 
     def __init__(self, title, path, names, devices, network, monitors):
@@ -563,7 +570,7 @@ class Gui(wx.Frame):
                             "\nRemove          -> zap the monior on signal\n"
                             "\nHelp            -> help (this command)\n"
                             "\nQuit            -> quit the simulation"),
-                          _("Help"), wx.OK | wx.ICON_INFORMATION)
+                          _(u"Help"), wx.OK | wx.ICON_INFORMATION)
 
     def on_spin(self, event):
         """Handle the event when the user changes the spin control value."""
@@ -710,13 +717,13 @@ class Gui(wx.Frame):
         return gui_dict
 
     def on_reset_view(self, event):
-        """Reset the view to the origin"""
+        """Event handler for when the user clicks the reset view button"""
         self.canvas.reset_view()
         text = "Reset to the origin"
         self.canvas.render(text)
 
     def on_save_image(self, event):
-        """Save the image on the computer"""
+        """Event handler for when the user clicks the save button"""
         dlg = wx.FileDialog(self, "Save Image",
                             wildcard="PNG files (*.png)|*.png",
                             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
@@ -726,17 +733,18 @@ class Gui(wx.Frame):
         dlg.Destroy()
 
     def on_new_file(self, file=True):
+        """Event handler for when the user clicks the new file button"""
         wildcard = "Text file (*.txt)|*.txt"
         dialog = wx.FileDialog(
             self,
-            message="Choose a file",
+            message=_(u"Choose a file"),
             defaultDir=os.getcwd(),
             defaultFile="",
             wildcard=wildcard,
             style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
         )
         # if dialog.ShowModal() == wx.ID_CANCEL:
-        #        print("The user cancelled") 
+        #        print("The user cancelled")
         #        return
         if dialog.ShowModal() == wx.ID_OK:
             path = dialog.GetPath()
@@ -760,8 +768,8 @@ class Gui(wx.Frame):
                     self.parser = parser
                     self.open_file()
                 else:
-                    wx.MessageBox(_("Error reading the file!"),
-                                _("Error"), wx.OK | wx.ICON_ERROR)
+                    wx.MessageBox(_(u"Error reading the file!"),
+                                  _(u"Error"), wx.OK | wx.ICON_ERROR)
             dialog.Destroy()
 
     def open_file(self):
@@ -836,5 +844,5 @@ class Gui(wx.Frame):
                                             wx.ALL, 5)
             self.sub_sizer_text_monitor.Add(self.zap_monitor_btn, 1,
                                             wx.ALL, 5)
-            
+
         self.main_sizer.Layout()
