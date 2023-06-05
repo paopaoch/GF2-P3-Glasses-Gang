@@ -255,7 +255,7 @@ class Devices:
 
     def varify_siggen(self, waveform):
         """Check whether the waveform of SIGGEN is in correct form."""
-        for i in siggen_property:
+        for i in waveform:
             if (i != "0" and i != "1"):
                 return False
         return True
@@ -270,8 +270,8 @@ class Devices:
                 if ((signal == "0" and previous_state == "1") or 
                     (signal == "1" and previous_state == "0")):
                     switching_list.append(period)
-        previous_state = signal
-        period += 1
+            previous_state = signal
+            period += 1
         switching_list.append(period)
         return switching_list
 
@@ -397,7 +397,7 @@ class Devices:
             # Device property is the waveform
             if device_property is None:
                 error_type = self.NO_QUALIFIER
-            elif not varify_siggen(device_property):
+            elif not self.varify_siggen(device_property):
                 error_type = self.INVALID_QUALIFIER
             else:
                 self.make_siggen(device_id, device_property)
