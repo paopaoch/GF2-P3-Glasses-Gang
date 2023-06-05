@@ -322,6 +322,7 @@ def test_parse_init(parse_check_init):
     err, expect_type = parse_check_init.parse_init()
     assert err == parse_check_init.devices.INVALID_QUALIFIER
 
+
 def test_parse_connect(parse_check_connect):
     """Test parse_connect() parsing the connection section."""
     # test for device output undefined

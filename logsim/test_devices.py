@@ -89,6 +89,24 @@ def test_make_device(new_devices):
     assert dtype_device.dtype_memory in [new_devices.LOW, new_devices.HIGH]
 
 
+def test_make_device_siggen(new_devices):
+    """Test if make_device correctly makes devices with their properties."""
+    names = new_devices.names
+
+    SG1_ID = names.lookup("SG1")
+    waveform = "101010"
+    new_devices.make_device(SG1_ID, new_devices.SIGGEN, waveform)
+    siggen_device = new_devices.get_device(SG1_ID)
+
+    assert siggen_device.outputs in [{None: new_devices.LOW},
+                                        {None: new_devices.HIGH}]
+
+    assert siggen_device.siggen_period is 6
+    assert siggen_device.siggen_counter in range(6)
+    assert siggen_device.siggen_initial is new_devices.HIGH
+    assert siggen_device.siggen_switch_point == [1, 2, 3, 4, 5, 6]
+
+
 @pytest.mark.parametrize("function_args, error", [
     ("(AND1_ID, new_devices.AND, 17)", "new_devices.INVALID_QUALIFIER"),
     ("(SW1_ID, new_devices.SWITCH, None)", "new_devices.NO_QUALIFIER"),
@@ -99,20 +117,34 @@ def test_make_device(new_devices):
 
     # Note: XOR device X2_ID will have been made earlier in the function
     ("(X2_ID, new_devices.XOR)", "new_devices.DEVICE_PRESENT"),
+    ("(SG1_ID, new_devices.SIGGEN, wave)", "new_devices.INVALID_QUALIFIER"),
 ])
 def test_make_device_gives_errors(new_devices, function_args, error):
     """Test if make_device returns the appropriate errors."""
     names = new_devices.names
-    [AND1_ID, SW1_ID, CL_ID, D_ID, X1_ID,
-     X2_ID] = names.lookup(["And1", "Sw1", "Clock1", "D1", "Xor1", "Xor2"])
+    [AND1_ID, SW1_ID, CL_ID, 
+     D_ID, X1_ID, X2_ID, SG1_ID] = names.lookup(["And1", "Sw1", "Clock1",
+                                                 "D1", "Xor1", "Xor2", "SG1"])
 
     # Add a XOR device: X2_ID
     new_devices.make_device(X2_ID, new_devices.XOR)
-
+    # Set SIGGEN property
+    wave = "123"
     # left_expression is of the form: new_devices.make_device(...)
     left_expression = eval("".join(["new_devices.make_device", function_args]))
     right_expression = eval(error)
     assert left_expression == right_expression
+
+
+def test_make_siggen_gives_errors(new_devices):
+    """Test if make_device returns the appropriate errors for SIGGEN."""
+    names = new_devices.names
+    
+    SG1_ID = names.lookup("SG1")
+    waveform = "12345"
+    new_devices.make_device(SG1_ID, new_devices.SIGGEN, waveform)
+    siggen_device = new_devices.get_device(SG1_ID)
+    new_devices.make_device
 
 
 def test_get_signal_name(devices_with_items):

@@ -117,11 +117,11 @@ class Scanner:
                                  self.INIT_GATE, self.INIT_SWITCH,
                                  self.INIT_CLK, self.CONNECTION,
                                  self.INIT_MONITOR, self.SEMICOLON,
-                                 self.EOF] = range(18)
+                                 self.SIGGEN_WAVE, self.EOF] = range(19)
 
         # Add keywords to names
         self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR',
-                                 'SWITCH', 'DTYPE', 'CLOCK']
+                                 'SWITCH', 'DTYPE', 'CLOCK', 'RC', 'SIGGEN']
         self.device_input_pin_list = ['I1', 'I2', 'I3', 'I4', 'I5',
                                       'I6', 'I7', 'I8', 'I9', 'I10',
                                       'I11', 'I12', 'I13', 'I14', 'I15',
@@ -329,6 +329,9 @@ class Scanner:
         in_rule = re.compile(r'\A[A-Z]+\d+.((I\d+)|DATA|CLK|CLEAR|SET)$')
         # Regex format for device output
         out_rule = re.compile(r'\A[A-Z]+\d+(.(Q|QBAR))?$')
+        # Regex format for siggen waveform
+        siggen_rule = re.compile(r'\A"[01]+"$')
+
         if self.current_char == '':
             symbol_get.type = self.EOF
             symbol_get.pos = self.file.tell()
@@ -341,20 +344,29 @@ class Scanner:
             return symbol_get
 
         while not (self.current_char.isspace() or self.current_char == '\n'):
+            # read alphabets
             if self.current_char.isalpha():
                 alphabets = self.get_name()
                 symbol_string += alphabets
+            # read numbers
             elif self.current_char.isdigit():
                 num = self.get_number()
                 symbol_string += num
+            # read SIGGEN waveform
+            elif self.current_char == "\"":
+                symbol_string += "\""
+                self.current_char = self.read_file()
+            # read termination
             elif self.current_char == ';':
                 symbol_get.pos = self.file.tell() - 1
                 self.file.seek(self.file.tell() - 1)
                 break
+            # read EOF
             elif self.current_char == '':
                 symbol_get.pos = self.file.tell()
                 self.file.seek(self.file.tell())
                 break
+            # read comments
             elif self.current_char == '/':
                 self.current_char = self.read_file()
                 if self.current_char == '*':
@@ -371,7 +383,7 @@ class Scanner:
             else:
                 symbol_string += str(self.current_char)
                 self.current_char = self.read_file()
-
+        # set symbol type and id
         if symbol_string == "INIT":
             symbol_get.type = self.INIT
         elif symbol_string == "CONNECT":
@@ -407,6 +419,10 @@ class Scanner:
         elif out_rule.match(symbol_string):
             symbol_get.type = self.DEVICE_OUT
             [symbol_get.id] = self.names.lookup([symbol_string])
+        elif siggen_rule.match(symbol_string):
+            symbol_get.type = self.SIGGEN_WAVE
+            # store the siggen waveform without quotation marks
+            [symbol_get.id] = self.names.lookup([symbol_string[1:-1]])
         else:
             symbol_get.type = self.ERROR
         if symbol_get.pos is None:
