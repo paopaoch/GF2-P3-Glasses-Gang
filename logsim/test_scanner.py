@@ -63,12 +63,20 @@ def test_get_symbol(scanner_example_1):
     assert scanner_example_1.names.get_name_string(sym.id) == "AND"
     assert sym.pos == 3                         # position of last character
     assert sym.line_pos == 0                    # position of start of a line
+
     scanner_example_1.get_symbol()
     sym = scanner_example_1.get_symbol()        # sym is device input "G123.I7"
     assert sym.type == scanner_example_1.DEVICE_IN
     assert scanner_example_1.names.get_name_string(sym.id) == "G123.I7"
     assert sym.pos == 12
     assert sym.line_pos == 5
+
+    sym = scanner_example_1.get_symbol()        # sym is SIGGEN waveform
+    assert sym.type == scanner_example_1.SIGGEN_WAVE
+    assert scanner_example_1.names.get_name_string(sym.id) == "101"
+
+    sym = scanner_example_1.get_symbol()        # sym is EOF
+    assert sym.type == scanner_example_1.EOF
 
 
 def test_skip_valid_comment(scanner_example_2):
