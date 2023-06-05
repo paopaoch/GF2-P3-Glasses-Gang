@@ -42,7 +42,10 @@ class Device:
         self.switch_state = None
         self.dtype_memory = None
         self.simulation_cycles = None
-
+        self.siggen_counter = None
+        self.siggen_initial = None
+        self.siggen_period = None
+        self.siggen_switch_point = None
 
 class Devices:
 
@@ -106,7 +109,7 @@ class Devices:
         self.devices_list = []
 
         gate_strings = ["AND", "OR", "NAND", "NOR", "XOR"]
-        device_strings = ["CLOCK", "SWITCH", "DTYPE", "RC"]
+        device_strings = ["CLOCK", "SWITCH", "DTYPE", "RC", "SIGGEN"]
         dtype_inputs = ["CLK", "SET", "CLEAR", "DATA"]
         dtype_outputs = ["Q", "QBAR"]
 
@@ -119,7 +122,8 @@ class Devices:
         self.gate_types = [self.AND, self.OR, self.NAND, self.NOR,
                            self.XOR] = self.names.lookup(gate_strings)
         self.device_types = [self.CLOCK, self.SWITCH,
-                             self.D_TYPE, self.RC] = self.names.lookup(device_strings)
+                             self.D_TYPE, self.RC,
+                             self.SIGGEN] = self.names.lookup(device_strings)
         self.dtype_input_ids = [self.CLK_ID, self.SET_ID, self.CLEAR_ID,
                                 self.DATA_ID] = self.names.lookup(dtype_inputs)
         self.dtype_output_ids = [
@@ -249,6 +253,41 @@ class Devices:
         device.simulation_cycles = simulation_cycles
         device.clock_counter = 0
 
+    def varify_siggen(self, waveform):
+        """Check whether the waveform of SIGGEN is in correct form."""
+        for i in siggen_property:
+            if (i != "0" and i != "1"):
+                return False
+        return True
+
+    def get_siggen_switch_points(self, waveform):
+        """Get a list of period intergers of when SIGGEN is switching."""
+        switching_list = []
+        previous_state = "0"
+        period = 0
+        for index, signal in enumerate(waveform):
+            if index > 0:
+                if ((signal == "0" and previous_state == "1") or 
+                    (signal == "1" and previous_state == "0")):
+                    switching_list.append(period)
+        previous_state = signal
+        period += 1
+        switching_list.append(period)
+        return switching_list
+
+    def make_siggen(self, device_id, waveform):
+        """Make SIGGEN device with the specified waveform."""
+        self.add_device(device_id, self.SIGGEN)
+        device = self.get_device(device_id)
+        device.siggen_period = len(waveform)
+        device.siggen_counter = 0
+        device.siggen_switch_point = self.get_siggen_switch_points(waveform)
+        if waveform[0] == "0":
+            device.siggen_initial = self.LOW
+        else:
+            device.siggen_initial = self.HIGH
+        self.cold_startup()
+
     def make_gate(self, device_id, device_kind, no_of_inputs):
         """Make logic gates with the specified number of inputs."""
         self.add_device(device_id, device_kind)
@@ -269,10 +308,11 @@ class Devices:
         self.cold_startup()  # D-type initialised to a random state
 
     def cold_startup(self):
-        """Simulate cold start-up of D-types and clocks.
+        """Simulate cold start-up of D-types, clocks and SIGGENs.
 
         Set the memory of the D-types to a random state and make the clocks
-        begin from a random point in their cycles.
+        begin from a random point in their cycles. And Reset SIGGEN devices
+        to their initial state.
         """
         for device in self.devices_list:
             if device.device_kind == self.D_TYPE:
@@ -285,6 +325,10 @@ class Devices:
                 # Initialise it to a random point in its cycle.
                 device.clock_counter = \
                     random.randrange(device.clock_half_period)
+            elif device.device_kind == self.SIGGEN:
+                device.siggen_counter = 0
+                self.add_output(device.device_id, output_id=None,
+                                signal=device.siggen_initial)
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.
@@ -339,7 +383,7 @@ class Devices:
                 self.make_d_type(device_id)
                 error_type = self.NO_ERROR
 
-        elif device_kind == self.CLOCK:
+        elif device_kind == self.RC:
             # Device property is the siimulation cycles > 0
             if device_property is None:
                 error_type = self.NO_QUALIFIER
@@ -348,7 +392,17 @@ class Devices:
             else:
                 self.make_rc(device_id, device_property)
                 error_type = self.NO_ERROR
-
+        
+        elif device_kind == self.SIGGEN:
+            # Device property is the waveform
+            if device_property is None:
+                error_type = self.NO_QUALIFIER
+            elif not varify_siggen(device_property):
+                error_type = self.INVALID_QUALIFIER
+            else:
+                self.make_siggen(device_id, device_property)
+                error_type = self.NO_ERROR
+        
         else:
             error_type = self.BAD_DEVICE
 
