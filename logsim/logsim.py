@@ -12,7 +12,8 @@ Graphical user interface: logsim.py <file path>
 """
 import getopt
 import sys
-
+import builtins
+import os
 import wx
 
 from names import Names
@@ -34,9 +35,12 @@ def main(arg_list):
     usage_message = ("Usage:\n"
                      "Show help: logsim.py -h\n"
                      "Command line user interface: logsim.py -c <file path>\n"
-                     "Graphical user interface: logsim.py <file path>")
+                     "Graphical user interface (Japanese): logsim.py -j <file path>\n"
+                     "Graphical user interface: logsim.py <file path>"
+                     "For Linux or MacOS, you can set LANG=ja_JP.UTF-8 (Japanese)\n"
+                     "in the terminal and run ")
     try:
-        options, arguments = getopt.getopt(arg_list, "hc:")
+        options, arguments = getopt.getopt(arg_list, "hc:j:")
     except getopt.GetoptError:
         print("Error: invalid command line arguments\n")
         print(usage_message)
@@ -46,11 +50,16 @@ def main(arg_list):
     names = Names()
     devices = Devices(names)
     network = Network(names, devices)
+    monitors = Monitors(names, devices, network)
     # names = None
     # devices = None
     # network = None
     # monitors = None
-    monitors = Monitors(names, devices, network)
+
+    # languages you want to support
+    supLang = {u"en": wx.LANGUAGE_ENGLISH,
+               u"jp": wx.LANGUAGE_JAPANESE_JAPAN,
+              }
 
     for option, path in options:
         if option == "-h":  # print the usage message
@@ -63,6 +72,24 @@ def main(arg_list):
                 # Initialise an instance of the userint.UserInterface() class
                 userint = UserInterface(names, devices, network, monitors)
                 userint.command_interface()
+        elif option == "-j":  # Launch GUI in Japanese
+            scanner = Scanner(path, names, devices, network, monitors)
+            parser = Parser(names, devices, network, monitors, scanner)
+            if parser.parse_network():
+                app = wx.App()
+
+                # Internationalisation
+                builtins.__dict__["_"] = wx.GetTranslation
+                locale = wx.Locale()
+                locale.Init(wx.LANGUAGE_JAPANESE_JAPAN)  # Set language to Japanese
+
+                locale.AddCatalogLookupPathPrefix('locale')
+                locale.AddCatalog('gui')
+
+                gui = Gui("Logic Simulator", path, names, devices, network,
+                          monitors)
+                gui.Show(True)
+                app.MainLoop()
 
     if not options:  # no option given, use the graphical user interface
 
@@ -77,8 +104,25 @@ def main(arg_list):
         if parser.parse_network():
             # Initialise an instance of the gui.Gui() class
             app = wx.App()
+            # Internationalisation
+            builtins.__dict__["_"] = wx.GetTranslation
+            locale = wx.Locale()
+            # If an unsupported language is requested default to English
+            try:
+                lang = os.environ["LANG"]  # Get LANG variable
+            except KeyError:
+                lang = None  # Set to None if LANG unset
+            if lang in supLang:
+                selLang = supLang[lang]
+            else:
+                selLang = wx.LANGUAGE_ENGLISH
+            locale.Init(selLang)
+
+            locale.AddCatalogLookupPathPrefix('locale')
+            locale.AddCatalog('gui')
+
             gui = Gui("Logic Simulator", path, names, devices, network,
-                      monitors)
+                        monitors)
             gui.Show(True)
             app.MainLoop()
 
