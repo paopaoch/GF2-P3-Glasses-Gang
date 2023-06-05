@@ -505,6 +505,11 @@ class Parser:
                 elif self.sentence_type == "CLOCK":
                     self.device_holder["device_kind"] = self.devices.CLOCK
                     self.expect_type = self.scanner.INIT_CLK
+                # Maintainance
+                elif self.sentence_type == "RC":
+                    self.device_holder["device_kind"] = self.devices.RC
+                    # INIT_CLK is with_simulation_cycles
+                    self.expect_type = self.scanner.INIT_CLK
 
             elif self.symbol.type == self.scanner.INIT_SWITCH:
                 self.expect_type = self.scanner.NUMBER
@@ -557,6 +562,22 @@ class Parser:
                     self.device_holder["device_property"] = int(
                         self.names.get_name_string(self.symbol.id))
                     self.expect_type = self.scanner.SEMICOLON
+
+                # Maintainance
+                elif self.sentence_type == "RC":
+                    if (int(self.names.get_name_string(self.symbol.id)) 
+                        <= 0):
+                        self.handle_error(self.devices.INVALID_QUALIFIER,
+                                        self.scanner.error.SEMANTIC)
+                        self.expect_type = self.scanner.DEVICE_NAME
+                        self.error_devices.append(self.current_device)
+                        self.go_to_next_sentece()
+                        return (self.devices.INVALID_QUALIFIER,
+                                self.expect_type)
+                    self.device_holder["device_property"] = int(
+                        self.names.get_name_string(self.symbol.id))
+                    self.expect_type = self.scanner.SEMICOLON
+
             elif self.symbol.type == self.scanner.INIT_GATE:
                 self.expect_type = self.scanner.SEMICOLON
         return err, self.expect_type
@@ -617,6 +638,17 @@ class Parser:
                         if (first_device.device_kind
                             != self.devices.CLOCK):
                             err = self.scanner.error.NOT_CLOCK_TO_CLK
+                            self.handle_error(err,
+                                            self.scanner.error.SEMANTIC)
+                            self.connection_holder = (self
+                                                .init_connection_holder())
+                    first_device = self.devices.get_device(
+                            self.connection_holder["first_device_id"])
+                    if first_device.device_kind == self.devices.RC:
+                        if (device_id.device_kind != self.devices.D_TYPE
+                            or (device_id.device_kind == self.devices.D_TYPE
+                                and input not in ["CLEAR", "SET"])):
+                            err = self.scanner.error.NOT_RC_TO_D_TYPE
                             self.handle_error(err,
                                             self.scanner.error.SEMANTIC)
                             self.connection_holder = (self

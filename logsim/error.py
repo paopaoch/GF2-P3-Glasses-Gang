@@ -52,8 +52,9 @@ class Error:
         self.extra_sematic_error_list=[
             self.NOT_CLOCK_TO_CLK,
             self.OSCILLATE,
-            self.UNUSED_INPUTS
-        ] = self.names.unique_error_codes(3)
+            self.UNUSED_INPUTS,
+            self.NOT_RC_TO_D_TYPE
+        ] = self.names.unique_error_codes(4)
 
         self.syntax_error_count = 0
         self.semantic_error_count = 0
@@ -134,6 +135,9 @@ class Error:
                 error_mes = f"SEMANTIC[CONNECT]: The circuit cannot be resolve. Circuit oscillates {optional_mess}"
             elif self.error_code == self.UNUSED_INPUTS:
                 error_mes = f"SEMANTIC[CONNECT]: There are unused inputs {optional_mess}"
+
+            elif self.error_code == self.NOT_RC_TO_D_TYPE:
+                error_mes = f"SEMACTIC[CONNECT] An RC is expected to be connected to a DTYPE {optional_mess}"
         
         self.add_error(error_type)
         return error_mes

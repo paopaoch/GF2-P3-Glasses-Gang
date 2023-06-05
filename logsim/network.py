@@ -346,7 +346,7 @@ class Network:
             device.clock_counter += 1
 
     def execute_rc(self, device_id):
-        """Simulate a clock and update its output signal value.
+        """Simulate a RC and update its output signal value.
 
         Return True if successful.
         """
