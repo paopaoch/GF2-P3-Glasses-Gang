@@ -341,7 +341,7 @@ class Parser:
 
             elif (self.phase == 2 
                     and self.connection_holder["first_device_id"] is not None
-                    and self.connection_holder["second_device_id"]):
+                    and self.connection_holder["second_device_id"] is not None):
                 err = self.network.make_connection(
                     self.connection_holder["first_device_id"]
                     ,self.connection_holder["first_port_id"]
@@ -510,6 +510,10 @@ class Parser:
                     self.device_holder["device_kind"] = self.devices.RC
                     # INIT_CLK is with_simulation_cycles
                     self.expect_type = self.scanner.INIT_CLK
+                elif self.sentence_type == "SIGGEN":
+                    self.device_holder["device_kind"] = self.devices.SIGGEN
+                    # INIT_CLK is with_simulation_cycles
+                    self.expect_type = self.scanner.INIT_CLK
 
             elif self.symbol.type == self.scanner.INIT_SWITCH:
                 self.expect_type = self.scanner.NUMBER
@@ -576,6 +580,11 @@ class Parser:
                                 self.expect_type)
                     self.device_holder["device_property"] = int(
                         self.names.get_name_string(self.symbol.id))
+                    self.expect_type = self.scanner.SEMICOLON
+
+                elif self.sentence_type == "SIGGEN":
+                    self.device_holder["device_property"] = str(
+                        self.names.get_name_string(self.symbol.id)) # NEED TO CHECK WITH AMANDA
                     self.expect_type = self.scanner.SEMICOLON
 
             elif self.symbol.type == self.scanner.INIT_GATE:
