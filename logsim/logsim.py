@@ -15,7 +15,6 @@ import sys
 import builtins
 import os
 import wx
-import locale
 import gettext
 
 from names import Names
@@ -37,10 +36,9 @@ def main(arg_list):
     usage_message = ("Usage:\n"
                      "Show help: logsim.py -h\n"
                      "Command line user interface: logsim.py -c <file path>\n"
-                     "Graphical user interface (Japanese): logsim.py -j <file path>\n"
-                     "Graphical user interface: logsim.py <file path>"
-                     "For Linux or MacOS, you can set LANG=ja_JP.UTF-8 (Japanese)\n"
-                     "in the terminal and run ")
+                     "Graphical user interface (Japanese):"
+                     "logsim.py -j <file path>\n"
+                     "Graphical user interface: logsim.py <file path>")
     try:
         options, arguments = getopt.getopt(arg_list, "hc:j:")
     except getopt.GetoptError:
@@ -58,10 +56,10 @@ def main(arg_list):
     # network = None
     # monitors = None
 
-    # languages you want to support
+    # languages supported
     supLang = {u"en_GB.UTF-8": wx.LANGUAGE_ENGLISH,
                u"ja_JP.UTF-8": wx.LANGUAGE_JAPANESE,
-              }
+               }
 
     for option, path in options:
         if option == "-h":  # print the usage message
@@ -81,17 +79,12 @@ def main(arg_list):
                 app = wx.App()
 
                 # Internationalisation
-                # builtins._ = wx.GetTranslation
-                # Internationalisation
                 builtins._ = wx.GetTranslation
                 locale = wx.Locale()
-                
-                # locale.AddCatalogLookupPathPrefix('./locale')
-                # locale.Init(wx.LANGUAGE_JAPANESE)
-                # locale.AddCatalog('gui')
-                # print(locale.AddCatalog('gui'))
+
                 gettext.install('gui', './locale')
-                gettext.translation('gui', './locale', languages=['jp']).install()
+                gettext.translation('gui', './locale',
+                                    languages=['jp']).install()
 
                 gui = Gui("Logic Simulator", path, names, devices, network,
                           monitors)
@@ -129,7 +122,7 @@ def main(arg_list):
             locale.AddCatalog('logsim_jp')
 
             gui = Gui("Logic Simulator", path, names, devices, network,
-                        monitors)
+                      monitors)
             gui.Show(True)
             app.MainLoop()
 

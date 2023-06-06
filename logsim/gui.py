@@ -25,7 +25,6 @@ from parse import Parser
 builtins._ = wx.GetTranslation
 
 
-
 class MyGLCanvas(wxcanvas.GLCanvas):
     """Handle all drawing operations.
 
@@ -221,8 +220,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             text = "".join([_(u"Mouse button pressed at: "), str(event.GetX()),
                             ", ", str(event.GetY())])
         if event.ButtonUp():
-            text = "".join([_(u"Mouse button released at: "), str(event.GetX()),
-                            ", ", str(event.GetY())])
+            text = "".join([_(u"Mouse button released at: "),
+                            str(event.GetX()), ", ", str(event.GetY())])
         if event.Leaving():
             text = "".join([_(u"Mouse left canvas at: "), str(event.GetX()),
                             ", ", str(event.GetY())])
