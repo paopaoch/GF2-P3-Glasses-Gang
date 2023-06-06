@@ -22,7 +22,7 @@ from monitors import Monitors
 from scanner import Scanner
 from parse import Parser
 
-builtins.__dict__['_'] = wx.GetTranslation
+builtins._ = wx.GetTranslation
 
 
 

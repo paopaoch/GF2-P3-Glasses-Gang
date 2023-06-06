@@ -15,6 +15,8 @@ import sys
 import builtins
 import os
 import wx
+import locale
+import gettext
 
 from names import Names
 from devices import Devices
@@ -57,8 +59,8 @@ def main(arg_list):
     # monitors = None
 
     # languages you want to support
-    supLang = {u"en": wx.LANGUAGE_ENGLISH,
-               u"jp": wx.LANGUAGE_JAPANESE_JAPAN,
+    supLang = {u"en_GB.UTF-8": wx.LANGUAGE_ENGLISH,
+               u"ja_JP.UTF-8": wx.LANGUAGE_JAPANESE,
               }
 
     for option, path in options:
@@ -79,13 +81,17 @@ def main(arg_list):
                 app = wx.App()
 
                 # Internationalisation
-                builtins.__dict__["_"] = wx.GetTranslation
+                # builtins._ = wx.GetTranslation
+                # Internationalisation
+                builtins._ = wx.GetTranslation
                 locale = wx.Locale()
-                # Set language to Japanese
-
-                locale.AddCatalogLookupPathPrefix('locale')
-                locale.Init(wx.LANGUAGE_JAPANESE_JAPAN)
-                locale.AddCatalog('logsim_jp')
+                
+                # locale.AddCatalogLookupPathPrefix('./locale')
+                # locale.Init(wx.LANGUAGE_JAPANESE)
+                # locale.AddCatalog('gui')
+                # print(locale.AddCatalog('gui'))
+                gettext.install('gui', './locale')
+                gettext.translation('gui', './locale', languages=['jp']).install()
 
                 gui = Gui("Logic Simulator", path, names, devices, network,
                           monitors)
@@ -106,7 +112,7 @@ def main(arg_list):
             # Initialise an instance of the gui.Gui() class
             app = wx.App()
             # Internationalisation
-            builtins.__dict__["_"] = wx.GetTranslation
+            # builtins.__dict__["_"] = wx.GetTranslation
             locale = wx.Locale()
             # If an unsupported language is requested default to English
             try:
@@ -118,7 +124,7 @@ def main(arg_list):
             else:
                 selLang = wx.LANGUAGE_ENGLISH
 
-            locale.AddCatalogLookupPathPrefix('locale')
+            locale.AddCatalogLookupPathPrefix('./locale')
             locale.Init(selLang)
             locale.AddCatalog('logsim_jp')
 
