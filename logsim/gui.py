@@ -464,7 +464,6 @@ class Gui(wx.Frame):
                 self.swt_st.SetForegroundColour(wx.Colour(0, 100, 100))
                 self.tog_btn = wx.ToggleButton(self.scrolled_switch,
                                                label=_(u"Toggle Switch"))
-                # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
             elif switch_state == 0:
                 self.swt_st = wx.StaticText(self.scrolled_switch,
                                             wx.ID_ANY, _(u"OFF"),
@@ -533,14 +532,12 @@ class Gui(wx.Frame):
         self.side_sizer.Add(self.sizer_text_monitor, 0, wx.ALL, 5)
         self.side_sizer.Add(self.scrolled_monitor, 3, wx.EXPAND | wx.ALL, 5)
         self.side_sizer.Add(self.sizer_tool, 0, wx.ALL, 5)
-        # self.side_sizer.Add(self.text_box, 1, wx.EXPAND | wx.ALL, 5)
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
         self.spin.Bind(wx.EVT_SPINCTRL, self.on_spin)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
-        # self.clear_button.Bind(wx.EVT_BUTTON, self.on_clear_button)
         self.quit_button.Bind(wx.EVT_BUTTON, self.on_quit_button)
         self.monitor_add_button.Bind(wx.EVT_BUTTON, self.on_add_monitor_button)
         self.reset_view_button.Bind(wx.EVT_BUTTON, self.on_reset_view)
@@ -765,7 +762,7 @@ class Gui(wx.Frame):
         self.monitored_signal = self.monitors.get_signal_names()[0]
         self.not_monitored_signal = self.monitors.get_signal_names()[1]
 
-        # toggle switch
+        # toggle switch initalisation
         self.sizer_switch.Clear(True)
         self.sizers = {}  # Dictionary to store the sizers
         for switch_id in self.devices.find_devices(self.devices.SWITCH):
@@ -786,7 +783,6 @@ class Gui(wx.Frame):
                 self.swt_st.SetForegroundColour(wx.Colour(0, 100, 100))
                 self.tog_btn = wx.ToggleButton(self.scrolled_switch,
                                                label=_(u"Toggle Switch"))
-                # self.toggle_btn.SetBackgroundColour(wx.Colour(255, 0, 0))
             elif switch_state == 0:
                 self.swt_st = wx.StaticText(self.scrolled_switch,
                                             wx.ID_ANY, _(u"OFF"),
@@ -809,7 +805,7 @@ class Gui(wx.Frame):
             self.tog_btn.Bind(wx.EVT_TOGGLEBUTTON, self.switch_change)
             self.tog_btn.SetId(wx.NewId())
 
-        # monitor
+        # monitor initialisation
         self.monitor_combo.SetItems(self.not_monitored_signal)
         for item in self.sizer_monitor.GetChildren():
             if item.GetSizer() and item.GetSizer() != self.sub_sizer_monitor:
