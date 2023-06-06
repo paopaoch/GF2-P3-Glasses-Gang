@@ -102,7 +102,7 @@ class Error:
         
         elif error_type == self.SEMANTIC:
             if self.error_code == self.devices.INVALID_QUALIFIER:
-                error_mes = f"SEMANTIC[INIT]: Device is initialised with wrong qualifier {optional_mess}"
+                error_mes = f"SEMANTIC[INIT]: Device is initialised with wrong property {optional_mess}"
             elif self.error_code == self.devices.NO_QUALIFIER:
                 error_mes = f"SEMANTIC[INIT]: No quaifier inputed {optional_mess}"
             elif self.error_code == self.devices.BAD_DEVICE:
