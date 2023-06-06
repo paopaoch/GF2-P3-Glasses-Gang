@@ -366,6 +366,42 @@ def test_execute_siggen(new_network):
     assert network.get_output_signal(SG1_ID, None) == devices.LOW
 
 
+def test_update_rc(new_network):
+    """Test of the update RC gives 1"""
+    network = new_network
+    devices = network.devices
+    names = devices.names
+
+    [RC_ID] = names.lookup(["RC1"])
+    simulation_cycles = 2
+    devices.make_device(RC_ID, devices.RC, simulation_cycles)
+    network.update_rc()
+    assert network.get_output_signal(RC_ID, None) == devices.HIGH
+
+
+
+def test_execute_rc(new_network):
+    """Test if RC gives 0 at after simulation cycle"""
+    network = new_network
+    devices = network.devices
+    names = devices.names
+
+    [RC_ID] = names.lookup(["RC1"])
+    simulation_cycles = 2
+    devices.make_device(RC_ID, devices.RC, simulation_cycles)
+    network.update_rc()
+    network.execute_rc(RC_ID)
+    assert network.get_output_signal(RC_ID, None) == devices.HIGH
+    network.update_rc()
+    network.execute_rc(RC_ID)
+    assert network.get_output_signal(RC_ID, None) == devices.HIGH
+    network.update_rc()
+    network.execute_rc(RC_ID)
+    assert network.get_output_signal(RC_ID, None) == devices.LOW
+    network.update_rc()
+    network.execute_rc(RC_ID)
+    assert network.get_output_signal(RC_ID, None) == devices.LOW
+
 def test_oscillating_network(new_network):
     """Test if the execute_network returns False for oscillating networks."""
     network = new_network
