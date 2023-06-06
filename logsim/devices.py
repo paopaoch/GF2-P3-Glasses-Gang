@@ -253,6 +253,7 @@ class Devices:
         device = self.get_device(device_id)
         device.simulation_cycles = simulation_cycles
         device.clock_counter = 0
+        self.cold_startup()
 
     def varify_siggen(self, waveform):
         """Check whether the waveform of SIGGEN is in correct form."""
@@ -330,6 +331,10 @@ class Devices:
                 device.siggen_counter = 0
                 self.add_output(device.device_id, output_id=None,
                                 signal=device.siggen_initial)
+            elif device.device_kind == self.RC:
+                device.clock_counter = 0
+                self.add_output(device.device_id, output_id=None,
+                                signal=self.HIGH)
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.

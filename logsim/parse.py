@@ -508,21 +508,23 @@ class Parser:
                 # Maintainance
                 elif self.sentence_type == "RC":
                     self.device_holder["device_kind"] = self.devices.RC
-                    # INIT_CLK is with_simulation_cycles
                     self.expect_type = self.scanner.INIT_CLK
                 elif self.sentence_type == "SIGGEN":
                     self.device_holder["device_kind"] = self.devices.SIGGEN
-                    # INIT_CLK is with_simulation_cycles
-                    self.expect_type = self.scanner.INIT_CLK
+                    self.expect_type = self.scanner.INIT_WITH
 
             elif self.symbol.type == self.scanner.INIT_SWITCH:
                 self.expect_type = self.scanner.NUMBER
             
-            elif self.symbol.type == self.scanner.INIT_WITH:
-                self.expect_type = self.scanner.NUMBER
-
             elif self.symbol.type == self.scanner.INIT_CLK:
                 self.expect_type = self.scanner.NUMBER
+
+            elif self.symbol.type == self.scanner.INIT_WITH:
+                if self.sentence_type == "SIGGEN":
+                    self.expect_type = self.scanner.SIGGEN_WAVE
+                    print("koko")
+                else:
+                    self.expect_type = self.scanner.NUMBER
 
             elif self.symbol.type == self.scanner.NUMBER:
                 if self.sentence_type == "SWITCH":
@@ -582,10 +584,10 @@ class Parser:
                         self.names.get_name_string(self.symbol.id))
                     self.expect_type = self.scanner.SEMICOLON
 
-                elif self.sentence_type == "SIGGEN":
-                    self.device_holder["device_property"] = str(
-                        self.names.get_name_string(self.symbol.id)) # NEED TO CHECK WITH AMANDA
-                    self.expect_type = self.scanner.SEMICOLON
+            elif self.symbol.type == self.scanner.SIGGEN_WAVE:
+                self.device_holder["device_property"] = str(
+                    self.names.get_name_string(self.symbol.id))
+                self.expect_type = self.scanner.SEMICOLON
 
             elif self.symbol.type == self.scanner.INIT_GATE:
                 self.expect_type = self.scanner.SEMICOLON
@@ -654,8 +656,9 @@ class Parser:
                     first_device = self.devices.get_device(
                             self.connection_holder["first_device_id"])
                     if first_device.device_kind == self.devices.RC:
-                        if (device_id.device_kind != self.devices.D_TYPE
-                            or (device_id.device_kind == self.devices.D_TYPE
+                        second_device = self.devices.get_device(device_id)
+                        if (second_device.device_kind != self.devices.D_TYPE
+                            or (second_device.device_kind == self.devices.D_TYPE
                                 and input not in ["CLEAR", "SET"])):
                             err = self.scanner.error.NOT_RC_TO_D_TYPE
                             self.handle_error(err,

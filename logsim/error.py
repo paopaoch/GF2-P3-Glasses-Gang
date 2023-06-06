@@ -137,7 +137,7 @@ class Error:
                 error_mes = f"SEMANTIC[CONNECT]: There are unused inputs {optional_mess}"
 
             elif self.error_code == self.NOT_RC_TO_D_TYPE:
-                error_mes = f"SEMACTIC[CONNECT] An RC is expected to be connected to a DTYPE {optional_mess}"
+                error_mes = f"SEMACTIC[CONNECT] An RC is expected to be connected to a DTYPE SET or CLEAR{optional_mess}"
         
         self.add_error(error_type)
         return error_mes

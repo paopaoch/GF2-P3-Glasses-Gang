@@ -414,6 +414,9 @@ class Network:
         # This sets siggen signals to RISING or FALLING, where necessary
         self.update_siggen()
 
+        # This sets RC signal to FALLING, where necessary
+        self.update_rc()
+
         # Number of iterations to wait for the signals to settle before
         # declaring the network unstable
         iteration_limit = 20
@@ -455,7 +458,7 @@ class Network:
                     return False
                 
             for device_id in rc_devices:  # execute RC devices
-                if not self.execute_rc(device_id, None, None):
+                if not self.execute_rc(device_id):
                     return False
             for device_id in siggen_devices:  # execute SIGGEN devices
                 if not self.execute_clock(device_id):
