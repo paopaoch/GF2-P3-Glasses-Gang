@@ -106,6 +106,18 @@ def parse_check_connect():
 
 
 @pytest.fixture
+def parse_check_connect_rc():
+    """Return a Parser instance using 'check_connect_rc.txt'."""
+    names = Names()
+    devices = Devices(names)
+    network = Network(names, devices)
+    monitors = Monitors(names, devices, network)
+    path = 'parse_test_files/check_connect_rc.txt'
+    scanner = Scanner(path, names, devices, network, monitors)
+    return Parser(names, devices, network, monitors, scanner)
+
+
+@pytest.fixture
 def parse_check_monitor():
     """Return a Parser instance using 'check_monitor.txt'."""
     names = Names()
@@ -369,6 +381,52 @@ def test_parse_connect(parse_check_connect):
     err, expected_type = parse_check_connect.parse_connect()
     assert err is None
 
+
+def test_parse_connect_rc(parse_check_connect_rc):
+    """Test parse_connect() parsing the connection section."""
+    # test for device output undefined
+    scanner = parse_check_connect_rc.scanner
+    parse_check_connect_rc.connection_holder = (parse_check_connect_rc
+                                             .init_connection_holder())
+    parse_check_connect_rc.phase = 2
+    parse_check_connect_rc.new_line = True
+    parse_check_connect_rc.expect_type = (parse_check_connect_rc
+                                          .scanner.DEVICE_OUT)
+
+    parse_check_connect_rc.names.lookup(["D1"])
+    sym_id = parse_check_connect_rc.names.query("D1")
+    parse_check_connect_rc.devices.make_device(sym_id,
+                                        parse_check_connect_rc.devices.D_TYPE)
+    parse_check_connect_rc.names.lookup(["OR1"])
+    sym_id = parse_check_connect_rc.names.query("OR1")
+    parse_check_connect_rc.devices.make_device(sym_id,
+                                        parse_check_connect_rc.devices.OR, 1)
+    parse_check_connect_rc.names.lookup(["RC1"])
+    sym_id = parse_check_connect_rc.names.query("RC1")
+    parse_check_connect_rc.devices.make_device(sym_id,
+                                        parse_check_connect_rc.devices.RC, 10)
+
+    # Test when RC input is not to a DTYPE
+    parse_check_connect_rc.symbol = scanner.get_symbol()
+    parse_check_connect_rc.parse_connect()
+    parse_check_connect_rc.symbol = scanner.get_symbol()
+    parse_check_connect_rc.parse_connect()
+    parse_check_connect_rc.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_connect_rc.parse_connect()
+    assert err == parse_check_connect_rc.scanner.error.NOT_RC_TO_D_TYPE
+
+    # Test when RC input is not to a DTYPE SET or CLEAR
+    parse_check_connect_rc.symbol = scanner.get_symbol()  # this is semicolon
+    parse_check_connect_rc.new_line = True
+    parse_check_connect_rc.expect_type = (parse_check_connect_rc
+                                          .scanner.DEVICE_OUT)
+    parse_check_connect_rc.symbol = scanner.get_symbol()
+    parse_check_connect_rc.parse_connect()
+    parse_check_connect_rc.symbol = scanner.get_symbol()
+    parse_check_connect_rc.parse_connect()
+    parse_check_connect_rc.symbol = scanner.get_symbol()
+    err, expected_type = parse_check_connect_rc.parse_connect()
+    assert err == parse_check_connect_rc.scanner.error.NOT_RC_TO_D_TYPE
 
 def test_parse_monitor(parse_check_monitor):
     """Test parse_monitor() parsing the monitor section"""

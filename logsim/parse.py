@@ -505,7 +505,7 @@ class Parser:
                 elif self.sentence_type == "CLOCK":
                     self.device_holder["device_kind"] = self.devices.CLOCK
                     self.expect_type = self.scanner.INIT_CLK
-                # Maintainance
+                # Maintenance
                 elif self.sentence_type == "RC":
                     self.device_holder["device_kind"] = self.devices.RC
                     self.expect_type = self.scanner.INIT_CLK
@@ -522,7 +522,6 @@ class Parser:
             elif self.symbol.type == self.scanner.INIT_WITH:
                 if self.sentence_type == "SIGGEN":
                     self.expect_type = self.scanner.SIGGEN_WAVE
-                    print("koko")
                 else:
                     self.expect_type = self.scanner.NUMBER
 
@@ -569,7 +568,7 @@ class Parser:
                         self.names.get_name_string(self.symbol.id))
                     self.expect_type = self.scanner.SEMICOLON
 
-                # Maintainance
+                # Maintenance
                 elif self.sentence_type == "RC":
                     if (int(self.names.get_name_string(self.symbol.id)) 
                         <= 0):
@@ -653,18 +652,21 @@ class Parser:
                                             self.scanner.error.SEMANTIC)
                             self.connection_holder = (self
                                                 .init_connection_holder())
+                    
+                    # Maintenance
                     first_device = self.devices.get_device(
                             self.connection_holder["first_device_id"])
-                    if first_device.device_kind == self.devices.RC:
-                        second_device = self.devices.get_device(device_id)
-                        if (second_device.device_kind != self.devices.D_TYPE
-                            or (second_device.device_kind == self.devices.D_TYPE
-                                and input not in ["CLEAR", "SET"])):
-                            err = self.scanner.error.NOT_RC_TO_D_TYPE
-                            self.handle_error(err,
-                                            self.scanner.error.SEMANTIC)
-                            self.connection_holder = (self
-                                                .init_connection_holder())
+                    if first_device is not None:
+                        if first_device.device_kind == self.devices.RC:
+                            second_device = self.devices.get_device(device_id)
+                            if (second_device.device_kind != self.devices.D_TYPE
+                                or (second_device.device_kind == self.devices.D_TYPE
+                                    and input not in ["CLEAR", "SET"])):
+                                err = self.scanner.error.NOT_RC_TO_D_TYPE
+                                self.handle_error(err,
+                                                self.scanner.error.SEMANTIC)
+                                self.connection_holder = (self
+                                                    .init_connection_holder())
                 else:
                     err = self.network.DEVICE_ABSENT
                     self.handle_error(err,

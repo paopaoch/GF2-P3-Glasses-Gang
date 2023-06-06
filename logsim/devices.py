@@ -412,5 +412,4 @@ class Devices:
         
         else:
             error_type = self.BAD_DEVICE
-
         return error_type
