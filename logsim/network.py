@@ -51,10 +51,17 @@ class Network:
     execute_d_type(self, device_id): Simulates a D-type device and updates its
                                      output signal value.
 
-    execute_clock(self, device_id): Simulates a clock and updates its output
-                                    signal value.
+    execute_clock(self, device_id): Simulates a clock or a SIGGEN and updates
+                                    its output signal value.
 
     update_clocks(self): If it is time to do so, sets clock signals to RISING
+                         or FALLING.
+
+    execute_rc(self, device_id):
+
+    update_rc(self):
+
+    update_siggen(self): If it is time to do so, sets siggen signals to RISING
                          or FALLING.
 
     execute_network(self): Executes all the devices in the network for one
@@ -390,7 +397,7 @@ class Network:
                     device.outputs[None] = self.devices.FALLING
                 elif output_signal == self.devices.LOW:
                     device.outputs[None] = self.devices.RISING
-            device.siggen_counter += 1    
+            device.siggen_counter += 1
 
     def execute_network(self):
         """Execute all the devices in the network for one simulation cycle.
@@ -456,7 +463,7 @@ class Network:
             for device_id in xor_devices:  # execute XOR devices
                 if not self.execute_gate(device_id, None, None):
                     return False
-                
+
             for device_id in rc_devices:  # execute RC devices
                 if not self.execute_rc(device_id):
                     return False

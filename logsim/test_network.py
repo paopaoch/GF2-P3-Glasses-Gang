@@ -95,6 +95,20 @@ def test_get_output_signal(network_with_devices):
     assert network.get_output_signal(OR1_ID, None) == devices.HIGH
 
 
+def test_get_siggen_signal(network_with_devices):
+    """Test if the signal level at the SIGGEN output is correct"""
+    network = network_with_devices
+    devices = network.devices
+    names = devices.names
+
+    [SG1_ID] = names.lookup(["SG1"])
+    waveform = "101010"
+    devices.make_device(SG1_ID, devices.SIGGEN, waveform)
+    siggen_device = devices.get_device(SG1_ID)
+    # The initial signal for SG1 is high
+    assert network.get_output_signal(SG1_ID, None) == devices.HIGH
+
+
 def test_check_network(network_with_devices):
     """Test if the signal at a given input port is correct."""
     network = network_with_devices
@@ -332,6 +346,24 @@ def test_execute_non_gates(new_network):
     assert [eval(sw1_output), eval(sw2_output), eval(sw3_output),
             eval(clock_output), eval(dtype_Q), eval(dtype_QBAR)] == [
                 HIGH, LOW, HIGH, HIGH, LOW, HIGH]
+
+
+def test_execute_siggen(new_network):
+    """Test if the update_siggen() gives correct output signal of SIGGEN"""
+    network = new_network
+    devices = network.devices
+    names = devices.names
+
+    [SG1_ID] = names.lookup(["SG1"])
+    waveform = "101010"
+    devices.make_device(SG1_ID, devices.SIGGEN, waveform)
+    siggen_device = devices.get_device(SG1_ID)
+    network.update_siggen()
+    network.execute_clock(SG1_ID)
+    network.update_siggen()
+    network.execute_clock(SG1_ID)
+    assert siggen_device.siggen_counter == 2
+    assert network.get_output_signal(SG1_ID, None) == devices.LOW
 
 
 def test_oscillating_network(new_network):
