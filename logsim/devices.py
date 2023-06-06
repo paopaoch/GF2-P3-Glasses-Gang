@@ -42,10 +42,15 @@ class Device:
         self.switch_state = None
         self.dtype_memory = None
         self.simulation_cycles = None
+        # SIGGEN counter for period
         self.siggen_counter = None
+        # SIGGEN initial signal
         self.siggen_initial = None
+        # SIGGEN total period
         self.siggen_period = None
+        # time in period when need switch SIGGEN state
         self.siggen_switch_point = None
+
 
 class Devices:
 
@@ -90,12 +95,23 @@ class Devices:
     make_clock(self, device_id, clock_half_period): Makes a clock device with
                                                     the specified half period.
 
+    make_rc(self, device_id, simulation_cycles):
+
+    varify_siggen(self, waveform): Check if the waveform of SIGGEN is valid
+                                   with only 0s and 1s.
+
+    get_siggen_switch_points(self, waveform): Get a list of period intergers
+                                        of when SIGGEN is switching its state.
+
+    make_siggen(self, device_id, waveform): Makes a SIGGEN device.
+
     make_gate(self, device_id, device_kind, no_of_inputs): Makes logic gates
                                         with the specified number of inputs.
 
     make_d_type(self, device_id): Makes a D-type device.
 
-    cold_startup(self): Simulates cold start-up of D-types and clocks.
+    cold_startup(self): Simulates cold start-up of D-types, clocks, RC and
+                                         SIGGEN.
 
     make_device(self, device_id, device_kind, device_property=None): Creates
                        the specified device and returns errors if unsuccessful.
@@ -269,8 +285,8 @@ class Devices:
         period = 0
         for index, signal in enumerate(waveform):
             if index > 0:
-                if ((signal == "0" and previous_state == "1") or 
-                    (signal == "1" and previous_state == "0")):
+                if ((signal == "0" and previous_state == "1") or
+                        (signal == "1" and previous_state == "0")):
                     switching_list.append(period)
             previous_state = signal
             period += 1
@@ -399,7 +415,7 @@ class Devices:
             else:
                 self.make_rc(device_id, device_property)
                 error_type = self.NO_ERROR
-        
+
         elif device_kind == self.SIGGEN:
             # Device property is the waveform
             if device_property is None:
@@ -409,7 +425,7 @@ class Devices:
             else:
                 self.make_siggen(device_id, device_property)
                 error_type = self.NO_ERROR
-        
+
         else:
             error_type = self.BAD_DEVICE
 
