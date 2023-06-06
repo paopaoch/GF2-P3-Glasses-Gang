@@ -122,14 +122,8 @@ class Scanner:
         # Add keywords to names
         self.device_type_list = ['AND', 'NAND', 'OR', 'NOR', 'XOR',
                                  'SWITCH', 'DTYPE', 'CLOCK', 'RC', 'SIGGEN']
-        self.device_input_pin_list = ['I1', 'I2', 'I3', 'I4', 'I5',
-                                      'I6', 'I7', 'I8', 'I9', 'I10',
-                                      'I11', 'I12', 'I13', 'I14', 'I15',
-                                      'I16', 'DATA', 'CLK', 'SET', 'CLEAR']
-        self.device_output_pin_list = ['Q', 'QBAR']
+
         self.names.lookup(self.device_type_list)
-        self.names.lookup(self.device_input_pin_list)
-        self.names.lookup(self.device_output_pin_list)
 
         # Character at current reading position
         self.current_char = None
