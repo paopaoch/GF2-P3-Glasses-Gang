@@ -95,7 +95,8 @@ class Devices:
     make_clock(self, device_id, clock_half_period): Makes a clock device with
                                                     the specified half period.
 
-    make_rc(self, device_id, simulation_cycles):
+    make_rc(self, device_id, simulation_cycles): Makes an RC devide with the
+                                                specified simulation cycles
 
     varify_siggen(self, waveform): Check if the waveform of SIGGEN is valid
                                    with only 0s and 1s.
