@@ -1,0 +1,16 @@
+/* Example circuit comment*/
+INIT;
+NAND1 is NAND with 2 inputs;
+OR1 is OR with 2 inputs;
+XOR1 is XOR;
+SW1 is SWITCH initially_at 0;
+SW2 is SWITCH initially_at 0;
+CONNECT;
+SW1 connect_to NAND1.I1;
+SW2 connect_to OR1.I2;
+NAND1 connect_to OR1.I1;
+OR1 connect_to NAND1.I2;
+NAND1 connect_to XOR1.I1;
+OR1 connect_to XOR1.I2;
+MONITOR;
+Initial_monitor_at NAND1 OR1 XOR1;
