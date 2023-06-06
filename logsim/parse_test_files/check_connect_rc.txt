@@ -1,0 +1,2 @@
+RC1 connect_to OR1.I1;
+RC1 conenct_to D1.DATA;
