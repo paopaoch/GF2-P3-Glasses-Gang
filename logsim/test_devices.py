@@ -107,6 +107,23 @@ def test_make_device_siggen(new_devices):
     assert siggen_device.siggen_switch_point == [1, 2, 3, 4, 5, 6]
 
 
+def test_make_device_rc(new_devices):
+    """Test if make_device correctly makes devices with their properties."""
+    names = new_devices.names
+
+    RC1_ID = names.lookup("RC1")
+    simulation_cycles = 5
+    new_devices.make_device(RC1_ID, new_devices.RC, simulation_cycles)
+    rc_device = new_devices.get_device(RC1_ID)
+
+    assert rc_device.inputs == {}
+    assert rc_device.outputs in [{None: new_devices.LOW},
+                                     {None: new_devices.HIGH}]
+
+    assert rc_device.simulation_cycles is 5
+    assert rc_device.clock_counter is 0
+
+
 @pytest.mark.parametrize("function_args, error", [
     ("(AND1_ID, new_devices.AND, 17)", "new_devices.INVALID_QUALIFIER"),
     ("(SW1_ID, new_devices.SWITCH, None)", "new_devices.NO_QUALIFIER"),
