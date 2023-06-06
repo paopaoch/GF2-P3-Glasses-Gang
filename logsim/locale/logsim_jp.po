@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-04 11:18+0100\n"
-"PO-Revision-Date: 2023-06-04 23:40+0100\n"
+"POT-Creation-Date: 2023-06-05 11:00+0100\n"
+"PO-Revision-Date: 2023-06-05 11:03+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -63,7 +63,7 @@ msgstr "&終了"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:373
 msgid "&File"
-msgstr "＆ファイル"
+msgstr "&ファイル"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:377
 msgid "&Help Commands"
@@ -91,11 +91,11 @@ msgstr "終了"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:396
 msgid "Switch:"
-msgstr "スイッチ"
+msgstr "スイッチ:"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:398
 msgid "Monitor: "
-msgstr "モニター"
+msgstr "モニター: "
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:400
 msgid "Reset View"
@@ -166,13 +166,13 @@ msgstr ""
 "\n"
 "続行        -> シミュレーションを続ける\n"
 "\n"
-"切り替え   -> スイッチの信号を変える\n"
+"切り替え   -> change the switch state\n"
 "\n"
-"追加             -> 信号にモニターを設定\n"
+"Add             -> set a monitor on signal\n"
 "\n"
-"削除          -> 信号からモニターを削除\n"
+"Remove          -> zap the monior on signal\n"
 "\n"
-"ヘルプ            -> ヘルプ（このコマンド）\n"
+"Help            -> help (this command)\n"
 "\n"
 "終了            -> シミュレーションを終了"
 
@@ -186,7 +186,7 @@ msgstr "ファイルの選択"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:771
 msgid "Error reading the file!"
-msgstr "読み込みエラーが発生しました"
+msgstr "読み込みエラーが発生しました!"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:772
 msgid "Error"

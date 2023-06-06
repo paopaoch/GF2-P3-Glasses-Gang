@@ -65,7 +65,7 @@ class BaseApp(wx.App, InspectionMixin):
     
         if not self.appConfig.HasEntry(u'Language'):
             # on first run we default to German
-            self.appConfig.Write(key=u'Language', value=u'jp')
+            self.appConfig.Write(key=u'Language', value=u'de')
             
         self.appConfig.Flush()
 
