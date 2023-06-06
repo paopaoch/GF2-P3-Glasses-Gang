@@ -767,7 +767,7 @@ class Gui(wx.Frame):
         self.not_monitored_signal = self.monitors.get_signal_names()[1]
 
         # toggle switch
-        self.sizer_switch.Clear()
+        self.sizer_switch.Clear(True)
         self.sizers = {}  # Dictionary to store the sizers
         for switch_id in self.devices.find_devices(self.devices.SWITCH):
             switch_string = self.names.get_name_string(switch_id)
