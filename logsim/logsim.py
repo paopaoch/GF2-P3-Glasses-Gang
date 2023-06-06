@@ -81,10 +81,11 @@ def main(arg_list):
                 # Internationalisation
                 builtins.__dict__["_"] = wx.GetTranslation
                 locale = wx.Locale()
-                locale.Init(wx.LANGUAGE_JAPANESE_JAPAN)  # Set language to Japanese
+                # Set language to Japanese
 
                 locale.AddCatalogLookupPathPrefix('locale')
-                locale.AddCatalog('gui')
+                locale.Init(wx.LANGUAGE_JAPANESE_JAPAN)
+                locale.AddCatalog('logsim_jp')
 
                 gui = Gui("Logic Simulator", path, names, devices, network,
                           monitors)
@@ -116,10 +117,10 @@ def main(arg_list):
                 selLang = supLang[lang]
             else:
                 selLang = wx.LANGUAGE_ENGLISH
-            locale.Init(selLang)
 
             locale.AddCatalogLookupPathPrefix('locale')
-            locale.AddCatalog('gui')
+            locale.Init(selLang)
+            locale.AddCatalog('logsim_jp')
 
             gui = Gui("Logic Simulator", path, names, devices, network,
                         monitors)

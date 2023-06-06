@@ -606,15 +606,6 @@ class Gui(wx.Frame):
             self.gui_monitors = self.convert_gui_monitors()
             self.canvas.render("", self.cycles_completed, self.gui_monitors)
 
-    # def on_clear_button(self, event):
-    #     """Event handler for when the user clicks the clear button"""
-    #     # Clear everything
-    #     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    #     GL.glFlush()
-    #     self.canvas.SwapBuffers()
-    #     self.monitors.reset_monitors()
-    #     self.devices.cold_startup()
-
     def on_quit_button(self, event):
         """Event handler for when the user clicks the quit button."""
         text = "Quit button pressed."
@@ -743,9 +734,6 @@ class Gui(wx.Frame):
             wildcard=wildcard,
             style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
         )
-        # if dialog.ShowModal() == wx.ID_CANCEL:
-        #        print("The user cancelled")
-        #        return
         if dialog.ShowModal() == wx.ID_OK:
             path = dialog.GetPath()
             # Process the selected file (e.g., open it, read data, etc.)
