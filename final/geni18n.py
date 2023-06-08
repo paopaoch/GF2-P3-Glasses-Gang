@@ -30,7 +30,8 @@ outFolder = os.path.join(appFolder, 'locale')
 # Build command for xgettext (gettext)
 xgtOptions = '--language=Python --keyword=_u -o {outpot} {sourcefile}'
 xgtCmd = 'xgettext ' + xgtOptions.format(outpot=os.path.join(
-    outFolder, 'logsim_translated.pot'), sourcefile=os.path.join(appFolder, 'gui.py'))
+    outFolder, 'logsim_translated.pot'),
+    sourcefile=os.path.join(appFolder, 'gui.py'))
 
 print("Generating the .pot file")
 print("cmd: %s" % xgtCmd)
