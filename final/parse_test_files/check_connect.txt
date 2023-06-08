@@ -1,0 +1,4 @@
+CK2 connect_to AND1.I1;   /* undefined device */
+SW1 connect_to D1.CLK;    /* should connect to CLK */
+SW2 connect_to D1.CLEAR;
+SW3 connect_to D1.CLEAR;  /* duplicate connection not handled in the function */

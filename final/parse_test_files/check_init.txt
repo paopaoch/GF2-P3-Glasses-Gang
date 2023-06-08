@@ -1,0 +1,5 @@
+INIT; D1 is DTYPE; 
+SW1 is SWITCH initially_at 2;   /* 2 is invalid for switch */
+SW1 is DTYPE;       /* duplicate name but no error as the one before is wrong*/
+SW1 is SWITCH initially_at 0;   /* duplicate device name */
+AND1 is AND with 50 inputs;      /* 50 inputs is invalid */

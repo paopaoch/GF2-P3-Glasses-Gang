@@ -1,0 +1,5 @@
+INIT;
+A1 is NAND with 2 inputs;
+CONNECT;
+A1 connect_to A1.I1;
+A1 connect_to A1.I2;

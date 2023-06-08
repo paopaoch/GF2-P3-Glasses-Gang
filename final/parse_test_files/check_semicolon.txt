@@ -1,0 +1,15 @@
+INIT; D1 is DTYPE;
+SW1 is SWITCH initially_at 0     /* missing semicolon */
+SW2 is SWITCH initially_at 1;
+SW3 is SWITCH initially_at 0;
+CK1 is CLOCK with_simulation_cycles 20;
+AND1 is AND with 2 inputs;
+CONNECT       /* missing semicolon */
+CK1 connect_to AND1.I1;
+SW1 connect_to AND1.I2;
+AND1 connect_to D1.DATA;
+CK1 connect_to D1.CLK;
+SW2 connect_to D1.SET;
+SW3 connect_to D1.CLEAR;
+MONITOR;
+Initial_monitor_at D1.QBAR D1.Q AND1;

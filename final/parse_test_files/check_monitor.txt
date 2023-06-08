@@ -1,0 +1,2 @@
+MONITOR;  /* "AND2" invalid */
+Initial_monitor_at AND2 AND1;
