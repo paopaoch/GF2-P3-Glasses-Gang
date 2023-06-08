@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-05 11:00+0100\n"
+"POT-Creation-Date: 2023-06-08 11:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,132 +17,144 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:221
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:220
 msgid "Mouse button pressed at: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:224
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:223
 msgid "Mouse button released at: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:227
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:226
 msgid "Mouse left canvas at: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:235
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:234
 msgid "Mouse dragged to: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:236
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:235
 msgid ". Pan is now: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:245
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:244
 msgid "Negative mouse wheel rotation. Zoom is now: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:254
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:253
 msgid "Positive mouse wheel rotation. Zoom is now: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:299
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:298
 msgid "Image saved successfully: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:370
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:369
 msgid "&New File"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:371
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:370
 msgid "&About"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:372
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:371
 msgid "&Exit"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:373
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:372
 msgid "&File"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:377
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:376
 msgid "&Help Commands"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:378
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:377
 msgid "&Help"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:390
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:389
 msgid "Cycles"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:392
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:391
 msgid "Run"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:393
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:392
 msgid "Continue"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:395
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:394
 msgid "Quit"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:396
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:395
 msgid "Switch:"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:398
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:397
 msgid "Monitor: "
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:400
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:399
 msgid "Reset View"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:401
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:400
 msgid "Save Image"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:435
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:434
 msgid "Switch name"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:437
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:436
 msgid "Current state"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:463
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:646
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:797
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:462
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:633
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:781
 msgid "ON"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:467
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:475
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:801
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:809
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:466
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:473
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:785
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:792
 msgid "Toggle Switch"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:471
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:641
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:805
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:469
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:628
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:788
 msgid "OFF"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:505
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:503
 msgid "Add"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:520
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:672
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:839
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:518
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:659
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:822
 msgid "Remove"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:565
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:555
+msgid ""
+"Logic Simulator\n"
+"Cocreated by Amanda Ge,\n"
+"Chulabutra Chuenchoksan, Koko Ishida\n"
+"2017"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:557
+msgid "About Logsim"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:561
 msgid ""
 "User Commands\n"
 "\n"
@@ -161,18 +173,18 @@ msgid ""
 "Quit            -> quit the simulation"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:573
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:569
 msgid "Help"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:740
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:727
 msgid "Choose a file"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:771
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:755
 msgid "Error reading the file!"
 msgstr ""
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:772
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:756
 msgid "Error"
 msgstr ""

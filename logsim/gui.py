@@ -552,9 +552,9 @@ class Gui(wx.Frame):
         if Id == wx.ID_EXIT:
             self.Close(True)
         if Id == wx.ID_ABOUT:
-            wx.MessageBox("Logic Simulator\nCocreated by Amanda Ge,\n"
-                          "Chulabutra Chuenchoksan, Koko Ishida\n2017",
-                          "About Logsim", wx.ICON_INFORMATION | wx.OK)
+            wx.MessageBox(_(u"Logic Simulator\nCocreated by Amanda Ge,\n"
+                          "Chulabutra Chuenchoksan, Koko Ishida\n2017"),
+                          _(u"About Logsim"), wx.ICON_INFORMATION | wx.OK)
         if Id == wx.ID_OPEN:
             self.on_new_file()
         if Id == wx.ID_HELP_COMMANDS:

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-05 11:00+0100\n"
-"PO-Revision-Date: 2023-06-06 11:13+0100\n"
+"POT-Creation-Date: 2023-06-08 11:34+0100\n"
+"PO-Revision-Date: 2023-06-08 11:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -17,132 +17,148 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.3.1\n"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:221
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:220
 msgid "Mouse button pressed at: "
 msgstr "マウスがクリックされた位置: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:224
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:223
 msgid "Mouse button released at: "
 msgstr "マウスボタンを放した位置: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:227
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:226
 msgid "Mouse left canvas at: "
 msgstr "マウスがキャンバスを離れた位置: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:235
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:234
 msgid "Mouse dragged to: "
 msgstr "マウスドラッグで移動した位置: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:236
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:235
 msgid ". Pan is now: "
 msgstr "移動先: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:245
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:244
 msgid "Negative mouse wheel rotation. Zoom is now: "
 msgstr "縮小されました。現在の拡大率: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:254
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:253
 msgid "Positive mouse wheel rotation. Zoom is now: "
 msgstr "拡大されました。現在の拡大率: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:299
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:298
 msgid "Image saved successfully: "
 msgstr "画像の保存に成功しました: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:370
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:369
 msgid "&New File"
 msgstr "&新しいファイル"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:371
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:370
 msgid "&About"
 msgstr "&概要"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:372
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:371
 msgid "&Exit"
 msgstr "&終了"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:373
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:372
 msgid "&File"
 msgstr "&ファイル"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:377
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:376
 msgid "&Help Commands"
 msgstr "&ヘルプコマンド"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:378
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:377
 msgid "&Help"
 msgstr "&ヘルプ"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:390
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:389
 msgid "Cycles"
 msgstr "時間"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:392
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:391
 msgid "Run"
 msgstr "実行"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:393
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:392
 msgid "Continue"
 msgstr "続行"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:395
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:394
 msgid "Quit"
 msgstr "終了"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:396
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:395
 msgid "Switch:"
 msgstr "スイッチ:"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:398
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:397
 msgid "Monitor: "
 msgstr "モニター: "
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:400
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:399
 msgid "Reset View"
 msgstr "画面をリセット"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:401
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:400
 msgid "Save Image"
 msgstr "画像を保存"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:435
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:434
 msgid "Switch name"
 msgstr "スイッチ名"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:437
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:436
 msgid "Current state"
 msgstr "現在の状態"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:463
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:646
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:797
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:462
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:633
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:781
 msgid "ON"
 msgstr "オン"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:467
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:475
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:801
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:809
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:466
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:473
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:785
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:792
 msgid "Toggle Switch"
 msgstr "切り替え"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:471
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:641
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:805
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:469
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:628
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:788
 msgid "OFF"
 msgstr "オフ"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:505
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:503
 msgid "Add"
 msgstr "追加"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:520
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:672
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:839
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:518
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:659
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:822
 msgid "Remove"
 msgstr "削除"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:565
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:555
+msgid ""
+"Logic Simulator\n"
+"Cocreated by Amanda Ge,\n"
+"Chulabutra Chuenchoksan, Koko Ishida\n"
+"2017"
+msgstr ""
+"ロジックシミュレーター\n"
+"作成者： Amanda Ge,\n"
+"Chulabutra Chuenchoksan, Koko Ishida\n"
+"2017"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:557
+msgid "About Logsim"
+msgstr "概要"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:561
 msgid ""
 "User Commands\n"
 "\n"
@@ -166,28 +182,28 @@ msgstr ""
 "\n"
 "続行        -> シミュレーションを続ける\n"
 "\n"
-"切り替え   -> change the switch state\n"
+"切り替え   -> スイッチを切り替える\n"
 "\n"
-"Add             -> set a monitor on signal\n"
+"追加             -> モニターを取り付ける\n"
 "\n"
-"Remove          -> zap the monior on signal\n"
+"削除          -> モニターを取り除く\n"
 "\n"
-"Help            -> help (this command)\n"
+"ヘルプ            -> 使い方説明（このコマンド）\n"
 "\n"
 "終了            -> シミュレーションを終了"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:573
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:569
 msgid "Help"
 msgstr "ヘルプ"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:740
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:727
 msgid "Choose a file"
 msgstr "ファイルの選択"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:771
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:755
 msgid "Error reading the file!"
 msgstr "読み込みエラーが発生しました!"
 
-#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:772
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:756
 msgid "Error"
 msgstr "エラー"
