@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-08 11:34+0100\n"
-"PO-Revision-Date: 2023-06-08 11:41+0100\n"
+"POT-Creation-Date: 2023-06-08 15:23+0100\n"
+"PO-Revision-Date: 2023-06-08 15:27+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -195,6 +195,26 @@ msgstr ""
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:569
 msgid "Help"
 msgstr "ヘルプ"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:639
+msgid "switch input is flipped."
+msgstr "スイッチが切り替わりました。"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:669
+msgid "Successfully made monitor."
+msgstr "モニターの設置しました: "
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:672
+msgid "Error! Could not make monitor."
+msgstr "モニターの設置ができません。"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:687
+msgid "Successfully removed monitor."
+msgstr "モニターを削除しました。"
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:709
+msgid "Reset to the origin"
+msgstr "画面をリセット"
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:727
 msgid "Choose a file"

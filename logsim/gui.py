@@ -636,7 +636,7 @@ class Gui(wx.Frame):
                     self.tog_btn.SetBackgroundColour(wx.Colour(255, 255, 255))
                 self.devices.set_switch(switch_id, new_signal)
                 self.gui_monitors = self.convert_gui_monitors()
-                text = "switch input is flipped."
+                text = _(u"switch input is flipped.")
                 self.canvas.render(text)
 
     def on_add_monitor_button(self, event):
@@ -666,10 +666,10 @@ class Gui(wx.Frame):
                 self.sub_sizer_text_monitor.Add(self.zap_monitor_btn,
                                                 1, wx.ALL, 5)
                 self.monitor_combo.SetItems(self.not_monitored_signal)
-                text = "Successfully made monitor."
+                text = _(u"Successfully made monitor.")
                 self.canvas.render(text)
             else:
-                text = "Error! Could not make monitor."
+                text = _(u"Error! Could not make monitor.")
                 self.canvas.render(text)
             self.main_sizer.Layout()
 
@@ -684,7 +684,7 @@ class Gui(wx.Frame):
             self.monitors.remove_monitor(device_id, output_id)
             self.not_monitored_signal = self.monitors.get_signal_names()[1]
             self.monitor_combo.SetItems(self.not_monitored_signal)
-            text = "Successfully removed monitor."
+            text = _(u"Successfully removed monitor.")
             self.canvas.render(text)
             self.sizer_text_monitor.Layout()
             self.sizer_monitor.Layout()
@@ -706,7 +706,7 @@ class Gui(wx.Frame):
     def on_reset_view(self, event):
         """Event handler for when the user clicks the reset view button"""
         self.canvas.reset_view()
-        text = "Reset to the origin"
+        text = _(u"Reset to the origin")
         self.canvas.render(text)
 
     def on_save_image(self, event):
