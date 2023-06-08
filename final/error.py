@@ -19,6 +19,9 @@ class Error:
     Parameters
     ----------
     names: instance of the names.Names() class.
+    devices: instance of the devices.Devices() class.
+    network: instance of the network.Network() class.
+    monitors: instance of the monitors.Monitors() class.
 
     Public methods
     --------------
