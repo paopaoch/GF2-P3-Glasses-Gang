@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-08 11:34+0100\n"
+"POT-Creation-Date: 2023-06-08 15:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,6 +175,26 @@ msgstr ""
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:569
 msgid "Help"
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:639
+msgid "switch input is flipped."
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:669
+msgid "Successfully made monitor."
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:672
+msgid "Error! Could not make monitor."
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:687
+msgid "Successfully removed monitor."
+msgstr ""
+
+#: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:709
+msgid "Reset to the origin"
 msgstr ""
 
 #: C:\Users\kotok\GF2-P3-Glasses-Gang\logsim\gui.py:727
