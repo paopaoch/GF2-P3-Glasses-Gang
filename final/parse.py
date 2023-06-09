@@ -231,15 +231,6 @@ class Parser:
                               optional_mess="CONNECT")
             error = True
 
-        # check for MONITOR - Deprecated
-        # if monitor_pos is None:
-        #     self.restart_and_get_symbol()
-        #     while self.symbol.type != self.scanner.EOF:
-        #         self.symbol = self.scanner.get_symbol()
-        #     self.handle_error(self.scanner.error.MISS_START_MARK,
-        #                       self.scanner.error.SYNTAX)
-        #     error = True
-
         # Check for INIT sentence
         if connect_pos is not None:
             if connect_pos - init_pos < 2:
@@ -659,8 +650,10 @@ class Parser:
                     if first_device is not None:
                         if first_device.device_kind == self.devices.RC:
                             second_device = self.devices.get_device(device_id)
-                            if (second_device.device_kind != self.devices.D_TYPE
-                                or (second_device.device_kind == self.devices.D_TYPE
+                            if (second_device.device_kind 
+                                != self.devices.D_TYPE
+                                or (second_device.device_kind 
+                                    == self.devices.D_TYPE
                                     and input not in ["CLEAR", "SET"])):
                                 err = self.scanner.error.NOT_RC_TO_D_TYPE
                                 self.handle_error(err,
