@@ -263,7 +263,7 @@ class Devices:
         device.clock_half_period = clock_half_period
         self.cold_startup()  # clock initialised to a random point in its cycle
 
-    # Paopao
+    
     def make_rc(self, device_id, simulation_cycles):
         """Make an RC device with the specified simulation cycles."""
         self.add_device(device_id, self.RC)
@@ -406,7 +406,7 @@ class Devices:
                 self.make_d_type(device_id)
                 error_type = self.NO_ERROR
 
-        # Paopao
+        
         elif device_kind == self.RC:
             # Device property is the siimulation cycles > 0
             if device_property is None:
